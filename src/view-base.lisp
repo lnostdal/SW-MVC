@@ -52,7 +52,9 @@ VIEW-CONSTRUCTOR-FN in CONTEXT-VIEW if there is a function there."
 (defmethod (setf model-of) :before (model (view view-base))
   "Connect MODEL with VIEW. This makes VIEW an observer of MODEL and all slots
 in/of MODEL."
-  (dbg-princ model)
+  (assert (not (typep model 'formula)) nil
+          "SW-MVC: Trying to set ~A as a model of ~A
+is currently not supported.~%Suggestion; wrap the formula in a CELL (#~~)." model view)
   (when-let (old-model (model-of view))
     (when (eq old-model model)
       (return-from model-of))
