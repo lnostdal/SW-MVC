@@ -7,6 +7,7 @@
 
 ;; TODO: Typecheck wrt. model type.
 
+
 (defclass view-base ()
   ((model :accessor model-of
           :initform nil)
@@ -55,7 +56,6 @@ in/of MODEL."
     (when (eq old-model model)
       (return-from model-of))
     (setf (model-of view) nil))
-  
   (with-slots (view-callback) view
     (setf view-callback
           (lambda (event)
