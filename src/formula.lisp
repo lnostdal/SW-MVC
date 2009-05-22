@@ -2,28 +2,6 @@
 
 (in-package #:sw-mvc)
 
-
-#|
-Written in about 1 hour --> Lisp ftw.? ;)
-
-..
-..
-Fri Apr 2, 5:41:
-<lnostdal> hmmm .. http://paste.lisp.org/display/77958#1  think i can reduce the top-most clutter to the code shown in annotation #1 ..? .. this shall be my next task for the day/night whatever
-<lnostdal> nah, too much work .. i think .. lol
-..
-..
-Fri Apr 2, 06:43:
-<lnostdal> http://paste.lisp.org/display/77958#2
-<lnostdal> lol .. it works .. omg, this is cool
-<lnostdal> it figures out, "by itself", that a1 and a2 are dependencies of and what the value in a3 is and shall be
-<lnostdal> ..it's a bit chatty; some of the output is debug text
-<lnostdal> http://paste.lisp.org/display/77958#3 .. shows the point a bit better
-...
-...
-|#
-
-
 (declaim (optimize speed))
 
 
