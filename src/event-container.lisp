@@ -2,8 +2,7 @@
 
 (in-package #:sw-mvc)
 
-
-(declaim (optimize speed))
+(declaim #.(optimizations))
 
 
 (defclass container-event (event)

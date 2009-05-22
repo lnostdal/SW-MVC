@@ -2,6 +2,8 @@
 
 (in-package #:sw-mvc)
 
+(declaim #.(optimizations))
+
 
 (defclass container-remove (container-event)
   ()

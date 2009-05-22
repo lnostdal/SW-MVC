@@ -2,7 +2,7 @@
 
 (in-package #:sw-mvc)
 
-(declaim (optimize speed))
+(declaim #.(optimizations))
 
 
 ;; TODO: Typecheck wrt. model type.
@@ -52,6 +52,7 @@ VIEW-CONSTRUCTOR-FN in CONTEXT-VIEW if there is a function there."
 (defmethod (setf model-of) :before (model (view view-base))
   "Connect MODEL with VIEW. This makes VIEW an observer of MODEL and all slots
 in/of MODEL."
+  (dbg-princ model)
   (when-let (old-model (model-of view))
     (when (eq old-model model)
       (return-from model-of))

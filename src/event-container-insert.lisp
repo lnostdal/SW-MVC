@@ -2,6 +2,8 @@
 
 (in-package #:sw-mvc)
 
+(declaim #.(optimizations))
+
 
 (defclass container-insert (container-event)
   ((relative-position :reader relative-position-of :initarg :relative-position

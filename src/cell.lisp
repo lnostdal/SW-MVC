@@ -2,8 +2,7 @@
 
 (in-package #:sw-mvc)
 
-
-(declaim (optimize speed))
+(declaim #.(optimizations))
 
 
 (defmacro with-cells ((&rest cells) &body body)

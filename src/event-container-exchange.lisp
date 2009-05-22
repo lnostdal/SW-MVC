@@ -2,6 +2,8 @@
 
 (in-package #:sw-mvc)
 
+(declaim #.(optimizations))
+
 
 (defclass container-exchange (container-event)
   ((target-position :reader target-position-of :initarg :target-position

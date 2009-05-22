@@ -17,7 +17,9 @@ has recently turned into a data flow framework."
     :serial t
     :components
     ((:file "package")
+     (:file "config")
      (:file "read-macros")
+     (:file "specials")
      (:file "meta-class")
      (:file "formula")
      (:file "bootstrap-classes")

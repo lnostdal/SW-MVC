@@ -2,8 +2,7 @@
 
 (in-package #:sw-mvc)
 
-
-(declaim (optimize speed))
+(declaim #.(optimizations))
 
 
 (eval-when (:compile-toplevel :load-toplevel)

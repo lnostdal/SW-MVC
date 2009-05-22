@@ -2,10 +2,9 @@
 
 (in-package #:sw-mvc)
 
-(declaim (optimize speed))
+(declaim #.(optimizations))
 
 
-(defvar *creating-formula* nil)
 (define-symbol-macro creating-formula-p *creating-formula*)
 
 

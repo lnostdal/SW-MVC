@@ -2,6 +2,8 @@
 
 (in-package #:sw-mvc)
 
+(declaim #.(optimizations))
+
 
 ;; Creates a CELL and places the value given in that cell.
 ;; The ~ read macro extracts the value stored in the cell.

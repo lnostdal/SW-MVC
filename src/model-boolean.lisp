@@ -2,6 +2,8 @@
 
 (in-package #:sw-mvc)
 
+(declaim #.(optimizations))
+
 
 (defclass boolean-model (model-base single-value-model)
   ((value :accessor value-of :initarg :value

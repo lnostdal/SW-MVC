@@ -2,7 +2,7 @@
 
 (in-package #:sw-mvc)
 
-(declaim (optimize speed))
+(declaim #.(optimizations))
 
 
 #|(class-forward-reference formula

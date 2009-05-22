@@ -2,8 +2,7 @@
 
 (in-package #:sw-mvc)
 
-
-(declaim (optimize speed))
+(declaim #.(optimizations))
 
 
 (defgeneric mk-view (model context &key)
