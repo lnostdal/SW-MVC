@@ -50,14 +50,6 @@ Fri Apr 2, 06:43:
    (value :initform (mk-ref))))
 
 
-#|
-(defmethod initialize-instance :after ((formula formula) &key)
-  (sb-ext:finalize formula
-                   (lambda ()
-                     (write-line "FORMULA GCed."))))
-|#
-
-
 ;; These hide the indirection (needed for transactions).
 (defmethod value-of ((formula formula))
   (ref-value-of (slot-value formula 'value)))
