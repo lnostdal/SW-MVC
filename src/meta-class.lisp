@@ -2,8 +2,11 @@
 
 (in-package #:sw-mvc)
 
-
 (declaim (optimize speed))
+
+
+#|(class-forward-reference formula
+  (:metaclass mvc-stm-class))|#
 
 
 (mk-meta-slot object-observers-of :weakness :key)
@@ -241,7 +244,8 @@ in ~A (slot ~A) to new value ~S."
 
       (prog1 (call-next-method)
         (when (typep new-value 'formula)
-          (formula-add-target new-value instance (slot-definition-name slot-definition)))
+          (let ((*creating-formula* nil))
+            (formula-add-target new-value instance (slot-definition-name slot-definition))))
         (handle event)))))
 
 
@@ -255,7 +259,9 @@ in ~A (slot ~A) to new value ~S."
                      (warn "UNBOUND-SLOT while initializing formula: ~A" *creating-formula*)
                      (error c)))))
       (when *creating-formula*
-        (formula-add-source *creating-formula* instance (slot-definition-name slot-definition)))
+        (let ((formula *creating-formula*)
+              (*creating-formula* nil))
+          (formula-add-source formula instance (slot-definition-name slot-definition))))
       (if (and (typep value 'formula) (not *get-formula-p*))
           (value-of value)
           value))))
