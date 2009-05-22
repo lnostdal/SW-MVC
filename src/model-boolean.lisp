@@ -25,12 +25,12 @@ Boolean state thingy with \"memory\" of T state value."))
 
 (defmethod (setf value-of) :before ((new-value (eql nil)) (boolean-model boolean-model))
   (with-object boolean-model
-    (setf ↺old-t ↺value)))
+    (setf ¤old-t ¤value)))
 
 
 (defmethod toggle ((boolean-model boolean-model))
   (with-object boolean-model
-    (if ↺value
-        (nilf ↺value)
-        (setf ↺value ↺old-t))))
+    (if ¤value
+        (nilf ¤value)
+        (setf ¤value ¤old-t))))
 
