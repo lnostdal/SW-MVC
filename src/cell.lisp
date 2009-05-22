@@ -61,8 +61,3 @@ Nesting of WITH-CELL and/or WITH-FORMULA forms? Debug output follows:
 (defmethod (setf deref) (new-value (cell cell))
   (setf (value-of cell) new-value))
 
-
-(defmethod formula-of ((cell cell))
-  (let ((*get-formula-p* t)
-        (*creating-formula* nil))
-    (slot-value cell 'value)))

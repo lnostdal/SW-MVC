@@ -18,8 +18,8 @@ has recently turned into a data flow framework."
     :components
     ((:file "package")
      (:file "read-macros")
-     (:file "formula")
      (:file "meta-class")
+     (:file "formula")
      (:file "bootstrap-classes")
      (:file "mixins")
      (:file "model-base")

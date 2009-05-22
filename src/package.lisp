@@ -109,6 +109,7 @@
    #:creating-formula-p
    #:formula #:value-of
    #:mk-formula #:mk-cell #:mk-fcell
+   #:formula-of
    ))
 
 

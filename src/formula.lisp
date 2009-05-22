@@ -31,11 +31,7 @@ Fri Apr 2, 06:43:
 (define-symbol-macro creating-formula-p *creating-formula*)
 
 
-(eval-when (:compile-toplevel :load-toplevel)
-  (defclass formula () ()))
-
-
-(defclass formula ()
+(defclass formula (single-value-model)
   ((closure :reader closure-of :initarg :closure
             :type function
             :initform (error ":CLOSURE needed."))
@@ -44,24 +40,30 @@ Fri Apr 2, 06:43:
             :type list
             :initform nil)
 
-   (value :initform (mk-ref))
-
    (static-p :reader static-p-of :initarg :static-p
              :initform t)
 
    (concurrency :reader concurrency-of :initarg :concurrency
                 :type null ;;(or null t semaphore) ;; TODO: Finish support for this.
-                :initform nil)))
+                :initform nil)
+
+   (value :initform (mk-ref))))
 
 
+#|
 (defmethod initialize-instance :after ((formula formula) &key)
   (sb-ext:finalize formula
                    (lambda ()
                      (write-line "FORMULA GCed."))))
+|#
 
 
 ;; These hide the indirection (needed for transactions).
 (defmethod value-of ((formula formula))
+  (ref-value-of (slot-value formula 'value)))
+
+
+(defmethod deref ((formula formula))
   (ref-value-of (slot-value formula 'value)))
 
 
@@ -139,3 +141,12 @@ Returns an instance of FORMULA."
              (assert (sources-of ,formula) nil
                      "The MK-FORMULA form was not able to automatically determine what resources
 it is to monitor for changes.")))))))
+
+
+(defmacro formula-of (&body body)
+  `(let ((*get-formula-p* t)
+         (*creating-formula* nil))
+     (let ((result (progn ,@body)))
+       (unless (typep result 'formula)
+         (warn "FORMULA-OF: Returning something not a formula; ~A" result))
+       result)))
