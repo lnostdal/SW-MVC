@@ -37,7 +37,7 @@
                        (incf a-count)
                        (when-commit ()
                          (format t "~A: A-SQUARE: ~A~%"
-                                 (ignore-errors (tr-name *current-transaction*))
+                                 (ignore-errors (tr-name aromyxo::*current-transaction*))
                                  a-square)
                          (incf a-count-io))
                        a-square))
@@ -49,7 +49,7 @@
                        (incf b-count)
                        (when-commit ()
                          (format t "~A: B-SQUARE: ~A~%"
-                                 (ignore-errors (tr-name *current-transaction*))
+                                 (ignore-errors (tr-name aromyxo::*current-transaction*))
                                  b-square)
                          (incf b-count-io))
                        b-square)))
