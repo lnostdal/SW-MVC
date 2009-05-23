@@ -11,7 +11,6 @@
                       :initform nil)
    
    (relative-object :reader relative-object-of :initarg :relative-object
-                    :type (or null model-base)
                     :initform nil))
 
   (:documentation "
