@@ -4,12 +4,12 @@
 (defsystem sw-mvc
   :description "
 This was originally intended to be a Model View Controller (MVC) framework, but
-has recently turned into a data flow framework."
+has recently turned into a dataflow thing."
 
-  :author "Lars Rune Nøstdal <larsnostdal@gmail.com>"
-  :licence "Same license as SymbolicWeb"
+  :author "Lars Rune Nøstdal <larsnostdal@gmail.com> http://nostdal.org/"
+  :licence "AGPLv3 + GPL linking exception."
 
-  :depends-on (:aromyxo)
+  :depends-on (:aromyxo :sw-stm)
 
   :serial t
   :components

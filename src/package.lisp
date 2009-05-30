@@ -5,7 +5,8 @@
         #:closer-mop
         #:aromyxo
         #:cl-utilities
-        #:alexandria)
+        #:alexandria
+        #:sw-stm)
 
   (:shadow
    ;;#:list #:push #:pop
@@ -51,7 +52,7 @@
    #:container
 
    ;; model-container-list.lisp
-   #:dlist-node #:left-of #:right-of #:value-of
+   #:dlist-node #:dlist-of #:parent-of #:left-of #:right-of #:value-of
    #:dlist #:head-of #:tail-of
    #:list<-
    #:dlist<-
@@ -110,6 +111,7 @@
    #:formula #:value-of
    #:mk-formula #:mk-cell #:mk-fcell
    #:formula-of
+   #:with-ignored-sources
    ))
 
 
