@@ -226,26 +226,19 @@ See their doc-strings for info."))
                               :slot-name (slot-definition-name slot-definition)
                               :new-value new-value)))
     ;; Set OLD-VALUE slot of EVENT if slot of INSTANCE is bound.
-      ;; We might call S-V-U-C here and we don't want that to call FORMULA-ADD-SOURCE.
-      (let ((*creating-formula* nil))
-        (when (slot-boundp-using-class class instance slot-definition)
-          (setf (slot-value event 'old-value)
-                (slot-value-using-class class instance slot-definition))
-          #|(let* ((*get-formula-p* t)
-                 (value-or-formula (slot-value-using-class class instance slot-definition)))
-            (when (and (typep value-or-formula 'formula)
-                       (static-p-of value-or-formula))
-              (error "SW-MVC: An attempt was made at mutating static formula ~A
-in ~A (slot ~A) to new value ~S."
-                     value-or-formula
-                     instance
-                     (closer-mop:slot-definition-name slot-definition)
-                     new-value)))|#))
-      (prog1 (call-next-method)
-        (when (typep new-value 'formula)
-          (let ((*creating-formula* nil))
-            (formula-add-target new-value instance (slot-definition-name slot-definition))))
-        (handle event))))
+    ;; We might call S-V-U-C here and we don't want that to call FORMULA-ADD-SOURCE.
+    (let ((*creating-formula* nil))
+      (when (slot-boundp-using-class class instance slot-definition)
+        (setf (slot-value event 'old-value)
+              (slot-value-using-class class instance slot-definition))))
+    (when *simulate-slot-set-event-p*
+      (handle event)
+      (return-from slot-value-using-class))
+    (prog1 (call-next-method)
+      (when (typep new-value 'formula)
+        (let ((*creating-formula* nil))
+          (formula-add-target new-value instance (slot-definition-name slot-definition))))
+      (handle event))))
 
 
 (defmethod slot-value-using-class :around ((class mvc-class) instance slot-definition)

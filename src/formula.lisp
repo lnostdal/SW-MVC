@@ -79,15 +79,12 @@ should run as fast as possible and have as little overhead as possible. |#
     (if (listp source)
         (destructuring-bind (slot-name source) source
           (add-slot-callback target slot-name source
-                             ;; We're not calling CLOSURE directly here because
-                             ;; someone might depend on us in-turn.
                              (lambda (event)
                                (let ((new-value (funcall (the function (closure-of formula)) event)))
                                  (prog1 new-value
-                                   (propagate (make-instance 'slot-set
-                                                             :instance target
-                                                             :slot-name target-slot
-                                                             :new-value new-value)))))))
+                                   ;; "Simulate" a SLOT-SET event done towards TARGET.
+                                   (let ((*simulate-slot-set-event-p* t))
+                                     (setf (slot-value target target-slot) new-value)))))))
         (add-object-callback target source
                              (closure-of formula)))))
 
