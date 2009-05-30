@@ -33,7 +33,7 @@ ourselves."))
   might not be very interesting seeing as one could just have a nested
   transaction here? On the other hand creating one transaction for every single
   operation spawned and handled would probably be very slow. |#
-  (with-simple-restart (abort-mvc-event "Abort the SW-MVC event; ~A" event)
+  (with-simple-restart (abort-mvc-event "SW-MVC: Abort the SW-MVC event; ~A" event)
     (call-next-method)))
 
 
