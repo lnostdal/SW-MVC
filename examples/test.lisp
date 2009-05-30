@@ -37,7 +37,7 @@
                        (incf a-count)
                        (when-commit ()
                          (format t "~A: A-SQUARE: ~A~%"
-                                 (ignore-errors (tr-name aromyxo::*current-transaction*))
+                                 (ignore-errors (sw-stm::tr-name sw-stm::*current-transaction*))
                                  a-square)
                          (incf a-count-io))
                        a-square))
@@ -49,7 +49,7 @@
                        (incf b-count)
                        (when-commit ()
                          (format t "~A: B-SQUARE: ~A~%"
-                                 (ignore-errors (tr-name aromyxo::*current-transaction*))
+                                 (ignore-errors (sw-stm::tr-name sw-stm::*current-transaction*))
                                  b-square)
                          (incf b-count-io))
                        b-square)))
@@ -120,59 +120,3 @@
      (dotimes (i num-tests)
        (time
         (incf ~(svref sheet 0)))))))
-    
-
-            
-  
-
-
-#|
-(defclass person ()
-  ((first-name :accessor first-name-of :initarg :first-name
-               :initform "")
-
-   (last-name :accessor last-name-of :initarg :last-name
-              :initform ""))
-
-  (:metaclass mvc-class))
-
-
-(defclass location ()
-  ((name :accessor name-of :initarg :name
-         :initform ""))
-  
-  (:metaclass mvc-class))
-
-
-(defun test-object-callback ()
-  (let ((container (make-instance 'lisp-list))
-        (person (make-instance 'person)))
-    (add-simple-object-callback container
-                                (lambda (event)
-                                  (format t "event on container: ~A~%" event)))
-    (add-simple-object-callback person 
-                                (lambda (event)
-                                  (format t "event on person: ~A~%" event)))
-    (add person container)
-    (terpri)
-    (remove person container)
-    (content-of container)))
-
-
-(defun test-slot-callback ()
-  (let ((person (make-instance 'person)))
-    (add-slot-callback person 'first-name person
-                       (lambda (event)
-                         (declare (ignore event))
-                         (format t "FIRST-NAME of ~A was changed~%" person)))
-    (add-slot-callback person 'last-name person
-                       (lambda (event)
-                         (declare (ignore event))
-                         (format t "LAST-NAME of ~A was changed~%" person)))
-    (add-slot-callback person 'last-name person
-                       (lambda (event)
-                         (declare (ignore event))
-                         (format t "whot, multiple callbacks ..~%")))
-    (setf (first-name-of person) "lars")
-    (setf (last-name-of person) "nøstdal")))
-|#

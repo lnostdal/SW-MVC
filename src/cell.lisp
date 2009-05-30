@@ -53,10 +53,16 @@ Nesting of WITH-CELL and/or WITH-FORMULA forms? Debug output follows:
   `(mk-cell (mk-formula (,@args) ,@body)))
 
 
+(defmethod deref-expand ((arg symbol) (type (eql 'cell)))
+  `(slot-value ,arg 'value))
+
+
 (defmethod deref ((cell cell))
-  (value-of cell))
+  (slot-value cell 'value))
 
 
 (defmethod (setf deref) (new-value (cell cell))
-  (setf (value-of cell) new-value))
+  (setf (slot-value cell 'value) new-value))
+
+
 

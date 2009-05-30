@@ -18,9 +18,8 @@
 (set-dispatch-macro-character #\# #\λ
                               (lambda (stream char arg)
                                 (declare (ignore char))
-                                `(mk-fcell (:static-p nil
-                                            ,@(when arg
-                                                `((:concurrency ,arg))))
+                                `(mk-fcell (,@(when arg
+                                               `(:concurrency ,arg)))
                                    ,(read stream))))
 
 
@@ -29,8 +28,7 @@
 (set-dispatch-macro-character #\# #\@
                               (lambda (stream char arg)
                                 (declare (ignore char))
-                                `(mk-fcell (:static-p nil
-                                            ,@(when arg
+                                `(mk-fcell (,@(when arg
                                                `(:concurrency ,arg)))
                                    ,(read stream))))
 
@@ -45,8 +43,7 @@
                               (body (if concurrency
                                      `(,rest)
                                      `(,first ,@rest))))
-                         `(mk-formula (:static-p t
-                                       ,@(when concurrency
+                         `(mk-formula (,@(when concurrency
                                           `(:concurrency ,concurrency)))
                             ,@body)))
                      t)

@@ -47,13 +47,9 @@
 
     ;; To callbacks that should be called for "any slot" of the object in question.
     (with-callbacks (observable :slot-name t)
-      (if (typep observer 'view-base) ;; TODO: This could be a method (source target event).
-          (when-commit () (funcall callback event))
-          (funcall callback event)))
+      (funcall callback event))
     
     ;; To callbacks that should be called for only the specific slot in question.
     (with-callbacks (observable :slot-name (slot-name-of event))
-      (if (typep observer 'view-base) ;; TODO: This could be a method (source target event).
-          (when-commit () (funcall callback event))
-          (funcall callback event)))))
+      (funcall callback event))))
   

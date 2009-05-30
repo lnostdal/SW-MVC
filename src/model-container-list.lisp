@@ -4,6 +4,10 @@
 
 (declaim #.(optimizations))
 
+#| TODO: This thing is slowly morphing into a tree type of thing.
+I should refactor most of these slots into their own mixin classes, I think.
+|#
+
 
 (eval-when (:compile-toplevel :load-toplevel)
   (defclass dlist-node () () (:metaclass mvc-stm-class))
@@ -15,6 +19,10 @@
           :type (or dlist null)
           :initform nil)
 
+   (parent :accessor parent-of :initarg :parent
+           :type (or dlist-node null)
+           :initform nil)
+   
    (left :accessor left-of :initarg :left
          :type (or dlist-node null)
          :initform nil)
@@ -37,11 +45,11 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 
 (defmethod deref ((dlist-node dlist-node))
-  (value-of dlist-node))
+  (slot-value dlist-node 'value))
 
 
 (defmethod (setf deref) (new-value (dlist-node dlist-node))
-  (setf (value-of dlist-node) new-value))
+  (setf (slot-value dlist-node 'value) new-value))
 
 
 
@@ -49,6 +57,8 @@ Doubly-linked list node with support for dataflow and transactions."))
   ((head :accessor head-of :initarg :head
          :type (or dlist-node null)
          :initform nil)
+
+   #|(value->dlist-node :initform (make-hash-table :test #'eq))|#
 
    (tail :accessor tail-of
          :type (or dlist-node null)
@@ -165,12 +175,12 @@ access to the DLIST for the duration of the WITH-SYNC form."
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
   (let* ((object (object-of event))
-         (dlist (dlist-of object))
-         (left (left-of object))
-         (right (right-of object)))
-    (setf (dlist-of object) nil
-          (left-of object) nil
-          (right-of object) nil)
+         (node (find object ~dlist :key #'deref :test #'eq))
+         (left (left-of node))
+         (right (right-of node)))
+    (nilf (dlist-of node)
+          (left-of node)
+          (right-of node))
     (if left
         (setf (right-of left) right)
         (setf (head-of dlist) right))

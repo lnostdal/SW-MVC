@@ -5,8 +5,7 @@
 (declaim #.(optimizations))
 
 
-(class-forward-reference view-base
-  (:metaclass mvc-stm-class))
+(class-forward-reference view-base)
 
 #|(class-forward-reference model-base
   (:metaclass mvc-stm-class))|#

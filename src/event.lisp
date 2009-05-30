@@ -44,8 +44,6 @@ ourselves."))
 (defmethod propagate (event)
   (dolist (observable (observables-of event))
     (with-callbacks (observable)
-      (if (typep observer 'view-base)
-          (when-commit () (funcall callback event))
-          (funcall callback event)))))
+      (funcall callback event))))
 
 

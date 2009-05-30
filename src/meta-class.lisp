@@ -5,8 +5,10 @@
 (declaim #.(optimizations))
 
 
-#|(class-forward-reference formula
-  (:metaclass mvc-stm-class))|#
+#| This stuff is too specific. There should be two hash-tables, EQ and EQUAL
+based as now, but stuff here shouldn't assume we're working on or vs. CLOS
+instances only. I.e., it should be generalized and talk about \"memory
+locations\" or resources in the abstract. |#
 
 
 (mk-meta-slot object-observers-of :weakness :key)
@@ -101,8 +103,7 @@ extent (GC) of the connection between OBJECT and CALLBACK."
                 (funcall callback event)))
             callbacks)
       (setf (gethash observer observers)
-            callbacks))
-    (handle-view-set-object-model observer object)))
+            callbacks))))
 
 
 (defun add-simple-object-callback (object callback)
@@ -168,8 +169,7 @@ for all SLOT-SET events, regardless of slot (or SLOT-NAME)."
                   (funcall callback event)))
               callbacks)
         (setf (gethash observer observers)
-              callbacks)))
-    (handle-view-set-slot-model observer object slot-name)))
+              callbacks)))))
 
 
 (defun add-simple-slot-callback (slot-name object callback)
@@ -211,6 +211,7 @@ observers of the slot(s) in question."))
   t)
 
 
+
 (defclass mvc-stm-class (mvc-class stm-class)
   ()
 
@@ -224,14 +225,13 @@ See their doc-strings for info."))
                               :instance instance
                               :slot-name (slot-definition-name slot-definition)
                               :new-value new-value)))
-    (with-sync ()
-      ;; Set OLD-VALUE slot of EVENT if slot of INSTANCE is bound.
+    ;; Set OLD-VALUE slot of EVENT if slot of INSTANCE is bound.
       ;; We might call S-V-U-C here and we don't want that to call FORMULA-ADD-SOURCE.
       (let ((*creating-formula* nil))
         (when (slot-boundp-using-class class instance slot-definition)
           (setf (slot-value event 'old-value)
                 (slot-value-using-class class instance slot-definition))
-          (let* ((*get-formula-p* t)
+          #|(let* ((*get-formula-p* t)
                  (value-or-formula (slot-value-using-class class instance slot-definition)))
             (when (and (typep value-or-formula 'formula)
                        (static-p-of value-or-formula))
@@ -240,28 +240,26 @@ in ~A (slot ~A) to new value ~S."
                      value-or-formula
                      instance
                      (closer-mop:slot-definition-name slot-definition)
-                     new-value)))))
-
+                     new-value)))|#))
       (prog1 (call-next-method)
         (when (typep new-value 'formula)
           (let ((*creating-formula* nil))
             (formula-add-target new-value instance (slot-definition-name slot-definition))))
-        (handle event)))))
+        (handle event))))
 
 
 (defmethod slot-value-using-class :around ((class mvc-class) instance slot-definition)
-  (with-sync ()
-    (let ((value (handler-case (call-next-method)
-                   (unbound-slot (c)
-                     (unless *creating-formula*
-                       (error c))
-                     ;; TODO: It is perhaps possible to append this information to the string in C?
-                     (warn "UNBOUND-SLOT while initializing formula: ~A" *creating-formula*)
-                     (error c)))))
-      (when *creating-formula*
-        (let ((formula *creating-formula*)
-              (*creating-formula* nil))
-          (formula-add-source formula instance (slot-definition-name slot-definition))))
-      (if (and (typep value 'formula) (not *get-formula-p*))
-          (value-of value)
-          value))))
+  (let ((value (handler-case (call-next-method)
+                 (unbound-slot (c)
+                   (unless *creating-formula*
+                     (error c))
+                   ;; TODO: It is perhaps possible to append this information to the string in C?
+                   (warn "UNBOUND-SLOT while initializing formula: ~A" *creating-formula*)
+                   (error c)))))
+    (when *creating-formula*
+      (let ((formula *creating-formula*)
+            (*creating-formula* nil))
+        (formula-add-source formula instance (slot-definition-name slot-definition))))
+    (if (and (typep value 'formula) (not *get-formula-p*))
+        (value-of value)
+        value)))
