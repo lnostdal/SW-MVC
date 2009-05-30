@@ -5,3 +5,10 @@ Dataflow, declarative or "cell oriented" (think spreadsheets) paradigm
 support for Common Lisp.
 
 See examples/test.lisp.
+
+
+
+Status
+======
+
+Alpha.
