@@ -1,0 +1,7 @@
+SW-MVC - Dataflow paradigm support for Common Lisp
+==================================================
+
+Dataflow, declarative or "cell oriented" (think spreadsheets) paradigm
+support for Common Lisp.
+
+See examples/test.lisp.
