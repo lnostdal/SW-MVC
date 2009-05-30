@@ -254,5 +254,5 @@ See their doc-strings for info."))
             (*creating-formula* nil))
         (formula-add-source formula instance (slot-definition-name slot-definition))))
     (if (and (typep value 'formula) (not *get-formula-p*))
-        (value-of value)
+        (ref-value-of (slot-value value 'value)) ;; VALUE is an instance of FORMULA.
         value)))
