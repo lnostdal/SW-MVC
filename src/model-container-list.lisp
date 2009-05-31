@@ -175,7 +175,9 @@ access to the DLIST for the duration of the WITH-SYNC form."
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
   (let* ((object (object-of event))
-         (node (find object ~dlist :key #'deref :test #'eq))
+         (node (if (typep object 'dlist-node)
+                   object
+                   (find object ~dlist :key #'deref :test #'eq)))
          (left (left-of node))
          (right (right-of node)))
     (nilf (dlist-of node)
