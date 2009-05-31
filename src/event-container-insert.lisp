@@ -5,6 +5,18 @@
 (declaim #.(optimizations))
 
 
+(defclass container-insert-mvc ()
+  ((insert-event :reader insert-event-of
+                 :type (or null container-insert)
+                 :initform nil))
+
+  (:metaclass mvc-stm-class)
+  (:documentation "
+Subclasses of CONTAINER are meant to inherit from this class to enable views
+of the CONTAINER (model) to be notified of CONTAINER-INSERT events."))
+
+
+
 (defclass container-insert (container-event)
   ((relative-position :reader relative-position-of :initarg :relative-position
                       :type symbol
@@ -19,7 +31,12 @@ into some location(s?) in a container."))
 
 
 (defmethod handle ((event container-insert))
-  (container-insert event (container-of event)))
+  (let ((container (container-of event)))
+    (container-insert event container)
+    (when (typep container 'container-insert-mvc)
+      (with-object container
+        (setf ¤insert-event event
+              ¤insert-event nil)))))
 
 
 (defmethod insert (object &rest args &key

@@ -43,7 +43,3 @@ The use of OBJECT-OF expects that the container in question (~A) will or must
 contain only one element." (container-of event))
     (first objects)))
 
-
-(defmethod observables-of append ((event container-event))
-  (cons (container-of event)
-        (objects-of event)))

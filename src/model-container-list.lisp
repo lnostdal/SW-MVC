@@ -53,7 +53,7 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 
 
-(defclass dlist (container)
+(defclass dlist (container container-insert-mvc)
   ((head :accessor head-of :initarg :head
          :type (or dlist-node null)
          :initform nil)

@@ -5,6 +5,18 @@
 (declaim #.(optimizations))
 
 
+(defclass slot-set-mvc ()
+  ((slot-set-event :reader slot-set-event-of
+                   :type (or null slot-set)
+                   :initform nil))
+
+  (:metaclass mvc-stm-class)
+  (:documentation "
+Classes who want enable their users to listen for \"any\" SLOT-SET event can
+inherit from this class."))
+
+
+
 (defclass slot-set (event)
   ((instance :reader instance-of :initarg :instance
              :initform (error ":INSTANCE needed."))
@@ -26,30 +38,20 @@
             (new-value-of slot-set))))
 
 
-(defmethod handle :around ((event slot-set))
-  (if (typep (instance-of event) 'view-base)
-      (when-commit () (call-next-method))
-      (call-next-method)))
-
-
 (defmethod handle ((event slot-set))
-  ;; NOTE: CLOS already sets the slot for us; we're only interested in the side-effect of notifying
-  ;; any observers of what happened.
-  )
-
-
-(defmethod observables-of append ((event slot-set))
-  (list (instance-of event)))
-
-
-(defmethod propagate ((event slot-set))
-  (dolist (observable (observables-of event))
+  ;; CLOS already sets the slot for us; we're only interested in the
+  ;; side-effect of notifying any observers of what happened.
+  (let ((instance (instance-of event)))
+    (when (typep instance 'slot-set-mvc)
+      (with-object instance
+        (setf ¤slot-set-event event
+              ¤slot-set-event nil)))
 
     ;; To callbacks that should be called for "any slot" of the object in question.
-    (with-callbacks (observable :slot-name t)
+    (with-callbacks (instance :slot-name t)
       (funcall callback event))
     
     ;; To callbacks that should be called for only the specific slot in question.
-    (with-callbacks (observable :slot-name (slot-name-of event))
+    (with-callbacks (instance :slot-name (slot-name-of event))
       (funcall callback event))))
-  
+
