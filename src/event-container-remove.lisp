@@ -24,11 +24,12 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
 (defmethod handle ((event container-remove))
   (let ((container (container-of event)))
     (container-remove event container)
-    ;; TODO: This currently only notifies the CONTAINER; what about notifying the objects which are removed?
-    (when (typep container 'container-remove-mvc)
-      (with-object container
-        (setf ¤remove-event event
-              ¤remove-event nil)))))
+    (dolist (observable (observables-of event))
+      ;; Notify stuff observing the container and the objects being removed.
+      (when (typep observable 'container-remove-mvc)
+        (with-object observable
+          (setf ¤remove-event event
+                ¤remove-event nil))))))
 
 
 (defun remove (object container)

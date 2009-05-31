@@ -36,6 +36,11 @@ question. The content of this slot might change while it is being handled.")))
            (error ":OBJECT or :OBJECTS needed.")))))
 
 
+(defmethod observables-of append ((event container-event))
+  (cons (container-of event)
+        (objects-of event)))
+
+
 (defmethod object-of ((event container-event))
   (let ((objects (objects-of event)))
     (assert (= 1 (length objects)) nil "

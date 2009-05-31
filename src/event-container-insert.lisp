@@ -30,11 +30,12 @@ into some location(s?) in a container."))
 (defmethod handle ((event container-insert))
   (let ((container (container-of event)))
     (container-insert event container)
-    ;; TODO: This currently only notifies the CONTAINER; what about notifying the objects which are inserted?
-    (when (typep container 'container-insert-mvc)
-      (with-object container
-        (setf ¤insert-event event
-              ¤insert-event nil)))))
+    (dolist (observable (observables-of event))
+      ;; Notify stuff observing the container and the objects being inserted.
+      (when (typep observable 'container-insert-mvc)
+        (with-object observable
+          (setf ¤insert-event event
+                ¤insert-event nil))))))
 
 
 (defmethod insert (object &rest args &key
