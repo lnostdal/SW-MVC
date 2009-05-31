@@ -10,10 +10,7 @@
                  :type (or null container-insert)
                  :initform nil))
 
-  (:metaclass mvc-stm-class)
-  (:documentation "
-Subclasses of CONTAINER are meant to inherit from this class to enable views
-of the CONTAINER (model) to be notified of CONTAINER-INSERT events."))
+  (:metaclass mvc-stm-class))
 
 
 
@@ -33,6 +30,7 @@ into some location(s?) in a container."))
 (defmethod handle ((event container-insert))
   (let ((container (container-of event)))
     (container-insert event container)
+    ;; TODO: This currently only notifies the CONTAINER; what about notifying the objects which are inserted?
     (when (typep container 'container-insert-mvc)
       (with-object container
         (setf ¤insert-event event
