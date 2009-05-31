@@ -5,6 +5,15 @@
 (declaim #.(optimizations))
 
 
+(defclass container-remove-mvc ()
+  ((remove-event :reader remove-event-of
+                 :type (or null container-remove)
+                 :initform nil))
+  
+  (:metaclass mvc-stm-class))
+
+
+
 (defclass container-remove (container-event)
   ()
   
@@ -13,7 +22,13 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
 
 
 (defmethod handle ((event container-remove))
-  (container-remove event (container-of event)))
+  (let ((container (container-of event)))
+    (container-remove event container)
+    ;; TODO: This currently only notifies the CONTAINER; what about notifying the objects which are removed?
+    (when (typep container 'container-remove-mvc)
+      (with-object container
+        (setf ¤remove-event event
+              ¤remove-event nil)))))
 
 
 (defun remove (object container)
