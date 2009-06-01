@@ -23,4 +23,3 @@
   (find value ~container
         :test (test-fn-of container)
         :key (key-fn-of container)))
-

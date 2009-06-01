@@ -33,7 +33,7 @@ I should refactor most of these slots into their own mixin classes, I think.
 
    (value :accessor value-of :initarg :value
           :initform (error ":VALUE needed.")))
-  
+
   (:metaclass mvc-stm-class)
   (:documentation "
 Doubly-linked list node with support for dataflow and transactions."))
@@ -119,7 +119,6 @@ access to the DLIST for the duration of the WITH-SYNC form."
 
 
 (defmethod merge-into ((target dlist) (source list) &key (test #'eq) key)
-  (declare (optimize speed))
   (setf key (if key
                 (lambda (elt) (funcall (the function key) (deref elt)))
                 #'deref))
@@ -198,7 +197,6 @@ access to the DLIST for the duration of the WITH-SYNC form."
   (let ((new-object (object-of event))
         (relative-position (relative-position-of event))
         (relative-object (relative-object-of event)))
-    
     (flet ((mk-dlist-node ()
              (if (typep new-object 'dlist-node)
                  (prog1 new-object (setf (dlist-of new-object) dlist))
