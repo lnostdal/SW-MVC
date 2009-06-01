@@ -66,6 +66,7 @@ Doubly-linked list node with support for dataflow and transactions."))
          :type (or dlist-node null)
          :initform nil))
 
+  (:default-initargs :key-fn #'value-of)
   (:metaclass mvc-stm-class)
   (:documentation "
 Doubly-linked list with support for dataflow and transactions."))

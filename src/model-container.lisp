@@ -4,11 +4,11 @@
 
 
 (defclass container (self-ref)
-  ((test-fn :reader test-fn-of :initarg :test-fn
+  ((test-fn :accessor test-fn-of :initarg :test-fn
             :type function
             :initform #'eql)
 
-   (key-fn :reader key-fn-of :initarg :key-fn
+   (key-fn :accessor key-fn-of :initarg :key-fn
            :type function
            :initform #'identity))
   
