@@ -118,17 +118,18 @@ access to the DLIST for the duration of the WITH-SYNC form."
           (setf (tail-of dlist) tail))))))
 
 
-(defmethod merge-into ((target dlist) (source list) &key (test #'eq) key)
-  (setf key (if key
-                (lambda (elt) (funcall (the function key) (deref elt)))
-                #'deref))
-  (let ((before (list<- target)) ;; DLIST-NODE instances.
+;; TODO: Rename to TRANSFORM-INTO, I think.
+(defmethod merge-into ((target dlist) (source list))
+  "Transform TARGET container to contain the values in SOURCE by initiating
+container type events vs. TARGET."
+  (let ((key (key-fn-of target))
+        (test (test-fn-of target))
+        (before (list<- target)) ;; DLIST-NODE instances.
         (after nil)
         (to-insert nil))
     (declare (list before after to-insert)
-             (function key)
-             (function test))
-
+             (function key test))
+    
     ;; TARGET is empty.
     ;; TODO: This is basically a copy of the code in #'DLIST
     (unless before
