@@ -36,7 +36,7 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
   "Remove OBJECT from CONTAINER.
 Returns CONTAINER."
   (handle (make-instance 'container-remove
-                         :object object
+                         :objects object
                          :container container))
   container)
 
