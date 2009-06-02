@@ -24,7 +24,6 @@ has recently turned into a dataflow thing."
      (:file "formula")
      (:file "bootstrap-classes")
      (:file "mixins")
-     (:file "model-base")
      (:file "model-boolean")
      (:file "model-container")
      (:file "event")
