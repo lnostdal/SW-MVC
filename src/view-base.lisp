@@ -66,13 +66,18 @@ VIEW-CONSTRUCTOR-FN in CONTEXT-VIEW if there is a function there."
 
 
 (defmethod view-in-context-of ((context-view view-base) model)
-  "Returns a \"view\" (some sub-instance of VIEW-BASE) of MODEL in context of CONTEXT-VIEW."
+  "Returns a View (some sub-instance of VIEW-BASE) of MODEL in context of
+CONTEXT-VIEW.
+A second value FOUND-P is also returned. This is T if an already existing View
+was found based on MODEL and CONTEXT-VIEW and NIL if a new View was
+constructed, stored and returned."
   (with-slots (views-in-context) context-view
     (let ((signature (cons context-view model)))
       (sb-ext:with-locked-hash-table (views-in-context)
         (multiple-value-bind (view found-p)
             (gethash signature views-in-context)
           (if found-p
-              view
-              (setf (gethash signature views-in-context)
-                    (mk-view model context-view))))))))
+              (values view t)
+              (values (setf (gethash signature views-in-context)
+                            (mk-view model context-view))
+                      nil)))))))
