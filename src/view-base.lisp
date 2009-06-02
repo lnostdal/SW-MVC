@@ -9,7 +9,7 @@
   ((model :reader model-of)
 
    (formula)
-   
+
    ;; [SIGNATURE (context-view . model) -> VIEW]
    (views-in-context :type hash-table
                      :initform (make-hash-table :test #'equal :weakness :value))

@@ -18,7 +18,7 @@
   ((relative-position :reader relative-position-of :initarg :relative-position
                       :type symbol
                       :initform nil)
-   
+
    (relative-object :reader relative-object-of :initarg :relative-object
                     :initform nil))
 
@@ -49,7 +49,7 @@ suitable or natural position in IN."
   (let ((result (cond
                   (before-supplied-p
                    (cons :before before))
-                  
+
                   (after-supplied-p
                    (cons :after after))
 
