@@ -7,7 +7,7 @@ This was originally intended to be a Model View Controller (MVC) framework, but
 has recently turned into a dataflow thing."
 
   :author "Lars Rune Nøstdal <larsnostdal@gmail.com> http://nostdal.org/"
-  :licence "AGPLv3 + GPL linking exception."
+  :licence "AGPLv3"
 
   :depends-on (:aromyxo :sw-stm)
 
