@@ -22,7 +22,7 @@ I should refactor most of these slots into their own mixin classes, I think.
    (parent :accessor parent-of :initarg :parent
            :type (or dlist-node null)
            :initform nil)
-   
+
    (left :accessor left-of :initarg :left
          :type (or dlist-node null)
          :initform nil)
@@ -128,7 +128,7 @@ container type events vs. TARGET."
         (to-insert nil))
     (declare (list before after to-insert)
              (function key test))
-    
+
     ;; TARGET is empty.
     ;; TODO: This is basically a copy of the code in #'DLIST
     (unless before
@@ -146,18 +146,18 @@ container type events vs. TARGET."
                                        :value value))))
           (setf (tail-of target) tail)))
       (return-from merge-into))
-        
+
     (dolist (value source (nreversef after))
       (if-let (node (find value before :key key :test test))
         (push node after)
         (push (make-instance 'dlist-node :value value :dlist target)
               to-insert)))
-    
+
     ;; REMOVE.
     (dolist (removed-element (set-difference before after :test #'eq))
       (deletef before removed-element :test #'eq)
       (remove removed-element target))
-    
+
     ;; EXCHANGE.
     (let ((already-swapped nil))
       (map nil (lambda (before-elt after-elt)
@@ -193,6 +193,7 @@ container type events vs. TARGET."
         (setf (tail-of dlist) left))))
 
 
+;; TODO: Implement support for inserting multiple objects.
 (defmethod container-insert ((event container-insert) (dlist dlist))
   (let ((new-object (object-of event))
         (relative-position (relative-position-of event))
@@ -202,7 +203,7 @@ container type events vs. TARGET."
                  (prog1 new-object (setf (dlist-of new-object) dlist))
                  (make-instance 'dlist-node :dlist dlist :value new-object))))
       (declare (inline mk-dlist-node))
-      
+
       (case relative-position
         (:before
          (let ((dlist-node (mk-dlist-node)))
@@ -215,7 +216,7 @@ container type events vs. TARGET."
                          (left-of relative-object) dlist-node)
                    (setf head dlist-node
                          (left-of relative-object) dlist-node))))))
-        
+
         (:after
          (let ((dlist-node (mk-dlist-node)))
            (with-slots (head tail) dlist
@@ -227,7 +228,7 @@ container type events vs. TARGET."
                          (right-of relative-object) dlist-node)
                    (setf tail dlist-node
                          (right-of relative-object) dlist-node))))))
-        
+
         ((nil)
          (let ((dlist-node (mk-dlist-node)))
            (with-slots (head tail) dlist
@@ -238,7 +239,7 @@ container type events vs. TARGET."
                          tail dlist-node)
                    (setf head dlist-node
                          tail dlist-node))))))
-        
+
         (otherwise
          (error "CONTAINER-INSERT: Got an invalid value for RELATIVE-POSITION: ~A" relative-position))))))
 
@@ -249,7 +250,3 @@ container type events vs. TARGET."
          (a-value (value-of object-a)))
     (setf (value-of object-a) (value-of object-b)
           (value-of object-b) a-value)))
-
-
-
-
