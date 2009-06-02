@@ -176,21 +176,21 @@ container type events vs. TARGET."
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
-  (let* ((object (object-of event))
-         (node (if (typep object 'dlist-node)
-                   object
-                   (container-find object dlist)))
-         (left (left-of node))
-         (right (right-of node)))
-    (nilf (dlist-of node)
-          (left-of node)
-          (right-of node))
-    (if left
-        (setf (right-of left) right)
-        (setf (head-of dlist) right))
-    (if right
-        (setf (left-of right) left)
-        (setf (tail-of dlist) left))))
+  (dolist (object (objects-of event))
+    (let* ((node (if (typep object 'dlist-node)
+                     object
+                     (container-find object dlist)))
+           (left (left-of node))
+           (right (right-of node)))
+      (nilf (dlist-of node)
+            (left-of node)
+            (right-of node))
+      (if left
+          (setf (right-of left) right)
+          (setf (head-of dlist) right))
+      (if right
+          (setf (left-of right) left)
+          (setf (tail-of dlist) left)))))
 
 
 ;; TODO: Implement support for inserting multiple objects.
