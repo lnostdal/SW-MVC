@@ -19,6 +19,10 @@
                     :initform (error ":TARGET-POSITION needed."))))
 
 
+(defmethod observables-of append ((event container-exchange))
+  (list (target-position-of event)))
+
+
 (defmethod handle ((event container-exchange))
   (let ((container (container-of event)))
     (container-exchange event container)
