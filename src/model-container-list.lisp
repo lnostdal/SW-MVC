@@ -193,55 +193,55 @@ container type events vs. TARGET."
           (setf (tail-of dlist) left)))))
 
 
-;; TODO: Implement support for inserting multiple objects.
 (defmethod container-insert ((event container-insert) (dlist dlist))
-  (let ((new-object (object-of event))
-        (relative-position (relative-position-of event))
+  (let ((relative-position (relative-position-of event))
         (relative-object (relative-object-of event)))
-    (flet ((mk-dlist-node ()
-             (if (typep new-object 'dlist-node)
-                 (prog1 new-object (setf (dlist-of new-object) dlist))
-                 (make-instance 'dlist-node :dlist dlist :value new-object))))
+    (flet ((mk-dlist-node (object)
+             (if (typep object 'dlist-node)
+                 (prog1 object (setf (dlist-of object) dlist))
+                 (make-instance 'dlist-node :dlist dlist :value object))))
       (declare (inline mk-dlist-node))
 
-      (case relative-position
-        (:before
-         (let ((dlist-node (mk-dlist-node)))
-           (with-slots (head tail) dlist
-             (with-slots (left right) dlist-node
-               (setf left (left-of relative-object)
-                     right relative-object)
-               (if (left-of relative-object)
-                   (setf (right-of (left-of relative-object)) dlist-node
-                         (left-of relative-object) dlist-node)
-                   (setf head dlist-node
-                         (left-of relative-object) dlist-node))))))
+      (dolist (object (objects-of event))
+        (let ((dlist-node (mk-dlist-node object)))
+          (case relative-position
+            (:before
+             (with-slots (head tail) dlist
+               (with-slots (left right) dlist-node
+                 (setf left (left-of relative-object)
+                       right relative-object)
+                 (if (left-of relative-object)
+                     (setf (right-of (left-of relative-object)) dlist-node
+                           (left-of relative-object) dlist-node)
+                     (setf head dlist-node
+                           (left-of relative-object) dlist-node)))))
 
-        (:after
-         (let ((dlist-node (mk-dlist-node)))
-           (with-slots (head tail) dlist
-             (with-slots (left right) dlist-node
-               (setf left relative-object
-                     right (right-of relative-object))
-               (if (right-of relative-object)
-                   (setf (left-of (right-of relative-object)) dlist-node
-                         (right-of relative-object) dlist-node)
-                   (setf tail dlist-node
-                         (right-of relative-object) dlist-node))))))
+            (:after
+             (with-slots (head tail) dlist
+               (with-slots (left right) dlist-node
+                 (setf left relative-object
+                       right (right-of relative-object))
+                 (if (right-of relative-object)
+                     (setf (left-of (right-of relative-object)) dlist-node
+                           (right-of relative-object) dlist-node)
+                     (setf tail dlist-node
+                           (right-of relative-object) dlist-node)))))
 
-        ((nil)
-         (let ((dlist-node (mk-dlist-node)))
-           (with-slots (head tail) dlist
-             (with-slots (left) dlist-node
-               (if tail
-                   (setf left tail
-                         (right-of tail) dlist-node
-                         tail dlist-node)
-                   (setf head dlist-node
-                         tail dlist-node))))))
+            ((nil)
+             (with-slots (head tail) dlist
+               (with-slots (left) dlist-node
+                 (if tail
+                     (setf left tail
+                           (right-of tail) dlist-node
+                           tail dlist-node)
+                     (setf head dlist-node
+                           tail dlist-node)))))
 
-        (otherwise
-         (error "CONTAINER-INSERT: Got an invalid value for RELATIVE-POSITION: ~A" relative-position))))))
+            (otherwise
+             (error "CONTAINER-INSERT: Got an invalid value for RELATIVE-POSITION: ~A" relative-position)))
+
+          (setf relative-position :after
+                relative-object dlist-node))))))
 
 
 (defmethod container-exchange ((event container-exchange) (dlist dlist))
