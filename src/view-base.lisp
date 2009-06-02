@@ -35,10 +35,6 @@ object which is a sub-type of VIEW-BASE.")))
   (setf (slot-value view 'model) new-model))
 
 
-(defmethod (setf model-of) (new-model (view view-base))
-  )
-
-
 (defmethod deref ((view view-base))
   (model-of view))
 
