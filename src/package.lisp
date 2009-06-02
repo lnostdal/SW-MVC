@@ -71,18 +71,22 @@
    #:container-event-single-object
    #:object #:object-of #:objects-of
 
-   ;; event-container-add.lisp
-   #:container-add
-   #:add #:add-to
-
    ;; event-container-remove.lisp
-   #:container-remove
    #:remove #:remove-from
+   #:container-remove
+   #:remove-event-of
 
    ;; event-container-insert.lisp
+   #:insert #:add #:add-to
    #:container-insert
    #:relative-position #:relative-position-of
    #:relative-object #:relative-object-of
+   #:insert-event-of
+
+   ;; event-container-exchange.lisp
+   #:exchange
+   #:container-exchange
+   #:exchange-event-of
 
    ;; event-slot-set.lisp
    #:slot-set
@@ -90,6 +94,7 @@
    #:slot-name #:slot-name-of
    #:old-value #:old-value-of
    #:new-value #:new-value-of
+   #:slot-set-event-of
 
    ;; view-base.lisp
    #:view-base
