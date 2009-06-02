@@ -14,13 +14,13 @@
     to explicitly dereference (~ character) stuff. |#
     (with-cells (a1 a2 a3 a4)
       (assert (= 1 a3 a4))
-      
+
       #λ(format t "anonymous cell still alive (a1: ~A)~%" a1)
 
       (setf a1 2
             a2 3)
       (assert (= 5 a3 a4))
-      
+
       (sb-ext:gc :full t)
       (sb-ext:gc :full t)
 
@@ -41,7 +41,7 @@
                                  a-square)
                          (incf a-count-io))
                        a-square))
-         
+
          (b (mk-cell 3))
          (b-count 0)
          (b-count-io 0)
@@ -68,27 +68,27 @@
                           (dbg-princ (setf a 3) "THREAD-A")
                           (sleep 0.5) ;; This and the sleep in THREAD-B will ensure a deadlock situation.
                           (dbg-princ (setf b 4) "THREAD-A"))))
-            
+
             (thread-b (with-thread (:thread-b)
                         (with-sync (:name :thread-b)
                           (dbg-princ (setf b 6) "THREAD-B")
                           (sleep 0.5) ;; This and the sleep in THREAD-A will ensure a deadlock situation.
                           (dbg-princ (setf a 5) "THREAD-B")))))
-        
+
         (join-thread thread-a)
         (join-thread thread-b)
         (write-line "## END ##")
-        
+
         ;; The use of WHEN-COMMIT means this check will never fail no matter
         ;; how many tries the transaction has to go through to succeed.
         (assert (and (= a-count-io 3)
                      (= b-count-io 3)))
-        
+
         ;; Show how I/O-type stuff or side-effects would fail if they had not been
         ;; wrapped in a WHEN-COMMIT.
         (dbg-princ a-count)
         (dbg-princ b-count)
-        
+
         ;; In general there is no guarantee which of the threads finish last,
         ;; hence the use of OR here.
         (assert (or (and (= a-square 9)
@@ -120,3 +120,22 @@
      (dotimes (i num-tests)
        (time
         (incf ~(svref sheet 0)))))))
+
+
+
+(defclass person (self-ref)
+  ((first-name :initform "Lars Rune")
+   (last-name  :initform "Nøstdal")
+   (full-name  :initform ↑λ(let ((result (catstr ¤first-name " " ¤last-name)))
+                             (format t "notify UI that `full-name' is now: ~S~%" result)
+                             result)))
+
+  (:metaclass mvc-stm-class))
+
+
+(defun test-clos ()
+  (let ((lars ¤(person)))
+    (with-object lars
+      (format t "full-name on our (model) end is: ~S~%" ¤full-name)
+      (setf ¤last-name "Naustdal")
+      (format t "full-name on our (model) end is: ~S~%" ¤full-name))))
