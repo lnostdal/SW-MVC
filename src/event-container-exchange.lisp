@@ -37,8 +37,7 @@
 (defmethod exchange (object-1 object-2)
   (assert (eq (container-of object-1)
               (container-of object-2))
-          nil
-          "EXCHANGE: Exchange between two containers not implemented.")
+          nil "SW-MVC:EXCHANGE between two containers is not implemented.")
   (handle (make-instance 'container-exchange
                          :container (container-of object-1)
                          :object object-1
