@@ -12,7 +12,7 @@ locations\" or resources in the abstract. |#
 
 
 (mk-meta-slot object-observers-of :weakness :key)
-;; [OBJECT -> [OBSERVER -> CALLBACKS]]
+;; [OBJECT -> [OBSERVER -> CALLBACKS]]   or   [MODEL -> [VIEW -> FORMULAS]]
 ;;
 ;; OBJECT and OBSERVER are weak.
 
@@ -24,7 +24,7 @@ link (hash-table) basis would be great.
 |#
 
 (mk-meta-slot slot-observers-of :weakness :key)
-;; [OBJECT -> [SLOT-NAME -> [OBSERVER -> CALLBACKS]]]
+;; [OBJECT -> [SLOT-NAME -> [OBSERVER -> CALLBACKS]]]   or   [MODEL -> [SLOT-NAME -> [VIEW -> FORMULAS]]]
 ;;
 ;; OBJECT and OBSERVER are weak.
 
