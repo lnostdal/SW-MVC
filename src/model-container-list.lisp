@@ -117,8 +117,7 @@ access to the DLIST for the duration of the WITH-SYNC form."
           (setf (tail-of dlist) tail))))))
 
 
-;; TODO: Rename to TRANSFORM-INTO, I think.
-(defmethod merge-into ((target dlist) (source list))
+(defmethod transform-into ((target dlist) (source list))
   "Transform TARGET container to contain the values in SOURCE by initiating
 container type events vs. TARGET."
   (let ((key (key-fn-of target))
@@ -145,9 +144,9 @@ container type events vs. TARGET."
                                        :left tail
                                        :value value))))
           (setf (tail-of target) tail)))
-      (return-from merge-into))
+      (return-from transform-into))
 
-    (dolist (value source (nreversef after))
+    (dolist (value source (nreversef after)
       (if-let (node (find value before :key key :test test))
         (push node after)
         (push (make-instance 'dlist-node :value value :dlist target)
@@ -169,10 +168,14 @@ container type events vs. TARGET."
            after))
 
     ;; INSERT.
-    (dolist (node to-insert)
-      (if-let ((right-val (cadr (member (funcall key node) source :test test))))
-        (insert node :before (find right-val before :key key :test test))
-        (insert node :after (last1 before))))))
+    (if before
+        (let ((last-node (last1 before)))
+          (dolist (node to-insert)
+            (if-let ((right-val (cadr (member (funcall key node) source :test test))))
+              (insert node :before (find right-val ~target :key key :test test))
+              (insert node :after last-node))))
+        (insert (nreversef to-insert) :in target))))
+
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))

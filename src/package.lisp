@@ -13,19 +13,19 @@
    #:insert #:remove #:exchange
    ;;#:dolist
    )
-  
+
   (:shadowing-import-from #:alexandria
                           #:with-gensyms
                           #:compose
                           #:with-unique-names
                           #:copy-array
                           #:once-only)
-  
+
 
   (:export
 
    #:abort-mvc-event
-   
+
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class
    #:with-callbacks #:callback #:observer
@@ -56,8 +56,7 @@
    #:dlist #:head-of #:tail-of
    #:list<-
    #:dlist<-
-   #:insert
-   #:merge-into
+   #:transform-into
 
    ;; event.lisp
    #:event
@@ -121,5 +120,3 @@
 
 
 (in-package #:sw-mvc)
-
-  
