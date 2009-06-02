@@ -59,8 +59,6 @@ Doubly-linked list node with support for dataflow and transactions."))
          :type (or dlist-node null)
          :initform nil)
 
-   #|(value->dlist-node :initform (make-hash-table :test #'eq))|#
-
    (tail :accessor tail-of
          :type (or dlist-node null)
          :initform nil))
@@ -146,7 +144,7 @@ container type events vs. TARGET."
           (setf (tail-of target) tail)))
       (return-from transform-into))
 
-    (dolist (value source (nreversef after)
+    (dolist (value source (nreversef after))
       (if-let (node (find value before :key key :test test))
         (push node after)
         (push (make-instance 'dlist-node :value value :dlist target)
@@ -172,7 +170,8 @@ container type events vs. TARGET."
         (let ((last-node (last1 before)))
           (dolist (node to-insert)
             (if-let ((right-val (cadr (member (funcall key node) source :test test))))
-              (insert node :before (find right-val ~target :key key :test test))
+              ;; TODO: CONTAINER-FIND currently converts the DLIST to a CONS-list on each iteration.
+              (insert node :before (container-find right-val target))
               (insert node :after last-node))))
         (insert (nreversef to-insert) :in target))))
 
@@ -180,6 +179,7 @@ container type events vs. TARGET."
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
   (dolist (object (objects-of event))
+    ;; TODO: Find all objects in one go instead.
     (let* ((node (if (typep object 'dlist-node)
                      object
                      (container-find object dlist)))
