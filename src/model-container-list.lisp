@@ -39,9 +39,9 @@ I should refactor most of these slots into their own mixin classes, I think.
 Doubly-linked list node with support for dataflow and transactions."))
 
 
-;; TODO: This causes more harm / confusion that good -- at least while developing.
-;;(defmethod print-object ((dlist-node dlist-node) stream)
-;;  (prin1 (value-of list-node) stream))
+(defmethod print-object ((dlist-node dlist-node) stream)
+  (print-unreadable-object (dlist-node stream :type t :identity t)
+    (prin1 (value-of dlist-node) stream)))
 
 
 (defmethod deref ((dlist-node dlist-node))
