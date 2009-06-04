@@ -51,6 +51,8 @@ Returns CONTAINER."
 
 
 (defun remove-all (container)
-  (handle (make-instance 'container-remove
-                         :container container
-                         :objects ~container)))
+  (let ((objects ~container))
+    (when objects
+      (handle (make-instance 'container-remove
+                             :container container
+                             :objects objects)))))
