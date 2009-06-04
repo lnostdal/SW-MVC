@@ -71,7 +71,7 @@
    #:object #:object-of #:objects-of
 
    ;; event-container-remove.lisp
-   #:remove #:remove-from
+   #:remove #:remove-from #:remove-all
    #:container-remove
    #:remove-event-of
 
@@ -86,6 +86,7 @@
    #:exchange
    #:container-exchange
    #:exchange-event-of
+   #:target-position-of
 
    ;; event-slot-set.lisp
    #:slot-set
