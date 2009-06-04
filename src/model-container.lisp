@@ -11,7 +11,7 @@
    (key-fn :accessor key-fn-of :initarg :key-fn
            :type function
            :initform #'identity))
-  
+
   (:metaclass mvc-stm-class))
 
 
