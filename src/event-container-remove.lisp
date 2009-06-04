@@ -9,14 +9,14 @@
   ((remove-event :reader remove-event-of
                  :type (or null container-remove)
                  :initform nil))
-  
+
   (:metaclass mvc-stm-class))
 
 
 
 (defclass container-remove (container-event)
   ()
-  
+
   (:documentation "
 This represent various ways of removing an OBJECT from a CONTAINER."))
 
@@ -36,8 +36,8 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
   "Remove OBJECT from CONTAINER.
 Returns CONTAINER."
   (handle (make-instance 'container-remove
-                         :objects object
-                         :container container))
+                         :container container
+                         :objects object))
   container)
 
 
@@ -45,6 +45,12 @@ Returns CONTAINER."
   "Remove OBJECTS from CONTAINER.
 Returns CONTAINER."
   (handle (make-instance 'container-remove
-                         :objects objects
-                         :container container))
+                         :container container
+                         :objects objects))
   container)
+
+
+(defun remove-all (container)
+  (handle (make-instance 'container-remove
+                         :container container
+                         :objects ~container)))
