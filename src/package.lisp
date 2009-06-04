@@ -71,7 +71,7 @@
    #:object #:object-of #:objects-of
 
    ;; event-container-remove.lisp
-   #:remove #:remove-from #:remove-all
+   #:remove #:remove-from
    #:container-remove
    #:remove-event-of
 

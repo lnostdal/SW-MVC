@@ -5,7 +5,7 @@
 (declaim #.(optimizations))
 
 
-(defclass boolean-model (model-base single-value-model)
+(defclass boolean-model (single-value-model)
   ((value :accessor value-of :initarg :value
           :initform nil)
 
@@ -35,4 +35,3 @@ Boolean state thingy with \"memory\" of T state value."))
     (if ¤value
         (nilf ¤value)
         (setf ¤value ¤old-t))))
-
