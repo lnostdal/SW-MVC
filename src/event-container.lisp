@@ -46,6 +46,6 @@ question. The content of this slot might change while it is being handled.")))
 (defmethod object-of ((event container-event))
   (let ((objects (objects-of event)))
     (assert (= 1 (length objects)) nil "
-The use of OBJECT-OF expects that the container in question (~A) will or must
-contain only one element." (container-of event))
+The use of OBJECT-OF expects that the event in question (~A) will or must
+contain only one element." event)
     (first objects)))

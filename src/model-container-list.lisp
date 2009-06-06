@@ -176,7 +176,6 @@ container type events vs. TARGET."
         (insert (nreversef to-insert) :in target))))
 
 
-
 (defmethod container-remove ((event container-remove) (dlist dlist))
   (dolist (object (objects-of event))
     ;; TODO: Find all objects in one go instead.
