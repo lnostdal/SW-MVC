@@ -25,14 +25,18 @@ object which is a sub-type of VIEW-BASE.")))
 
 
 (defmethod initialize-instance :after ((view view-base) &key (model nil model-supplied-p))
-  (if model-supplied-p
-      (setf (model-of view) model)
-      (when (slot-boundp view 'model)
-        (setf (model-of view) (slot-value view 'model)))))
+  (when model-supplied-p
+    (setf (model-of view) model)))
 
 
-(defmethod (setf model-of) :before (new-model (view view-base))
-  (setf (slot-value view 'model) new-model))
+(defmethod print-object ((view-base view-base) stream)
+  (print-unreadable-object (view-base stream :type t :identity t)
+    (print-slots view-base stream)))
+
+
+(defmethod print-slots progn ((view-base view-base) stream)
+  (when (slot-boundp view-base 'model)
+    (format stream " :MODEL ~S" (slot-value view-base 'model))))
 
 
 (defmethod deref ((view view-base))
@@ -43,30 +47,27 @@ object which is a sub-type of VIEW-BASE.")))
   (setf (model-of view) new-model))
 
 
-(defmethod view-constructor ((context-view view-base) model &rest args)
+(defmethod (setf model-of) :before (new-model (view view-base))
+  (setf (slot-value view 'model) new-model))
+
+
+(defmethod view-constructor ((context-view view-base) model)
   "This is called to construct a new View based on MODEL in context of
 CONTEXT-VIEW. The default method calls the function held in the slot
 VIEW-CONSTRUCTOR-FN in CONTEXT-VIEW if there is a function there."
-  (when-let ((view-constructor-fn (view-constructor-fn-of context-view)))
-    (apply (the function view-constructor-fn) context-view model args)))
+  (if-let ((view-constructor-fn (view-constructor-fn-of context-view)))
+    (funcall (the function view-constructor-fn) context-view model)
+    (error "No suitable VIEW-CONSTRUCTOR method found for ~A and ~A,
+and VIEW-CONSTRUCTOR-FN in ~A was NIL." context-view model context-view)))
 
 
-(defmethod mk-view :around (model (context view-base) &key)
-  (let ((view (call-next-method)))
-    (setf (model-of view) model)
-    view))
-
-
-(defmethod mk-view (model (context-view view-base) &rest args &key)
-  (apply #'view-constructor context-view model args))
-
-
-(defmethod view-in-context-of ((context-view view-base) model)
+(defun view-in-context-of (context-view model)
   "Returns a View (some sub-instance of VIEW-BASE) of MODEL in context of
 CONTEXT-VIEW.
 A second value FOUND-P is also returned. This is T if an already existing View
 was found based on MODEL and CONTEXT-VIEW and NIL if a new View was
 constructed, stored and returned."
+  (declare (view-base context-view))
   (with-slots (views-in-context) context-view
     (let ((signature (cons context-view model)))
       (sb-ext:with-locked-hash-table (views-in-context)
@@ -75,5 +76,5 @@ constructed, stored and returned."
           (if found-p
               (values view t)
               (values (setf (gethash signature views-in-context)
-                            (mk-view model context-view))
+                            (view-constructor context-view model))
                       nil)))))))
