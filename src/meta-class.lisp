@@ -5,6 +5,11 @@
 (declaim #.(optimizations))
 
 
+#| TODO: I'm wondering if this :WEAKNESS stuff is a bit more flexible than I
+need most of the time. I suspect it'll add quite a bit of overhead,
+eventually. |#
+
+
 #| This stuff is too specific. There should be two hash-tables, EQ and EQUAL
 based as now, but stuff here shouldn't assume we're working on or vs. CLOS
 instances only. I.e., it should be generalized and talk about \"memory
@@ -70,7 +75,7 @@ If SLOT-NAME is not supplied this refers to callbacks for the object \"itself\".
               :do (dolist (,callback-sym ,callback-sym)
                     (declare (function ,callback-sym))
                     ,@body))))))
-  
+
 
 (defun get-object-callbacks (observer object)
   (when-let ((observers (object-observers-of object)))
@@ -191,7 +196,7 @@ explained in ADD-SLOT-CALLBACK."
     (multiple-value-bind (observers found-p)
         (gethash slot-name slot-names)
       (when found-p
-        (if callbacks-supplied-p 
+        (if callbacks-supplied-p
             (let ((existing-callbacks (gethash observer observers)))
               (setf (gethash observer observers)
                     (set-difference existing-callbacks callbacks)))

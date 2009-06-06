@@ -4,10 +4,6 @@
 
 (declaim #.(optimizations))
 
-#| TODO: This thing is slowly morphing into a tree type of thing.
-I should refactor most of these slots into their own mixin classes, I think.
-|#
-
 
 (eval-when (:compile-toplevel :load-toplevel)
   (defclass dlist-node () () (:metaclass mvc-stm-class))
@@ -18,10 +14,6 @@ I should refactor most of these slots into their own mixin classes, I think.
   ((dlist :accessor dlist-of :accessor container-of :initarg :dlist
           :type (or dlist null)
           :initform nil)
-
-   (parent :accessor parent-of :initarg :parent
-           :type (or dlist-node null)
-           :initform nil)
 
    (left :accessor left-of :initarg :left
          :type (or dlist-node null)
