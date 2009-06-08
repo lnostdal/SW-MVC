@@ -25,7 +25,7 @@ object which is a sub-type of VIEW-BASE.")))
 
 
 (defmethod initialize-instance :after ((view view-base) &key (model nil model-supplied-p))
-  (when model-supplied-p
+  (when (and model-supplied-p model)
     (setf (model-of view) model)))
 
 
