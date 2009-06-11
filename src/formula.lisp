@@ -37,7 +37,7 @@ should run as fast as possible and have as little overhead as possible. |#
   (defmethod (setf value-of) (new-value (formula formula))
     (set-value formula new-value))
 
-  
+
   (defmethod (setf deref) (new-value (formula formula))
     (set-value formula new-value)))
 
@@ -46,11 +46,11 @@ should run as fast as possible and have as little overhead as possible. |#
          (ref-value-of (slot-value formula 'value))))
   (declare (inline get-value))
 
-  
+
   (defmethod value-of ((formula formula))
     (get-value formula))
 
-  
+
   (defmethod deref ((formula formula))
     (get-value formula)))
 
@@ -60,7 +60,7 @@ should run as fast as possible and have as little overhead as possible. |#
       (error "SW-MVC: WITH-IGNORED-SOURCES with anything else than NIL for SOURCES argument not implemented yet.")
       `(let ((*creating-formula* nil))
          ,@body)))
-       
+
 
 (defun formula-add-source (formula source &optional (slot-name nil slot-name-supplied-p))
   (declare (formula formula))
