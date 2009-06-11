@@ -48,11 +48,11 @@ inherit from this class."))
       (with-object instance
         (setf ¤slot-set-event event
               ¤slot-set-event nil)))
-    
+
     ;; To callbacks that should be called for "any slot" of the object in question.
     (with-callbacks (instance :slot-name t)
       (funcall callback event))
-    
+
     ;; To callbacks that should be called for only the specific slot in question.
     (with-callbacks (instance :slot-name (slot-name-of event))
       (funcall callback event))))
