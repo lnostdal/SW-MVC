@@ -32,10 +32,12 @@ inherit from this class."))
 
 (defmethod print-object ((slot-set slot-set) stream)
   (print-unreadable-object (slot-set stream :type t :identity t)
-    (format stream ":INSTANCE ~A :SLOT-NAME ~A :NEW-VALUE ~A"
+    (format stream ":INSTANCE ~S :SLOT-NAME ~S :NEW-VALUE ~S"
             (instance-of slot-set)
             (slot-name-of slot-set)
-            (new-value-of slot-set))))
+            (new-value-of slot-set))
+    (when (slot-boundp slot-set 'old-value)
+      (format stream " :OLD-VALUE ~S" (slot-value slot-set 'old-value)))))
 
 
 (defmethod handle ((event slot-set))
