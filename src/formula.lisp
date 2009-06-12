@@ -95,20 +95,21 @@ should run as fast as possible and have as little overhead as possible. |#
 Returns an instance of FORMULA."
   ;; TODO: Move some of this stuff to a function/method.
   (with-gensyms (formula)
-    (destructuring-bind (&key (event-sym 'event))
+    (destructuring-bind (&key)
         (if (listp (first args)) (rest args) args)
       `(with-cells (,@(when (listp (first args)) (first args)))
          (let (,formula)
            (setf ,formula
                  (make-instance 'formula
-                                :closure (lambda (,event-sym)
-                                           (declare (ignorable ,event-sym))
+                                :closure (lambda (=event=)
+                                           (declare (ignorable =event=))
                                            (setf (value-of ,formula)
                                                  (progn ,@body)))))
            (prog1 ,formula
              ;; Trigger an initial sync which will also create the connections
              ;; which will take care of automatic syncing in the future.
-             (let ((*creating-formula* ,formula))
+             (let ((*creating-formula* ,formula)
+                   (*event-stack* (cons ,formula *event-stack*)))
                (funcall (the function (closure-of ,formula)) nil))
              (assert (sources-of ,formula) nil
                      "SW-MVC: The MK-FORMULA form was not able to automatically determine what resources

@@ -7,4 +7,8 @@
 
 (defvar *creating-formula* nil)
 
+
 (defvar *simulate-slot-set-event-p* nil)
+
+
+(defvar *event-stack* nil)

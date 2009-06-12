@@ -117,6 +117,13 @@
    #:mk-formula #:mk-cell #:mk-fcell
    #:formula-of
    #:with-ignored-sources
+
+   ;; specials.lisp
+   #:*event-stack*
+
+   ;; symbol-macros.lisp
+   #:=event= #:=slot-set-event-p=
+   #:=old-value= #:=new-value=
    ))
 
 

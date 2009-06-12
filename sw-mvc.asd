@@ -20,6 +20,7 @@ has recently turned into a dataflow thing."
      (:file "config")
      (:file "read-macros")
      (:file "specials")
+     (:file "symbol-macros")
      (:file "meta-class")
      (:file "formula")
      (:file "bootstrap-classes")
