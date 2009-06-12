@@ -42,6 +42,13 @@ Nesting of WITH-CELL and/or WITH-FORMULA forms? Debug output follows:
   (:metaclass mvc-stm-class))
 
 
+(defmethod (setf slot-value-using-class) :around (new-value (class mvc-stm-class) (instance cell) slot-definition)
+  (if-let (translator (and (eq 'value (slot-definition-name slot-definition))
+                           (translator-of instance)))
+    (call-next-method (funcall translator new-value) class instance slot-definition)
+    (call-next-method)))
+
+
 (declaim (inline mk-cell))
 (defun mk-cell (&optional (value nil value-supplied-p))
   (if value-supplied-p

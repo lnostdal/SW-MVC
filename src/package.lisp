@@ -126,6 +126,12 @@
    #:=event-model=
    #:=slot-set-event-p=
    #:=old-value= #:=new-value=
+
+   ;; model-common.lisp
+   #:translator-of
+   #:validator-of
+   #:feedback-event-of
+   #:pulse
    ))
 
 
