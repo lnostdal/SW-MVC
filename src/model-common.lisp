@@ -2,6 +2,7 @@
 
 (in-package #:sw-mvc)
 
+(declaim #.(optimizations))
 
 
 (defmethod (setf translator-of) (translator-fn model)
@@ -26,9 +27,9 @@
 
 
 (defmacro pulse (place &optional (value nil value-supplied-p))
-  "Sets PLACE to T, then NIL.
+  "Sets PLACE to T (or VALUE), then NIL.
 Used for dataflow event pulses."
-  `(progn ,(if value-supplied-p
+  `(prog1 ,(if value-supplied-p
                `(setf ,place ,value)
                `(tf ,place))
           (nilf ,place)))
