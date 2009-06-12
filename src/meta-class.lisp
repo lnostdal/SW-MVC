@@ -226,6 +226,8 @@ See their doc-strings for info."))
 
 
 (defmethod (setf slot-value-using-class) :around (new-value (class mvc-class) instance slot-definition)
+  ;; TODO: Optimize this. There is no need to construct a SLOT-SET instance and call HANDLE
+  ;; when INSTANCE itself is being constructed. The event is sent into the "void".
   (let* ((slot-name (slot-definition-name slot-definition))
          (event (make-instance 'slot-set
                                :instance instance
