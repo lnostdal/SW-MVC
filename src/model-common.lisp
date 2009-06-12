@@ -5,21 +5,22 @@
 (declaim #.(optimizations))
 
 
-(defmethod (setf translator-of) (translator-fn model)
-  (setf (metadata-of model 'translator)
+(defmethod (setf input-translator-of) (translator-fn model)
+  (setf (metadata-of model 'input-translator)
         translator-fn))
 
 
-(defmethod translator-of (model)
-  (metadata-of model 'translator))
+(defmethod input-translator-of (model)
+  (metadata-of model 'input-translator))
 
 
-(defmethod (setf validator-of) ((formula formula) model)
-  (setf (metadata-of model 'validator) #~formula))
+(defmethod (setf input-validator-of) ((formula formula) model)
+  (setf (metadata-of model 'input-validator)
+        #~formula))
 
 
-(defmethod validator-of (model)
-  (formula-of ~(metadata-of model 'validator)))
+(defmethod input-validator-of (model)
+  (formula-of ~(metadata-of model 'input-validator)))
 
 
 (defmacro feedback-event-of (model)

@@ -128,8 +128,8 @@
    #:=old-value= #:=new-value=
 
    ;; model-common.lisp
-   #:translator-of
-   #:validator-of
+   #:input-translator-of
+   #:input-validator-of
    #:feedback-event-of
    #:pulse
    ))
