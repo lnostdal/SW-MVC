@@ -5,9 +5,6 @@
 (declaim #.(optimizations))
 
 
-(define-symbol-macro creating-formula-p *creating-formula*)
-
-
 #| NOTE: A formula, by itself, is not a value or ("in") a cell. Don't waste time
 here trying to make it into this. |#
 

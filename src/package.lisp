@@ -120,6 +120,7 @@
 
    ;; specials.lisp
    #:*event-stack*
+   #:*creating-formula*
 
    ;; symbol-macros.lisp
    #:=event=
