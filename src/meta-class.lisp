@@ -226,14 +226,14 @@ See their doc-strings for info."))
 
 
 (defmethod (setf slot-value-using-class) :around (new-value (class mvc-class) instance slot-definition)
-  (let ((event (make-instance 'slot-set
-                              :instance instance
-                              :slot-name (slot-definition-name slot-definition)
-                              :new-value new-value)))
+  (let* ((slot-name (slot-definition-name slot-definition))
+         (event (make-instance 'slot-set
+                               :instance instance
+                               :slot-name slot-name
+                               :new-value new-value)))
     ;; Set OLD-VALUE slot of EVENT if slot of INSTANCE is bound.
-    ;; We might call S-V-U-C here and we don't want that to call FORMULA-ADD-SOURCE.
-    (let ((*creating-formula* nil))
-      (when (slot-boundp-using-class class instance slot-definition)
+    (when (slot-boundp-using-class class instance slot-definition)
+      (let ((*creating-formula* nil))
         (setf (slot-value event 'old-value)
               (slot-value-using-class class instance slot-definition))))
     (when *simulate-slot-set-event-p*
