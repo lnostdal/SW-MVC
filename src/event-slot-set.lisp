@@ -18,7 +18,7 @@ inherit from this class."))
 
 
 (defclass slot-set (event)
-  ((instance :reader instance-of :initarg :instance
+  ((instance :reader instance-of :reader model-of :initarg :instance
              :initform (error ":INSTANCE needed."))
 
    (slot-name :reader slot-name-of :initarg :slot-name

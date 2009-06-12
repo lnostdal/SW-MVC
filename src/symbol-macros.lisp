@@ -23,3 +23,7 @@
 
 (define-symbol-macro =new-value=
     (slot-value =event= 'new-value))
+
+
+(define-symbol-macro =event-model=
+    (model-of =event=))

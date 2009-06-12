@@ -6,7 +6,7 @@
 
 
 (defclass container-event (event)
-  ((container :reader container-of :initarg :container
+  ((container :reader container-of :reader model-of :initarg :container
               :type container
               :initform (error ":CONTAINER needed.")
               :documentation "

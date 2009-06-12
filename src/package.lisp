@@ -122,7 +122,9 @@
    #:*event-stack*
 
    ;; symbol-macros.lisp
-   #:=event= #:=slot-set-event-p=
+   #:=event=
+   #:=event-model=
+   #:=slot-set-event-p=
    #:=old-value= #:=new-value=
    ))
 
