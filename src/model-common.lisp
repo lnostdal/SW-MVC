@@ -34,7 +34,6 @@ Used for dataflow event pulses."
                `(setf ,place ,value)
                `(tf ,place))
           (nilf ,place)))
-(export 'pulse)
 
 
 (defun integer-input-translator (input)
