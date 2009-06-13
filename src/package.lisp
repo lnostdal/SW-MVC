@@ -135,6 +135,7 @@
    #:feedback-event-of
    #:pulse
    #:integer-input-translator
+   #:number-input-translator
    ))
 
 

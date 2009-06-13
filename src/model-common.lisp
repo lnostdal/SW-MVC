@@ -41,3 +41,10 @@ Used for dataflow event pulses."
     (integer input)
     (string (parse-integer input))
     (t (error "INTEGER-INPUT-TRANSLATOR: Don't know what to do with ~S~%" input))))
+
+
+(defun number-input-translator (input)
+  (typecase input
+    (number input)
+    (string (parse-number input))
+    (t (error "NUMBER-INPUT-TRANSLATOR: Don't know what to do with ~S~%" input))))
