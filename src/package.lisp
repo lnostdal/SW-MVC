@@ -133,6 +133,7 @@
    #:input-validator-of
    #:feedback-event-of
    #:pulse
+   #:integer-input-translator
    ))
 
 

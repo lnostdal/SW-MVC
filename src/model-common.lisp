@@ -35,3 +35,10 @@ Used for dataflow event pulses."
                `(tf ,place))
           (nilf ,place)))
 (export 'pulse)
+
+
+(defun integer-input-translator (input)
+  (typecase input
+    (integer input)
+    (string (parse-integer input))
+    (t (error "INTEGER-INPUT-TRANSLATOR: Don't know what to do with ~S~%" input))))
