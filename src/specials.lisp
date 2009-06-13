@@ -5,6 +5,11 @@
 (declaim #.(optimizations))
 
 
+
+
+(defvar *get-formula-p* nil)
+
+
 (defvar *creating-formula* nil)
 
 
@@ -12,3 +17,7 @@
 
 
 (defvar *event-stack* nil)
+
+
+(defparameter *touched-observers* nil
+  "Used to detect circularity as stuff propagate.")

@@ -34,14 +34,6 @@ link (hash-table) basis would be great.
 ;; OBJECT and OBSERVER are weak.
 
 
-(defparameter *touched-observers* nil
-  "Used to detect circularity as stuff propagate.")
-
-
-(defparameter *get-formula-p*
-  nil)
-
-
 ;; TODO: This thing could be improved a great deal.
 (defmethod report-circularity (observer touched-observers
                                object callback)
