@@ -5,6 +5,7 @@
 (declaim #.(optimizations))
 
 
+(defvar *get-cell-p* nil)
 
 
 (defvar *get-formula-p* nil)

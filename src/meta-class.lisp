@@ -252,6 +252,16 @@ See their doc-strings for info."))
       (let ((formula *creating-formula*)
             (*creating-formula* nil))
         (formula-add-source formula instance (slot-definition-name slot-definition))))
-    (if (and (typep value 'formula) (not *get-formula-p*))
-        (ref-value-of (slot-value value 'value)) ;; VALUE is an instance of FORMULA.
-        value)))
+    (cond
+      ((and (typep value 'formula) (not *get-formula-p*))
+       (ref-value-of (slot-value value 'value)))
+
+      ((and (typep value 'cell) (not *get-cell-p*))
+       (slot-value value 'value))
+
+      (t
+       value))))
+
+
+(defmacro cell-of (&body body)
+  `(let ((*get-cell-p* t)) ,@body))
