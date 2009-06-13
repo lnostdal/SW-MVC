@@ -111,14 +111,3 @@ Returns an instance of FORMULA."
              (assert (sources-of ,formula) nil
                      "SW-MVC: The MK-FORMULA form was not able to automatically determine what resources
 it is to monitor for changes.")))))))
-
-
-(defmacro formula-of (&body body)
-  "This is used to extract a FORMULA instance from \"something\". This tends to
-apply for FORMULA instances stored in slots."
-  `(let ((*get-formula-p* t)
-         (*creating-formula* nil))
-     (let ((result (progn ,@body)))
-       (unless (typep result 'formula)
-         (warn "SW-MVC, FORMULA-OF: Returning something not a formula; ~A" result))
-       result)))

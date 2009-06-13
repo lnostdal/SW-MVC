@@ -263,5 +263,24 @@ See their doc-strings for info."))
        value))))
 
 
-(defmacro cell-of (&body body)
-  `(let ((*get-cell-p* t)) ,@body))
+(defmacro cell-of (arg)
+  "This is used to extract a CELL instance from \"something\". This tends to
+mean CELL instances stored in CLOS slots (:METACLASS MVC-CLASS)."
+  (with-gensyms (result)
+    `(let* ((*get-cell-p* t)
+            (,result ,arg))
+       (unless (typep ,result 'cell)
+         (warn "SW-MVC:CELL-OF: Returning something not a CELL; ~S" ,result))
+       ,result)))
+
+
+(defmacro formula-of (arg)
+  "This is used to extract a FORMULA instance from \"something\". This tends to
+mean FORMULA instances stored in CLOS slots (:METACLASS MVC-CLASS)."
+  (with-gensyms (result)
+    `(let* ((*get-formula-p* t)
+            (*creating-formula* nil)
+            (,result ,arg))
+       (unless (typep ,result 'formula)
+         (warn "SW-MVC:FORMULA-OF: Returning something not a FORMULA; ~A" ,result))
+       ,result)))
