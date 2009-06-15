@@ -8,7 +8,7 @@
 (defclass view-base ()
   ((model :reader model-of)
 
-   (formula)
+   (formula :initarg :formula)
 
    ;; [SIGNATURE (context-view . model) -> VIEW]
    (views-in-context :type hash-table
@@ -37,6 +37,12 @@ object which is a sub-type of VIEW-BASE.")))
 (defmethod print-slots progn ((view-base view-base) stream)
   (when (slot-boundp view-base 'model)
     (format stream " :MODEL ~S" (slot-value view-base 'model))))
+
+
+(defun formula-set (view formula)
+  (setf (slot-value view 'formula) formula))
+
+(defsetf formula-of formula-set)
 
 
 (defmethod deref ((view view-base))
