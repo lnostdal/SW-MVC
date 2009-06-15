@@ -130,7 +130,7 @@
    #:=old-value= #:=new-value=
 
    ;; model-common.lisp
-   #:input-translator-of
+   #:input-translator-of #:input-translator-restart
    #:input-validator-of
    #:feedback-event-of
    #:pulse

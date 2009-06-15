@@ -5,9 +5,35 @@
 (declaim #.(optimizations))
 
 
+(defmacro pulse (place &optional (value nil value-supplied-p))
+  "Sets PLACE to T (or VALUE), then NIL.
+Used for dataflow event pulses."
+  `(prog1 ,(if value-supplied-p
+               `(setf ,place ,value)
+               `(tf ,place))
+          (nilf ,place)))
+
+
+(defmacro feedback-event-of (model)
+  `~(metadata-of ,model 'feedback-event #~nil))
+
+
 (defmethod (setf input-translator-of) (translator-fn model)
   (setf (metadata-of model 'input-translator)
-        translator-fn))
+        (lambda (input)
+          (handler-case
+              (unwind-protect-case ()
+                  (funcall translator-fn input)
+                (:abort
+                 (unless (eq t (feedback-event-of model))
+                   (tf (feedback-event-of model))))
+                (:normal
+                 (unless (eq nil (feedback-event-of model))
+                   (nilf (feedback-event-of model)))))
+            (error (c)
+              (if-let (restart (find-restart 'input-translator-restart))
+                (invoke-restart restart model c)
+                ~model))))))
 
 
 (defmethod input-translator-of (model)
@@ -23,17 +49,18 @@
   (formula-of ~(metadata-of model 'input-validator)))
 
 
-(defmacro feedback-event-of (model)
-  `~(metadata-of ,model 'feedback-event #~nil))
+#|(defmethod equality-fn-of (model)
+  (multiple-value-bind (data found-p)
+      (metadata-of model 'equality-fn)
+    (if found-p
+        data
+        #'equal)))|#
 
 
-(defmacro pulse (place &optional (value nil value-supplied-p))
-  "Sets PLACE to T (or VALUE), then NIL.
-Used for dataflow event pulses."
-  `(prog1 ,(if value-supplied-p
-               `(setf ,place ,value)
-               `(tf ,place))
-          (nilf ,place)))
+#|(defmethod (setf equality-fn-of) ((fn function) model)
+  (setf (metadata-of model 'equality-fn)
+        fn))|#
+
 
 
 (defun integer-input-translator (input)
