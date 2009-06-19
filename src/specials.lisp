@@ -11,7 +11,7 @@
 (defvar *get-formula-p* nil)
 
 
-(defvar *creating-formula* nil)
+(defvar *formula* nil)
 
 
 (defvar *simulate-slot-set-event-p* nil)

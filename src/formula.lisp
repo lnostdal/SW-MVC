@@ -21,6 +21,10 @@ should run as fast as possible and have as little overhead as possible. |#
             :type list
             :initform nil)
 
+   (targets :reader targets-of
+            :type list
+            :initform nil)
+
    (value :type ref
           :initform (mk-ref))))
 
@@ -55,33 +59,45 @@ should run as fast as possible and have as little overhead as possible. |#
 (defmacro with-ignored-sources ((&rest sources) &body body)
   (if sources
       (error "SW-MVC: WITH-IGNORED-SOURCES with anything else than NIL for SOURCES argument not implemented yet.")
-      `(let ((*creating-formula* nil))
+      `(let ((*formula* nil))
          ,@body)))
 
 
-(defun formula-add-source (formula source &optional (slot-name nil slot-name-supplied-p))
+(defun formula-add-source (formula source &optional (source-slot nil source-slot-supplied-p))
   (declare (formula formula))
   (with-slots (sources) formula
-    (if slot-name-supplied-p
-        (pushnew (list slot-name source) sources :test #'equal)
-        (pushnew source sources :test #'eq))))
+    (if source-slot-supplied-p
+        (let ((source-signature (cons source-slot source)))
+          (unless (find source-signature sources :test #'equal)
+            (push source-signature sources)
+            (dolist (target (targets-of formula))
+              (let ((target-slot (car target))
+                    (target (cdr target)))
+                (formula-add-slot-callback formula target target-slot source source-slot)))))
+        (unless (find source sources :test #'eq)
+          (push source sources)))))
+
+
+(defmethod formula-add-slot-callback (formula target target-slot source source-slot)
+  (add-slot-callback target source-slot source
+                     (lambda (event)
+                       (let ((new-value (funcall (the function (closure-of formula)) event)))
+                         (prog1 new-value
+                           (let ((*simulate-slot-set-event-p* t))
+                             (setf (slot-value target target-slot) new-value)))))))
 
 
 (defmethod formula-add-target (formula target target-slot)
   (declare (formula formula)
            (symbol target-slot))
-  (assert (sources-of formula) nil
-          "SW-MVC: The FORMULA ~A about to be assigned to ~A has no sources." formula target)
+  ;; TODO: Is this needed?
+  (unless (sources-of formula)
+    (warn "SW-MVC: The FORMULA ~A about to be assigned to ~A has no sources." formula target))
+  (with-slots (targets) formula
+    (pushnew (cons target-slot target) targets :test #'equal))
   (dolist (source (sources-of formula))
-    (if (listp source)
-        (destructuring-bind (slot-name source) source
-          (add-slot-callback target slot-name source
-                             (lambda (event)
-                               (let ((new-value (funcall (the function (closure-of formula)) event)))
-                                 (prog1 new-value
-                                   ;; "Simulate" a SLOT-SET event done towards TARGET.
-                                   (let ((*simulate-slot-set-event-p* t))
-                                     (setf (slot-value target target-slot) new-value)))))))
+    (if (consp source)
+        (formula-add-slot-callback formula target target-slot (cdr source) (car source))
         (add-object-callback target source
                              (closure-of formula)))))
 
@@ -92,22 +108,25 @@ should run as fast as possible and have as little overhead as possible. |#
 Returns an instance of FORMULA."
   ;; TODO: Move some of this stuff to a function/method.
   (with-gensyms (formula)
-    (destructuring-bind (&key)
-        (if (listp (first args)) (rest args) args)
-      `(with-cells (,@(when (listp (first args)) (first args)))
-         (let (,formula)
-           (setf ,formula
-                 (make-instance 'formula
-                                :closure (lambda (=event=)
-                                           (declare (ignorable =event=))
+    `(with-cells (,@(when (listp (first args)) (first args)))
+       (let (,formula)
+         (setf ,formula
+               (make-instance 'formula
+                              ,@(if (listp (first args))
+                                    (rest args)
+                                    args)
+                              :closure (lambda (=event=)
+                                         (declare (ignorable =event=))
+                                         (let ((*formula* ,formula))
+                                           (declare (ignorable *formula*))
                                            (setf (value-of ,formula)
-                                                 (progn ,@body)))))
-           (prog1 ,formula
-             ;; Trigger an initial sync which will also create the connections
-             ;; which will take care of automatic syncing in the future.
-             (let ((*creating-formula* ,formula)
-                   (*event-stack* (cons ,formula *event-stack*)))
-               (funcall (the function (closure-of ,formula)) nil))
-             (assert (sources-of ,formula) nil
-                     "SW-MVC: The MK-FORMULA form was not able to automatically determine what resources
+                                                 (progn ,@body))))))
+         (prog1 ,formula
+           ;; Trigger an initial sync which will also create the connections
+           ;; which will take care of automatic syncing in the future.
+           (let ((*event-stack* (cons ,formula *event-stack*)))
+             (funcall (the function (closure-of ,formula)) nil))
+           ;; TODO: Is this needed?
+           (unless (sources-of ,formula)
+             (warn "SW-MVC: The MK-FORMULA form was not able to automatically determine what resources
 it is to monitor for changes.")))))))

@@ -227,31 +227,29 @@ See their doc-strings for info."))
                                :new-value new-value)))
     ;; Set OLD-VALUE slot of EVENT if slot of INSTANCE is bound.
     (when (slot-boundp-using-class class instance slot-definition)
-      (let ((*creating-formula* nil))
-        (setf (slot-value event 'old-value)
-              (slot-value-using-class class instance slot-definition))))
+      (setf (slot-value event 'old-value)
+            (slot-value-using-class class instance slot-definition)))
     (when *simulate-slot-set-event-p*
       (handle event)
       (return-from slot-value-using-class))
     (prog1 (call-next-method)
       (when (typep new-value 'formula)
-        (let ((*creating-formula* nil))
-          (formula-add-target new-value instance (slot-definition-name slot-definition))))
+        (formula-add-target new-value instance (slot-definition-name slot-definition)))
       (handle event))))
 
 
 (defmethod slot-value-using-class :around ((class mvc-class) instance slot-definition)
   (let ((value (handler-case (call-next-method)
                  (unbound-slot (c)
-                   (unless *creating-formula*
+                   (unless *formula*
                      (error c))
                    ;; TODO: It is perhaps possible to append this information to the string in C?
-                   (warn "UNBOUND-SLOT while initializing formula: ~A" *creating-formula*)
+                   (warn "UNBOUND-SLOT while initializing formula: ~A" *formula*)
                    (error c)))))
-    (when *creating-formula*
-      (let ((formula *creating-formula*)
-            (*creating-formula* nil))
-        (formula-add-source formula instance (slot-definition-name slot-definition))))
+
+    (when *formula*
+      (formula-add-source *formula* instance (slot-definition-name slot-definition)))
+
     (cond
       ((and (typep value 'formula) (not *get-formula-p*))
        (ref-value-of (slot-value value 'value)))
@@ -279,7 +277,6 @@ mean CELL instances stored in CLOS slots (:METACLASS MVC-CLASS)."
 mean FORMULA instances stored in CLOS slots (:METACLASS MVC-CLASS)."
   (with-gensyms (result)
     `(let* ((*get-formula-p* t)
-            (*creating-formula* nil)
             (,result ,arg))
        (unless (typep ,result 'formula)
          (warn "SW-MVC:FORMULA-OF: Returning something not a FORMULA; ~A" ,result))
