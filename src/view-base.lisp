@@ -8,7 +8,7 @@
 (defclass view-base ()
   ((model :reader model-of)
 
-   (formula :initarg :formula)
+   (formula)
 
    ;; [SIGNATURE (context-view . model) -> VIEW]
    (views-in-context :type hash-table
@@ -24,9 +24,12 @@ Function with lambda-list (CONTEXT-VIEW MODEL &REST ARGS). Must return an
 object which is a sub-type of VIEW-BASE.")))
 
 
-(defmethod initialize-instance :after ((view view-base) &key model)
+(defmethod initialize-instance :after ((view view-base) &key model formula)
   (when model
-    (setf (model-of view) model)))
+    (setf (model-of view) model))
+  (when formula
+    (setf (formula-of view) formula)))
+
 
 
 (defmethod print-object ((view-base view-base) stream)
@@ -40,7 +43,11 @@ object which is a sub-type of VIEW-BASE.")))
 
 
 (defun formula-set (view formula)
-  (setf (slot-value view 'formula) formula))
+  (setf (slot-value view 'formula)
+        (typecase formula
+          (formula #~formula)
+          (cell formula))))
+
 
 (defsetf formula-of formula-set)
 
