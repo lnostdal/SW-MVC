@@ -5,10 +5,6 @@
 (declaim #.(optimizations))
 
 
-#| NOTE: A formula, by itself, is not a value or ("in") a cell. Don't waste time
-here trying to make it into this. |#
-
-
 #| TODO: I think it'd make sense to convert this to a DEFSTRUCT later. This
 should run as fast as possible and have as little overhead as possible. |#
 
@@ -16,6 +12,10 @@ should run as fast as possible and have as little overhead as possible. |#
   ((closure :reader closure-of :initarg :closure
             :type function
             :initform (error ":CLOSURE needed."))
+
+   (modes :accessor mode-of :initarg :modes
+          :type list
+          :initform (list :input-eval))
 
    (sources :reader sources-of
             :type list
@@ -92,9 +92,6 @@ should run as fast as possible and have as little overhead as possible. |#
 (defun formula-add-target (formula target target-slot)
   (declare (formula formula)
            (symbol target-slot))
-  ;; TODO: Is this needed?
-  (unless (sources-of formula)
-    (warn "SW-MVC: The FORMULA ~A about to be assigned to ~A has no sources." formula target))
   (with-slots (targets) formula
     (pushnew (cons target-slot target) targets :test #'equal))
   (dolist (source (sources-of formula))
@@ -127,8 +124,4 @@ Returns an instance of FORMULA."
            ;; Trigger an initial sync which will also create the connections
            ;; which will take care of automatic syncing in the future.
            (let ((*event-stack* (cons ,formula *event-stack*)))
-             (funcall (the function (closure-of ,formula)) nil))
-           ;; TODO: Is this needed?
-           (unless (sources-of ,formula)
-             (warn "SW-MVC: The MK-FORMULA form was not able to automatically determine what resources
-it is to monitor for changes.")))))))
+             (funcall (the function (closure-of ,formula)) nil)))))))
