@@ -26,6 +26,9 @@
 
    #:abort-mvc-event
 
+   ;; cell.lisp
+   #:cell #:mk-cell
+
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class
    #:with-callbacks #:callback #:observer
@@ -115,13 +118,13 @@
    ;; formula.lisp
    #:creating-formula-p
    #:formula #:value-of
-   #:mk-formula #:mk-cell #:mk-fcell
+   #:mk-formula #:mk-fcell
    #:formula-of
    #:with-ignored-sources
 
    ;; specials.lisp
    #:*event-stack*
-   #:*creating-formula*
+   #:*formula*
 
    ;; symbol-macros.lisp
    #:=event=
