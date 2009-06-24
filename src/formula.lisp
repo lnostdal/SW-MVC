@@ -123,5 +123,6 @@ Returns an instance of FORMULA."
          (prog1 ,formula
            ;; Trigger an initial sync which will also create the connections
            ;; which will take care of automatic syncing in the future.
-           (let ((*event-stack* (cons ,formula *event-stack*)))
-             (funcall (the function (closure-of ,formula)) nil)))))))
+           (when (member :input-eval (mode-of ,formula) :test #'eq)
+             (let ((*event-stack* (cons ,formula *event-stack*)))
+               (funcall (the function (closure-of ,formula)) nil))))))))
