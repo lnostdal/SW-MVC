@@ -34,10 +34,14 @@ link (hash-table) basis would be great.
 ;; OBJECT and OBSERVER are weak.
 
 
-(defmethod handle-circularity (observer touched-observers
+;; TODO: This thing could be improved a great deal.
+(defmethod report-circularity (observer touched-observers
                                object callback)
-  ;; Dodge getting stuck in a loop by taking a single step back.
-  (invoke-restart 'abort-mvc-event))
+  (error "SW-MVC: Circularity in state propagation detected.
+  Source object in question: ~A (with callback: ~A).
+  Trying to propagate to: ~A.
+  ..while the previous, still active, targets for propagation are:
+~A" object callback observer touched-observers))
 
 
 (defmacro with-callbacks ((object &key
@@ -90,7 +94,7 @@ extent (GC) of the connection between OBJECT and CALLBACK."
     (let ((callbacks (gethash observer observers)))
       (push (lambda (event)
               (when (member observer *touched-observers* :test #'eq)
-                (handle-circularity observer *touched-observers*
+                (report-circularity observer *touched-observers*
                                     object callback))
               (let ((*touched-observers* (cons observer *touched-observers*)))
                 (funcall callback event)))
@@ -156,7 +160,7 @@ for all SLOT-SET events, regardless of slot (or SLOT-NAME)."
                                    observers)))))
         (push (lambda (event)
                 (when (member (cons observer slot-name) *touched-observers* :test #'equal)
-                  (handle-circularity (cons observer slot-name) *touched-observers*
+                  (report-circularity (cons observer slot-name) *touched-observers*
                                       object callback))
                 (let ((*touched-observers* (cons (cons observer slot-name) *touched-observers*)))
                   (funcall callback event)))
@@ -248,7 +252,11 @@ See their doc-strings for info."))
 
     (cond
       ((and (typep value 'formula) (not *get-formula-p*))
-       (ref-value-of (slot-value value 'value)))
+       (let ((formula value))
+         (when (member :output-eval (mode-of formula) :test #'eq)
+           ;; TODO: Think about the argument here, and *EVENT-STACK*.
+           (funcall (closure-of formula) :output-eval))
+         (ref-value-of (slot-value formula 'value))))
 
       ((and (typep value 'cell) (not *get-cell-p*))
        (slot-value value 'value))

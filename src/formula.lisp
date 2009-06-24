@@ -78,7 +78,9 @@ should run as fast as possible and have as little overhead as possible. |#
           (push source sources)))))
 
 
-(defmethod formula-add-slot-callback (formula target target-slot source source-slot)
+(defun formula-add-slot-callback (formula target target-slot source source-slot)
+  (declare (formula formula)
+           (symbol target-slot source-slot))
   (add-slot-callback target source-slot source
                      (lambda (event)
                        (let ((new-value (funcall (the function (closure-of formula)) event)))
@@ -87,7 +89,7 @@ should run as fast as possible and have as little overhead as possible. |#
                              (setf (slot-value target target-slot) new-value)))))))
 
 
-(defmethod formula-add-target (formula target target-slot)
+(defun formula-add-target (formula target target-slot)
   (declare (formula formula)
            (symbol target-slot))
   ;; TODO: Is this needed?
