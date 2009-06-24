@@ -34,14 +34,10 @@ link (hash-table) basis would be great.
 ;; OBJECT and OBSERVER are weak.
 
 
-;; TODO: This thing could be improved a great deal.
-(defmethod report-circularity (observer touched-observers
+(defmethod handle-circularity (observer touched-observers
                                object callback)
-  (error "SW-MVC: Circularity in state propagation detected.
-  Source object in question: ~A (with callback: ~A).
-  Trying to propagate to: ~A.
-  ..while the previous, still active, targets for propagation are:
-~A" object callback observer touched-observers))
+  ;; Dodge getting stuck in a loop by taking a single step back.
+  (invoke-restart 'abort-mvc-event))
 
 
 (defmacro with-callbacks ((object &key
@@ -94,7 +90,7 @@ extent (GC) of the connection between OBJECT and CALLBACK."
     (let ((callbacks (gethash observer observers)))
       (push (lambda (event)
               (when (member observer *touched-observers* :test #'eq)
-                (report-circularity observer *touched-observers*
+                (handle-circularity observer *touched-observers*
                                     object callback))
               (let ((*touched-observers* (cons observer *touched-observers*)))
                 (funcall callback event)))
@@ -160,7 +156,7 @@ for all SLOT-SET events, regardless of slot (or SLOT-NAME)."
                                    observers)))))
         (push (lambda (event)
                 (when (member (cons observer slot-name) *touched-observers* :test #'equal)
-                  (report-circularity (cons observer slot-name) *touched-observers*
+                  (handle-circularity (cons observer slot-name) *touched-observers*
                                       object callback))
                 (let ((*touched-observers* (cons (cons observer slot-name) *touched-observers*)))
                   (funcall callback event)))
