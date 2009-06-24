@@ -109,6 +109,8 @@
    #:handle-view-set-slot-model
    #:view-constructor
    #:view-constructor-fn #:view-constructor-fn-of
+   #:add-formula
+   #:formula-cells-of
 
    ;; model-base.lisp
    #:model-base

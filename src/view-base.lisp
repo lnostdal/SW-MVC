@@ -8,7 +8,11 @@
 (defclass view-base ()
   ((model :reader model-of)
 
-   (formula)
+   (formula-cells :reader formula-cells-of
+                  :type (or null (cons cell))
+                  :initform nil)
+
+   ;;(formula)
 
    ;; [SIGNATURE (context-view . model) -> VIEW]
    (views-in-context :type hash-table
@@ -28,8 +32,7 @@ object which is a sub-type of VIEW-BASE.")))
   (when model
     (setf (model-of view) model))
   (when formula
-    (setf (formula-of view) formula)))
-
+    (add-formula view formula)))
 
 
 (defmethod print-object ((view-base view-base) stream)
@@ -42,14 +45,9 @@ object which is a sub-type of VIEW-BASE.")))
     (format stream " :MODEL ~S" (slot-value view-base 'model))))
 
 
-(defun formula-set (view formula)
-  (setf (slot-value view 'formula)
-        (typecase formula
-          (formula #~formula)
-          (cell formula))))
-
-
-(defsetf formula-of formula-set)
+;; TODO: Lock.
+(defmethod add-formula ((view view-base) (formula formula))
+  (push #~formula (slot-value view 'formula-cells)))
 
 
 (defmethod deref ((view view-base))
