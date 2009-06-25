@@ -50,6 +50,11 @@ object which is a sub-type of VIEW-BASE.")))
   (push #~formula (slot-value view 'formula-cells)))
 
 
+(defmacro add-λ (widget &body body)
+  `(add-formula ,widget
+                λ,@body))
+
+
 (defmethod deref ((view view-base))
   (model-of view))
 
