@@ -126,3 +126,7 @@ Returns an instance of FORMULA."
            (when (member :input-eval (mode-of ,formula) :test #'eq)
              (let ((*event-stack* (cons ,formula *event-stack*)))
                (funcall (the function (closure-of ,formula)) nil))))))))
+
+
+(defmethod add-to-compiler-source-caar (target source-body (source-caar (eql 'mk-formula)))
+  `(add-formula ,target ,@source-body))

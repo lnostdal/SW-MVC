@@ -66,11 +66,3 @@ suitable or natural position in IN."
                            `(:container ,(container-of (cdr result))
                              :relative-position ,(car result)
                              :relative-object ,(cdr result))))))))
-
-
-(defmethod add (object container)
-  (insert object :in container))
-
-
-(defmethod add-to (container &rest objects)
-  (insert objects :in container))

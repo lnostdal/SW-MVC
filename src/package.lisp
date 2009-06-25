@@ -80,7 +80,7 @@
    #:remove-event-of
 
    ;; event-container-insert.lisp
-   #:insert #:add #:add-to
+   #:insert
    #:container-insert
    #:relative-position #:relative-position-of
    #:relative-object #:relative-object-of
@@ -110,7 +110,6 @@
    #:view-constructor
    #:view-constructor-fn #:view-constructor-fn-of
    #:add-formula
-   #:add-λ
    #:formula-cells-of
 
    ;; model-base.lisp
