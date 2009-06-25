@@ -18,3 +18,8 @@ this'll both make things simpler and improve performance.
 
 I think this change can wait though. I can just use things as they are now;
 changing things later should be easy.
+
+
+  To add to what was said above; it is CELL and FORMULA that are the fundamental
+things here. The way (HANDLE SLOT-SET) (in event-slot-set.lisp) deals with
+low-level callbacks instead of FORMULA instances is wrong, for instance.

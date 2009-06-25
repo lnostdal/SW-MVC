@@ -243,8 +243,7 @@ See their doc-strings for info."))
                    (warn "UNBOUND-SLOT while initializing formula: ~A" *formula*)
                    (error c)))))
 
-    (when (and *formula*
-               (member :input-eval (mode-of *formula*) :test #'eq))
+    (when (and *formula* (member :input-eval (mode-of *formula*) :test #'eq))
       (formula-add-source *formula* instance (slot-definition-name slot-definition)))
 
     (cond
