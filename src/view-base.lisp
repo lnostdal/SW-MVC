@@ -12,8 +12,6 @@
                   :type (or null (cons cell))
                   :initform nil)
 
-   ;;(formula)
-
    ;; [SIGNATURE (context-view . model) -> VIEW]
    (views-in-context :type hash-table
                      :initform (make-hash-table :test #'equal :weakness :value))
@@ -45,14 +43,12 @@ object which is a sub-type of VIEW-BASE.")))
     (format stream " :MODEL ~S" (slot-value view-base 'model))))
 
 
-;; TODO: Lock.
 (defmethod add-formula ((view view-base) (formula formula))
-  (push #~formula (slot-value view 'formula-cells)))
-
-
-(defmacro add-λ (widget &body body)
-  `(add-formula ,widget
-                λ,@body))
+  "Returns FORMULA."
+  (with-slots (views-in-context) view
+    (sb-ext:with-locked-hash-table (views-in-context) ;; We borrow the lock here.
+      (push #~formula (slot-value view 'formula-cells))))
+  formula)
 
 
 (defmethod deref ((view view-base))
