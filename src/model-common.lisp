@@ -37,7 +37,12 @@ Used for dataflow event pulses."
 
 
 (defmethod input-translator-of (model)
-  (metadata-of model 'input-translator))
+  (or (metadata-of model 'input-translator)
+      #'identity))
+
+
+(defmethod translate-input (model input-value)
+  (funcall (input-translator-of model) input-value))
 
 
 (defmethod (setf input-validator-of) ((formula formula) model)
@@ -49,18 +54,10 @@ Used for dataflow event pulses."
   (formula-of ~(metadata-of model 'input-validator)))
 
 
-#|(defmethod equality-fn-of (model)
-  (multiple-value-bind (data found-p)
-      (metadata-of model 'equality-fn)
-    (if found-p
-        data
-        #'equal)))|#
-
-
-#|(defmethod (setf equality-fn-of) ((fn function) model)
-  (setf (metadata-of model 'equality-fn)
-        fn))|#
-
+(defmethod model-equal-p ((model single-value-model) input-value)
+  (and (slot-boundp model 'value)
+       (equal (slot-value model 'value)
+              input-value)))
 
 
 (defun integer-input-translator (input)

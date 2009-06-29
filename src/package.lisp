@@ -136,11 +136,13 @@
 
    ;; model-common.lisp
    #:input-translator-of #:input-translator-restart
+   #:translate-input
    #:input-validator-of
    #:feedback-event-of
    #:pulse
    #:integer-input-translator
    #:number-input-translator
+   #:model-equal-p
    ))
 
 
