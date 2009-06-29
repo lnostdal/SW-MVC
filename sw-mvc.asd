@@ -18,6 +18,7 @@ has recently turned into a dataflow thing."
     :components
     ((:file "package")
      (:file "config")
+     (:file "bootstrap")
      (:file "read-macros")
      (:file "specials")
      (:file "symbol-macros")
