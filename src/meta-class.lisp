@@ -217,18 +217,29 @@ See their doc-strings for info."))
   ;; TODO: Optimize this. There is no need to construct a SLOT-SET instance and call HANDLE
   ;; when INSTANCE itself is being constructed. The event is sent into the "void".
   (let* ((slot-name (slot-definition-name slot-definition))
+         (old-value nil) (old-value-p nil)
          (event (make-instance 'slot-set
                                :instance instance
                                :slot-name slot-name
                                :new-value new-value)))
-    ;; Set OLD-VALUE slot of EVENT if slot of INSTANCE is bound.
+    ;; Possibly set OLD-VALUE slot.
     (when (slot-boundp-using-class class instance slot-definition)
-      (setf (slot-value event 'old-value)
-            (slot-value-using-class class instance slot-definition)))
+      (allf (cell-of (slot-value-using-class class instance slot-definition))
+            (slot-value event 'old-value)
+            old-value)
+      (tf old-value-p))
+
     (when *simulate-slot-set-event-p*
       (handle event)
       (return-from slot-value-using-class))
-    (prog1 (call-next-method)
+
+    (prog1
+        (cond
+          ((and old-value-p (typep old-value 'cell) (not *get-cell-p*))
+           (setf (slot-value old-value 'value) new-value))
+
+          (t
+           (call-next-method)))
       (when (typep new-value 'formula)
         (formula-add-target new-value instance (slot-definition-name slot-definition)))
       (handle event))))
