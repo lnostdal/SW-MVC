@@ -241,7 +241,7 @@ See their doc-strings for info."))
           (t
            (call-next-method)))
       (when (typep new-value 'formula)
-        (formula-add-target new-value instance (slot-definition-name slot-definition)))
+        (formula-add-target new-value instance slot-name))
       (handle event))))
 
 
