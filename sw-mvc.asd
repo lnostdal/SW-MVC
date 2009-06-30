@@ -45,5 +45,6 @@ has recently turned into a dataflow thing."
     :serial t
     :components
     ((:file "formulas-depending-on-formulas")
-     (:file "detection-of-new-dependencies")))
+     (:file "detection-of-new-dependencies")
+     (:file "handling-of-circular-propagation"))
    ))
