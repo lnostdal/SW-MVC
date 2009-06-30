@@ -39,4 +39,11 @@ has recently turned into a dataflow thing."
      (:file "model-container-list")
      (:file "cell")
      (:file "view-base")
-     ))))
+     ))
+
+   (:module tests
+    :serial t
+    :components
+    ((:file "formulas-depending-on-formulas")
+     (:file "detection-of-new-dependencies")))
+   ))
