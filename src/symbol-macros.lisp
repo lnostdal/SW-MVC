@@ -5,6 +5,21 @@
 (declaim #.(optimizations))
 
 
+(define-symbol-macro =cell-old-value=
+    (value-of *target-cell*))
+
+
+(define-symbol-macro =cell-value=
+    ~*target-cell*)
+
+
+(define-symbol-macro =cell-boundp=
+    (init-eval-p-of *target-cell*))
+
+
+
+
+
 ;; Note that the MK-FORMULA macro actually lexically shadows =EVENT=.
 ;; Also note that when a FORMULA is being constructed or initialized,
 ;; this will refer to that FORMULA instance; i.e., not an event!

@@ -2,73 +2,133 @@
 
 (in-package #:sw-mvc)
 
-(declaim #.(optimizations))
+;;(declaim #.(optimizations))
+(declaim (optimize speed))
 
 
-(defmacro with-cells ((&rest cells) &body body)
-  "Convenience macro. Instead of saying (VALUE-OF A) or (SETF (VALUE-OF A) 1)
-one can instead say A and (SETF A 1)."
-  (with-gensyms (mcells)
-    `(let ((,mcells (vector ,@cells)))
-       (declare (dynamic-extent ,mcells)
-                (ignorable ,mcells))
-
-       #+:sw-mvc-debug-p
-       (loop
-          :for cell :across ,mcells
-          :for cell-sym :in ',cells
-          :do (unless (typep cell 'cell)
-                (error "
-CELL referred to by ~A turned out to be a ~A (~A) instead of a CELL.
-Nesting of WITH-CELL and/or WITH-FORMULA forms? Debug output follows:
-
-~A"
-                       cell-sym (type-of cell) cell
-                       (with-output-to-string (ss)
-                         ,@(loop :for cell-sym :in cells
-                              :collect `(when (symbol-macro-bound-p ,cell-sym)
-                                          (format ss "  (SYMBOL-MACRO-BOUND-P ~A) => T (culprit?)~%" ',cell-sym)))))))
-
-       (symbol-macrolet (,@(loop :for cell :in cells
-                                 :for index fixnum :from 0
-                              :collect `(,cell (value-of (svref ,mcells ,index)))))
-         ,@body))))
+#| TODO:
+  * Consider constructing the hash-tables lazily to save some space.
+|#
 
 
+(defclass cell ()
+  ((formula :initarg :formula
+            :type function
+            :initform λλnil)
+   (value :initform nil)
+   (writer-fn :accessor writer-fn-of :initarg :writer-fn
+              :type function
+              :initform (lambda (cell new-value) (setf (slot-value (truly-the cell cell) 'value) new-value)))
+   (reader-fn :accessor reader-fn-of :initarg :reader-fn
+              :type function
+              :initform (lambda (cell) (slot-value (truly-the cell cell) 'value)))
+   (equal-p-fn :accessor equal-p-fn-of :initarg :equal-p-fn
+               :type function
+               :initform #'eq)
+   (init-eval-p :accessor init-eval-p-of :initarg :init-eval-p
+                :type (member t nil)
+                :initform nil)
+   (input-eval-p :accessor input-eval-p-of :initarg :input-eval-p
+                 :type (member t nil)
+                 :initform t)
+   (output-eval-p :accessor output-eval-p-of :initarg :output-eval-p
+                  :type (member t nil :cached)
+                  :initform nil)
+   ;; STM-CLASS doesn't cover the hash-table here, but I think that's ok.
+   (target-cells :reader target-cells-of
+                 :type hash-table
+                 :initform (make-hash-table :test #'eq :weakness :value)))
 
-(defclass cell (single-value-model)
-  ((value :accessor value-of :initarg :value))
-
-  (:metaclass mvc-stm-class))
+  (:metaclass stm-class))
 
 
-(defmethod (setf slot-value-using-class) :around (new-value (class mvc-stm-class) (instance cell) slot-definition)
-  (if (and (eq 'value (slot-definition-name slot-definition))
-           (not *simulate-slot-set-event-p*))
-      (let ((translated-value (translate-input instance new-value)))
-        (unless (model-equal-p instance translated-value)
-          (call-next-method translated-value class instance slot-definition)))
-      (call-next-method)))
+(defmethod initialize-instance :after ((cell cell) &key)
+  (when (or (input-eval-p-of cell) (init-eval-p-of cell))
+    (cell-execute-formula cell)))
 
 
-(declaim (inline mk-cell))
-(defun mk-cell (&optional (value nil value-supplied-p))
-  (if value-supplied-p
-      (make-instance 'cell :value value)
-      (make-instance 'cell)))
+(defmethod value-of ((cell cell))
+  (funcall (truly-the function (reader-fn-of cell)) cell))
 
 
-(defmacro mk-fcell ((&rest args) &body body)
-  `(mk-cell (mk-formula (,@args) ,@body)))
+(defmethod (setf value-of) (new-value (cell cell))
+  (funcall (truly-the function (writer-fn-of cell)) cell new-value))
 
 
-(defmethod deref-expand ((arg symbol) (type (eql 'cell)))
-  `(slot-value ,arg 'value))
+(defmethod cell-execute-formula ((cell cell))
+  (if (member cell *source-cells* :test #'eq)
+      (value-of cell)
+      (let ((*target-cell* cell)
+            (*source-cells* (cons cell *source-cells*)))
+        (catch :abort-cell-propagation
+          (let ((result (funcall (truly-the function (slot-value cell 'formula)))))
+            (prog1 result
+              (setf ~cell result
+                    (init-eval-p-of cell) t)))))))
+
+
+(defmethod cell-set-formula ((cell cell) (formula function))
+  (setf (init-eval-p-of cell) nil
+        (slot-value cell 'formula) formula)
+  (when (init-eval-p-of cell)
+    (cell-execute-formula cell))
+  (values))
+
+
+(defmethod cell-add-target-cell ((cell cell) (target-cell cell))
+  "When CELL changes, TARGET-CELL wants to know about it."
+  (setf (gethash target-cell (target-cells-of cell)) target-cell)
+  (values))
+
+
+(defmethod cell-observed-p ((cell cell))
+  (plusp (hash-table-count (target-cells-of cell))))
+
+
+(eval-now (proclaim '(ftype (function (cell) (values t &optional))
+                       cell-deref))
+          (proclaim '(inline cell-deref)))
+(defun cell-deref (cell)
+  (if *get-formula-p*
+      (slot-value cell 'formula)
+      (progn
+        (when *target-cell*
+          (cell-add-target-cell cell *target-cell*))
+        (if (init-eval-p-of cell)
+            (case (output-eval-p-of cell)
+              ((or :cached nil) (value-of cell))
+              ((t) (cell-execute-formula cell)))
+            (cell-execute-formula cell)))))
+
+
+(eval-now (proclaim '(ftype (function (t cell) (values t (member t nil) &optional))
+                      (setf cell-deref)))
+          (proclaim '(inline (setf cell-deref))))
+(defun (setf cell-deref) (new-value cell)
+  (if *get-formula-p*
+      (let ((*get-formula-p* nil))
+        (cell-set-formula cell new-value))
+      (values new-value
+              (if (funcall (truly-the function (equal-p-fn-of cell))
+                           (value-of cell)
+                           new-value)
+                  nil
+                  (prog1 t
+                    (setf (value-of cell) new-value)
+                    (maphash (lambda (key target-cell)
+                               (declare (ignore key))
+                               (when (input-eval-p-of (truly-the cell target-cell))
+                                 (cell-execute-formula (truly-the cell target-cell))))
+                             (target-cells-of cell)))))))
 
 
 (defmethod deref ((cell cell))
-  (slot-value cell 'value))
+  (cell-deref cell))
 
 
 (defmethod (setf deref) (new-value (cell cell))
-  (setf (slot-value cell 'value) new-value))
+  (setf (cell-deref cell) new-value))
+
+
+(defmethod deref-expand ((arg symbol) (type (eql 'cell)))
+  `(cell-deref (truly-the cell ,arg)))

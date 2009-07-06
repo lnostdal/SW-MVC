@@ -5,20 +5,14 @@
 (declaim #.(optimizations))
 
 
+;;; CELL ;;;
+;;;;;;;;;;;;
+
 (defvar *get-cell-p* nil)
-
-
 (defvar *get-formula-p* nil)
 
+(declaim (list *source-cells*))
+(defvar *source-cells* nil)
 
-(defvar *formula* nil)
-
-
-(defvar *simulate-slot-set-event-p* nil)
-
-
-(defvar *event-stack* nil)
-
-
-(defparameter *touched-observers* nil
-  "Used to detect circularity as stuff propagate.")
+(declaim ((or null cell) *target-cell*))
+(defvar *target-cell* nil)

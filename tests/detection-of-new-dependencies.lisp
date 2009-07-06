@@ -3,9 +3,9 @@
 (in-package #:sw-mvc)
 
 
-(let* ((x #~0)
-       (y #~0)
-       (calc #λ(if (evenp ~x)
+(let* ((x λv0)
+       (y λv0)
+       (calc λi(if (evenp ~x)
                    (+ ~x ~x)
                    (+ ~x ~y))))
       (incf ~x)

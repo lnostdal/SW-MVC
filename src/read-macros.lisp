@@ -2,48 +2,88 @@
 
 (in-package #:sw-mvc)
 
+
 (declaim #.(optimizations))
 
 
-;; Creates a CELL and places the value given in that cell.
-;; The ~ read macro extracts the value stored in the cell.
-(set-dispatch-macro-character #\# #\~
-                              (lambda (stream char arg)
-                                (declare (ignore char arg))
-                                `(mk-cell ,(read stream))))
+(eval-now
+  (ignore-errors ;; In case we recompile.
+    (make-dispatch-macro-character #\λ)))
 
 
-;; Creates a CELL instance with a FORMULA as value.
-;; The ~ read macro extracts the computed result of the FORMULA.
-(set-dispatch-macro-character #\# #\λ
-                              (lambda (stream char arg)
-                                (declare (ignore char))
-                                `(mk-fcell (,@(when arg
-                                               `(:concurrency ,arg)))
-                                   ,(read stream))))
+;; Shortcut for CL:LAMBDA.
+(eval-now
+  (set-dispatch-macro-character #\λ #\λ
+                                (lambda (stream char arg)
+                                  (declare (ignore char arg))
+                                  `(lambda () ,(read stream)))))
 
 
-;; Creates a CELL instance with a FORMULA as value. The formula is \"static\".
-;; The ~ read macro extracts the computed result of the FORMULA.
-(set-dispatch-macro-character #\# #\@
-                              (lambda (stream char arg)
-                                (declare (ignore char))
-                                `(mk-fcell (,@(when arg
-                                               `(:concurrency ,arg)))
-                                   ,(read stream))))
+
+;; Value.
+(eval-now
+  (set-dispatch-macro-character #\# #\~
+                                (lambda (stream char arg)
+                                  (declare (ignore char arg))
+                                  `(make-instance 'cell
+                                                  :formula λλ,(read stream)
+                                                  :input-eval-p nil :output-eval-p nil
+                                                  :init-eval-p t))))
 
 
-;; Creates a FORMULA instance.
-(set-macro-character #\λ
-                     (lambda (stream char)
-                       (declare (ignore char))
-                       (let* ((first (read stream))
-                              (concurrency (when (integerp first) first))
-                              (rest (when concurrency (read stream nil nil)))
-                              (body (if concurrency
-                                     `(,rest)
-                                     `(,first ,@rest))))
-                         `(mk-formula (,@(when concurrency
-                                          `(:concurrency ,concurrency)))
-                            ,@body)))
-                     t)
+;; Formula,
+(eval-now
+  (set-dispatch-macro-character #\# #\λ
+                                (lambda (stream char arg)
+                                  (declare (ignore char arg))
+                                  `(make-instance 'cell
+                                                  :formula λλ,(read stream)
+                                                  :input-eval-p t :output-eval-p nil))))
+
+
+;; Lambda type semantics.
+(eval-now
+  (set-dispatch-macro-character #\# #\l
+                                (lambda (stream char arg)
+                                  (declare (ignore char arg))
+                                  `(make-instance 'cell
+                                                  :formula λλ,(read stream)
+                                                  :input-eval-p nil :output-eval-p t))))
+
+
+
+;; Value.
+(eval-now
+  (set-dispatch-macro-character #\λ #\v
+                                (lambda (stream char arg)
+                                  (declare (ignore char arg))
+                                  `#~,(read stream))))
+
+
+;; Formula, depending on inputs.
+(eval-now
+  (set-dispatch-macro-character #\λ #\i
+                                (lambda (stream char arg)
+                                  (declare (ignore char arg))
+                                  `#λ,(read stream))))
+
+
+;; Lambda type semantics.
+(eval-now
+  (set-dispatch-macro-character #\λ #\o
+                                (lambda (stream char arg)
+                                  (declare (ignore char arg))
+                                  `(make-instance 'cell
+                                                  :formula λλ,(read stream)
+                                                  :input-eval-p nil :output-eval-p t))))
+
+
+;; Lambda type semantics, but cached; only evaled once.
+(eval-now
+  (set-dispatch-macro-character #\λ #\c
+                                (lambda (stream char arg)
+                                  (declare (ignore char arg))
+                                  `(make-instance 'cell
+                                                  :formula λλ,(read stream)
+                                                  :input-eval-p nil
+                                                  :output-eval-p :cached))))

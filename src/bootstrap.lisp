@@ -20,6 +20,13 @@ mean CELL instances stored in CLOS slots (:METACLASS MVC-CLASS)."
               (error "~A, ~A returning something not a CELL; ~S" =lex-function-name= 'cell-of ,result)))))))
 
 
+(defmacro setf-cell-of (place new-value)
+  `(cell-of (setf ,place ,new-value)))
+
+
+(defsetf cell-of setf-cell-of)
+
+
 (defmacro formula-of (arg &key warn-p error-p)
   "This is used to extract a FORMULA instance from \"something\". This tends to
 mean FORMULA instances stored in CLOS slots (:METACLASS MVC-CLASS)."
@@ -33,3 +40,10 @@ mean FORMULA instances stored in CLOS slots (:METACLASS MVC-CLASS)."
          ,(when error-p
            `(unless (typep ,result 'formula)
               (error "~A, ~A returning something not a FORMULA; ~A" =lex-function-name= 'formula-of ,result)))))))
+
+
+(defmacro setf-formula-of (place new-value)
+  `(formula-of (setf ,place ,new-value)))
+
+
+(defsetf formula-of setf-formula-of)

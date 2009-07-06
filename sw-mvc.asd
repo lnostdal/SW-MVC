@@ -4,7 +4,7 @@
 (defsystem sw-mvc
   :description "
 This was originally intended to be a Model View Controller (MVC) framework, but
-has recently turned into a dataflow thing."
+has turned into a dataflow thing."
 
   :author "Lars Rune Nøstdal <larsnostdal@gmail.com> http://nostdal.org/"
   :licence "AGPLv3"
@@ -19,14 +19,18 @@ has recently turned into a dataflow thing."
     ((:file "package")
      (:file "config")
      (:file "bootstrap")
+     (:file "bootstrap-classes")
      (:file "read-macros")
      (:file "specials")
      (:file "symbol-macros")
-     (:file "meta-class")
-     (:file "formula")
-     (:file "bootstrap-classes")
+     ;;(:file "cell-decls")
+     (:file "cell")
+     ;;(:file "meta-class")
+     ;;(:file "formula")
      (:file "mixins")
      (:file "model-common")
+     (:file "input-translators")
+     #|
      (:file "model-boolean")
      (:file "model-container")
      (:file "event")
@@ -37,8 +41,9 @@ has recently turned into a dataflow thing."
      (:file "event-slot-set")
      (:file "model-container-pair")
      (:file "model-container-list")
-     (:file "cell")
+
      (:file "view-base")
+     |#
      ))
 
    (:module tests
@@ -46,5 +51,7 @@ has recently turned into a dataflow thing."
     :components
     ((:file "formulas-depending-on-formulas")
      (:file "detection-of-new-dependencies")
-     (:file "handling-of-circular-propagation"))
+     (:file "handling-of-circular-propagation")
+     (:file "set-formula-@-transaction")
+     ))
    ))
