@@ -11,10 +11,19 @@
    (square :initform ↑#λ(* ¤x ¤x)))
   (:metaclass mvc-class))
 
-
 (with-object (make-instance 'clos-simple-test)
   (assert (equalp (list 2 4) (list ¤x ¤square)))
   (incf ¤x)
+  (assert (equalp (list 3 9) (list ¤x ¤square)))
+  (catch :abort
+    (with-sync ()
+      (incf ¤x)
+      (throw :abort nil)))
+  ;; Back to what it was @ second step.
   (assert (equalp (list 3 9) (list ¤x ¤square))))
 
-(eval-now (setf (find-class 'clos-simple-test nil) nil))
+
+(eval-now (setf (find-class 'clos-simple-test nil) nil)
+          (unintern 'clos-simple-test)
+          (unintern 'x)
+          (unintern 'square))
