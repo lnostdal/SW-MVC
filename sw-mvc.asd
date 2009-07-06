@@ -53,5 +53,6 @@ has turned into a dataflow thing."
      (:file "detection-of-new-dependencies")
      (:file "handling-of-circular-propagation")
      (:file "set-formula-@-transaction")
+     (:file "input-translation-simple")
      ))
    ))
