@@ -31,7 +31,7 @@ This will also work for accessor methods."))
 
 (defmethod direct-slot-definition-class ((class mvc-class) &key (cell-p nil cell-p-supplied-p) &allow-other-keys)
   (declare (ignore cell-p-supplied-p))
-  (if (dbg-prin1 cell-p)
+  (if cell-p
       (find-class 'direct-cell-slot)
       (call-next-method)))
 
@@ -80,7 +80,10 @@ This will also work for accessor methods."))
     (let ((*get-cell-p* nil))
       (if (typep slotd 'effective-cell-slot)
           (call-next-method (if (functionp new-value)
-                                (mk-cell new-value)
-                                λvnew-value)
+                                (make-instance 'cell
+                                               :formula new-value
+                                               :input-eval-p t
+                                               :output-eval-p nil)
+                                λinew-value)
                             class instance slotd)
           (call-next-method)))))
