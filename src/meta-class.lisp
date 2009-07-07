@@ -23,13 +23,14 @@ This will also work for accessor methods."))
   t)
 
 
-(defclass direct-cell-slot (standard-direct-slot-definition)
-  ((cell-p :reader cell-p-of :initarg :cell-p
-           :initform nil)))
+;;; :CELLP keyarg support for DEFCLASS forms follows.
 
-(defmethod direct-slot-definition-class ((class mvc-class) &key (cell-p nil cell-p-supplied-p) &allow-other-keys)
-  (declare (ignore cell-p-supplied-p))
-  (if cell-p
+(defclass direct-cell-slot (standard-direct-slot-definition)
+  ((cellp :reader cellp-of :initarg :cellp
+          :initform nil)))
+
+(defmethod direct-slot-definition-class ((class mvc-class) &key cellp &allow-other-keys)
+  (if cellp
       (find-class 'direct-cell-slot)
       (call-next-method)))
 

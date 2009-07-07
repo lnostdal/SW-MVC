@@ -23,8 +23,8 @@
 ;;; Same, but using the custom slot metaclass here.
 
 (defclass clos-simple-test-2 (self-ref)
-  ((x :cell-p t :initform 2)
-   (square :cell-p t :initform ↑λλ(* ¤x ¤x)))
+  ((x :cellp t :initform 2)
+   (square :cellp t :initform ↑λλ(* ¤x ¤x)))
   (:metaclass mvc-class))
 
 (with-object (make-instance 'clos-simple-test-2)
