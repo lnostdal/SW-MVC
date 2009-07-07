@@ -42,6 +42,7 @@
    #:add-simple-slot-callback
    #:remove-slot-callback
    #:cell-of
+   #:as-value
 
    ;; mixins.lisp
    #:single-value-model

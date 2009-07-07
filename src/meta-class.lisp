@@ -54,6 +54,8 @@ This will also work for accessor methods."))
       (call-next-method)))
 
 
+;;; Reader and writer.
+
 (defmethod slot-value-using-class :around ((class mvc-class) instance slotd)
   (let ((value (call-next-method)))
     (cond
@@ -74,13 +76,24 @@ This will also work for accessor methods."))
       (t
        (let ((*get-cell-p* nil))
          (call-next-method))))
+    ;; Slot was not bound..
     (let ((*get-cell-p* nil))
       (if (typep slotd 'effective-cell-slot)
-          (call-next-method (if (functionp new-value)
-                                (make-instance 'cell
-                                               :formula new-value
-                                               :input-evalp t
-                                               :output-evalp nil)
-                                λinew-value)
+          ;; ..and it should always be a CELL as requested by the :CELLP slot keyarg.
+          (call-next-method (make-instance 'cell
+                                           :formula
+                                           (if (functionp new-value)
+                                               new-value
+                                               ;; It should be possible to store functions as values in CELLs.
+                                               (if (and (consp new-value)
+                                                        (eq '%as-value (car new-value)))
+                                                   (lambda () (cdr new-value))
+                                                   (lambda () new-value)))
+                                           :input-evalp t
+                                           :output-evalp nil)
                             class instance slotd)
           (call-next-method)))))
+
+
+(defun as-value (function)
+  (cons '%as-value function))
