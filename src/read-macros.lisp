@@ -27,8 +27,8 @@
                                   (declare (ignore char arg))
                                   `(make-instance 'cell
                                                   :formula λλ,(read stream)
-                                                  :input-eval-p nil :output-eval-p nil
-                                                  :init-eval-p t))))
+                                                  :input-evalp nil :output-evalp nil
+                                                  :init-evalp t))))
 
 
 ;; Formula,
@@ -38,7 +38,7 @@
                                   (declare (ignore char arg))
                                   `(make-instance 'cell
                                                   :formula λλ,(read stream)
-                                                  :input-eval-p t :output-eval-p nil))))
+                                                  :input-evalp t :output-evalp nil))))
 
 
 ;; Lambda type semantics.
@@ -48,7 +48,7 @@
                                   (declare (ignore char arg))
                                   `(make-instance 'cell
                                                   :formula λλ,(read stream)
-                                                  :input-eval-p nil :output-eval-p t))))
+                                                  :input-evalp nil :output-evalp t))))
 
 
 
@@ -75,7 +75,7 @@
                                   (declare (ignore char arg))
                                   `(make-instance 'cell
                                                   :formula λλ,(read stream)
-                                                  :input-eval-p nil :output-eval-p t))))
+                                                  :input-evalp nil :output-evalp t))))
 
 
 ;; Lambda type semantics, but cached; only evaled once.
@@ -85,5 +85,5 @@
                                   (declare (ignore char arg))
                                   `(make-instance 'cell
                                                   :formula λλ,(read stream)
-                                                  :input-eval-p nil
-                                                  :output-eval-p :cached))))
+                                                  :input-evalp nil
+                                                  :output-evalp :cached))))

@@ -25,13 +25,13 @@
    (equal-p-fn :accessor equal-p-fn-of :initarg :equal-p-fn
                :type function
                :initform #'eq)
-   (init-eval-p :accessor init-eval-p-of :initarg :init-eval-p
+   (init-evalp :accessor init-evalp-of :initarg :init-evalp
                 :type (member t nil)
                 :initform nil)
-   (input-eval-p :accessor input-eval-p-of :initarg :input-eval-p
+   (input-evalp :accessor input-evalp-of :initarg :input-evalp
                  :type (member t nil)
                  :initform t)
-   (output-eval-p :accessor output-eval-p-of :initarg :output-eval-p
+   (output-evalp :accessor output-evalp-of :initarg :output-evalp
                   :type (member t nil :cached)
                   :initform nil)
    ;; STM-CLASS doesn't cover the hash-table here, but I think that's ok.
@@ -43,7 +43,7 @@
 
 
 (defmethod initialize-instance :after ((cell cell) &key)
-  (when (or (input-eval-p-of cell) (init-eval-p-of cell))
+  (when (or (input-evalp-of cell) (init-evalp-of cell))
     (cell-execute-formula cell)))
 
 
@@ -64,13 +64,13 @@
           (let ((result (funcall (truly-the function (slot-value cell 'formula)))))
             (prog1 result
               (setf ~cell result
-                    (init-eval-p-of cell) t)))))))
+                    (init-evalp-of cell) t)))))))
 
 
 (defmethod cell-set-formula ((cell cell) (formula function))
-  (setf (init-eval-p-of cell) nil
+  (setf (init-evalp-of cell) nil
         (slot-value cell 'formula) formula)
-  (when (init-eval-p-of cell)
+  (when (init-evalp-of cell)
     (cell-execute-formula cell))
   (values))
 
@@ -94,8 +94,8 @@
       (progn
         (when *target-cell*
           (cell-add-target-cell cell *target-cell*))
-        (if (init-eval-p-of cell)
-            (case (output-eval-p-of cell)
+        (if (init-evalp-of cell)
+            (case (output-evalp-of cell)
               ((or :cached nil) (value-of cell))
               ((t) (cell-execute-formula cell)))
             (cell-execute-formula cell)))))
@@ -117,7 +117,7 @@
                     (setf (value-of cell) new-value)
                     (maphash (lambda (key target-cell)
                                (declare (ignore key))
-                               (when (input-eval-p-of (truly-the cell target-cell))
+                               (when (input-evalp-of (truly-the cell target-cell))
                                  (cell-execute-formula (truly-the cell target-cell))))
                              (target-cells-of cell)))))))
 

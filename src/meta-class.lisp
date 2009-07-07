@@ -23,8 +23,6 @@ This will also work for accessor methods."))
   t)
 
 
-
-
 (defclass direct-cell-slot (standard-direct-slot-definition)
   ((cell-p :reader cell-p-of :initarg :cell-p
            :initform nil)))
@@ -55,8 +53,6 @@ This will also work for accessor methods."))
       (call-next-method)))
 
 
-
-
 (defmethod slot-value-using-class :around ((class mvc-class) instance slotd)
   (let ((value (call-next-method)))
     (cond
@@ -82,8 +78,8 @@ This will also work for accessor methods."))
           (call-next-method (if (functionp new-value)
                                 (make-instance 'cell
                                                :formula new-value
-                                               :input-eval-p t
-                                               :output-eval-p nil)
+                                               :input-evalp t
+                                               :output-evalp nil)
                                 λinew-value)
                             class instance slotd)
           (call-next-method)))))
