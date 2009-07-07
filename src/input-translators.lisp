@@ -15,7 +15,7 @@
                         (funcall translator-fn input)
                       (error (c)
                         (if (and feedback-cell
-                                 (cell-observed-p feedback-cell))
+                                 (cell-observedp feedback-cell))
                             (progn
                               (pulse ~feedback-cell (cons c input))
                               old-value)

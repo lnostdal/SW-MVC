@@ -81,7 +81,7 @@
   (values))
 
 
-(defmethod cell-observed-p ((cell cell))
+(defmethod cell-observedp ((cell cell))
   (plusp (hash-table-count (target-cells-of cell))))
 
 
