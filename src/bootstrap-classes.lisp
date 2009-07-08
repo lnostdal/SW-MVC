@@ -6,6 +6,5 @@
 
 
 (class-forward-reference view-base)
-
-#|(class-forward-reference model-base
-  (:metaclass mvc-stm-class))|#
+(class-forward-reference cell
+  (:metaclass stm-class))

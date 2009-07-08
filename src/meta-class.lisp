@@ -46,7 +46,8 @@ E.g.,
       (find-class 'direct-cell-slot)
       (call-next-method)))
 
-(defvar *direct-cell-slot* nil)
+(define-variable *direct-cell-slot*
+    :value nil)
 
 (defclass effective-cell-slot (standard-effective-slot-definition)
   ((direct-slotd :initform *direct-cell-slot* :reader direct-slot-of)))
