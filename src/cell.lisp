@@ -87,7 +87,9 @@
 
 (eval-now (proclaim '(ftype (function (cell) (values t &optional))
                        cell-deref))
-          (proclaim '(inline cell-deref)))
+          ;; TODO: Inlining causes weird problems wrt. the WITH-CELLS macro.
+          #|(proclaim '(notinline cell-deref))|#)
+(declaim (inline cell-deref))
 (defun cell-deref (cell)
   (if *get-formula-p*
       (slot-value cell 'formula)
@@ -99,6 +101,7 @@
               ((or :cached nil) (value-of cell))
               ((t) (cell-execute-formula cell)))
             (cell-execute-formula cell)))))
+(declaim (notinline cell-deref))
 
 
 (eval-now (proclaim '(ftype (function (t cell) (values t (member t nil) &optional))
@@ -123,6 +126,7 @@
 
 
 (defmethod deref ((cell cell))
+  (declare (inline cell-deref))
   (cell-deref cell))
 
 
@@ -132,3 +136,4 @@
 
 (defmethod deref-expand ((arg symbol) (type (eql 'cell)))
   `(cell-deref (truly-the cell ,arg)))
+
