@@ -90,8 +90,6 @@ CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
 (defmethod cell-set-formula ((cell cell) (formula function))
   (setf (init-evalp-of cell) nil
         (slot-value cell 'formula) formula)
-  (when (init-evalp-of cell)
-    (cell-execute-formula cell))
   (values))
 
 
