@@ -55,7 +55,5 @@ This tends to mean FORMULA instances stored in CLOS slots of MVC-CLASS classes."
 
 ;; TODO: This does not currently update dependencies etc.
 (defmacro setf-formula-of (place new-value)
-  `(formula-of (setf ,place ,new-value)))
-
-
+  `(cell-set-formula (cell-of ,place) ,new-value))
 (defsetf formula-of setf-formula-of)

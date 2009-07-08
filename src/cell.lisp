@@ -126,21 +126,18 @@ CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
                       (setf cell-deref)))
           (proclaim '(inline (setf cell-deref))))
 (defun (setf cell-deref) (new-value cell)
-  (if *get-formula-p*
-      (let ((*get-formula-p* nil))
-        (cell-set-formula cell new-value))
-      (values new-value
-              (if (funcall (truly-the function (equal-p-fn-of cell))
-                           (value-of cell)
-                           new-value)
-                  nil
-                  (prog1 t
-                    (setf (value-of cell) new-value)
-                    (maphash (lambda (key target-cell)
-                               (declare (ignore key))
-                               (when (input-evalp-of (truly-the cell target-cell))
-                                 (cell-execute-formula (truly-the cell target-cell))))
-                             (target-cells-of cell)))))))
+  (values new-value
+          (if (funcall (truly-the function (equal-p-fn-of cell))
+                       (value-of cell)
+                       new-value)
+              nil
+              (prog1 t
+                (setf (value-of cell) new-value)
+                (maphash (lambda (key target-cell)
+                           (declare (ignore key))
+                           (when (input-evalp-of (truly-the cell target-cell))
+                             (cell-execute-formula (truly-the cell target-cell))))
+                         (target-cells-of cell))))))
 
 
 (defmethod deref ((cell cell))
