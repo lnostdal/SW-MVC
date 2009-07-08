@@ -137,3 +137,32 @@
 (defmethod deref-expand ((arg symbol) (type (eql 'cell)))
   `(cell-deref (truly-the cell ,arg)))
 
+
+(defmacro with-cells ((&rest cells) &body body)
+  "Convenience macro. Instead of saying ~A or (SETF ~A 1) one can say A
+and (SETF A 1)."
+  (with-gensyms (mcells)
+    `(let ((,mcells (vector ,@cells)))
+       (declare (dynamic-extent ,mcells)
+                (ignorable ,mcells))
+
+       #+:sw-mvc-debug-p
+       (loop
+          :for cell :across ,mcells
+          :for cell-sym :in ',cells
+          :do (unless (typep cell 'cell)
+                (error "
+CELL referred to by ~A turned out to be a ~A (~A) instead of a CELL.
+Nesting of WITH-CELL and/or WITH-FORMULA forms? Debug output follows:
+
+~A"
+                       cell-sym (type-of cell) cell
+                       (with-output-to-string (ss)
+                         ,@(loop :for cell-sym :in cells
+                              :collect `(when (symbol-macro-bound-p ,cell-sym)
+                                          (format ss "  (SYMBOL-MACRO-BOUND-P ~A) => T (culprit?)~%" ',cell-sym)))))))
+
+       (symbol-macrolet (,@(loop :for cell :in cells
+                              :for index fixnum :from 0
+                              :collect `(,cell (cell-deref (svref ,mcells ,index)))))
+         ,@body))))

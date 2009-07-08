@@ -28,6 +28,7 @@
 
    ;; cell.lisp
    #:cell #:mk-cell
+   #:with-cells
 
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class
