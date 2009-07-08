@@ -8,15 +8,26 @@
 (defclass mvc-class (standard-class)
   ()
   (:documentation "
-This metaclass enables transparent access to CELLs's values stored in CLASS
+  This metaclass enables transparent access to CELLs's values stored in CLASS
 slots.
 
-The CELL-OF macro allows one to refer to the CELL stored in the slot:
+  The CELL-OF macro allows one to refer to the CELL stored in the slot:
 
-  (cell-of (slot-value some-object 'some-slot))
-  (setf (cell-of (slot-value some-object 'some-slot)) :replace-the-cell)
+    (cell-of (slot-value some-object 'some-slot))
+    (setf (cell-of (slot-value some-object 'some-slot)) :replace-the-cell)
 
-This will also work for accessor methods."))
+This will also work for accessor methods (i.e., not just SLOT-VALUE).
+
+  Supplying :CELLP T as a slot option will cause the slot to always have
+a CELL backend storage. Using AS-VALUE allows one to initialize such a slot
+with a function as a value. E.g.,
+
+  SW-MVC> (let ((some-function (lambda () 42)))
+            (defclass some-class ()
+              ((some-slot :cellp t :initform (as-value some-function)))
+              (:metaclass mvc-class))
+            (assert (eq some-function (slot-value (make-instance 'some-class) 'some-slot))))
+  NIL"))
 
 
 (defmethod validate-superclass ((class mvc-class) (superclass standard-class))
@@ -96,4 +107,6 @@ This will also work for accessor methods."))
 
 
 (defun as-value (function)
+  "This enables one to initialize a CLOS CELL-slot with a FUNCTION as a value."
+  (check-type function function)
   (cons '%as-value function))
