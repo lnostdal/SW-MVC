@@ -5,19 +5,23 @@
 (declaim #.(optimizations))
 
 
-(defmacro cell-of (arg &key warn-p error-p)
-  "This is used to extract a CELL instance from \"something\". This tends to
-mean CELL instances stored in CLOS slots (:METACLASS MVC-CLASS)."
+(defmacro cell-of (arg &key warnp errorp)
+  "This is used to extract a CELL instance from \"something\".
+This tends to mean CELL instances stored in CLOS slots of MVC-CLASS classes."
   (with-gensyms (result)
     `(let* ((*get-cell-p* t)
             (,result ,arg))
-       (prog1 ,result
-         ,(when warn-p
-           `(unless (typep ,result 'cell)
-              (warn "~A, ~A returning something not a CELL; ~S" =lex-function-name= 'cell-of ,result)))
-         ,(when error-p
-           `(unless (typep ,result 'cell)
-              (error "~A, ~A returning something not a CELL; ~S" =lex-function-name= 'cell-of ,result)))))))
+       (typecase ,result
+         (cell ,result)
+         (otherwise
+          (prog1 ,result
+            (if (or ,warnp ,errorp)
+                (let ((args (list "CELL-OF (~A) returning something not a CELL: ~S"
+                                  =lex-function-name= ,result)))
+                  (when ,warnp
+                    (apply #'warn args))
+                  (when ,errorp
+                    (apply #'cerror "Continue; return the value anyway" args))))))))))
 
 
 (defmacro setf-cell-of (place new-value)
@@ -27,21 +31,28 @@ mean CELL instances stored in CLOS slots (:METACLASS MVC-CLASS)."
 (defsetf cell-of setf-cell-of)
 
 
-(defmacro formula-of (arg &key warn-p error-p)
-  "This is used to extract a FORMULA instance from \"something\". This tends to
-mean FORMULA instances stored in CLOS slots (:METACLASS MVC-CLASS)."
+(defmacro formula-of (arg &key warnp errorp)
+  "This is used to extract a FUNCTION (formula) instance from \"something\".
+This tends to mean FORMULA instances stored in CLOS slots of MVC-CLASS classes."
   (with-gensyms (result)
-    `(let* ((*get-formula-p* t)
-            (,result ,arg))
-       (prog1 ,result
-         ,(when warn-p
-           `(unless (typep ,result 'formula)
-              (warn "~A, ~A returning something not a FORMULA; ~A" =lex-function-name= 'formula-of ,result)))
-         ,(when error-p
-           `(unless (typep ,result 'formula)
-              (error "~A, ~A returning something not a FORMULA; ~A" =lex-function-name= 'formula-of ,result)))))))
+    (once-only (warnp errorp)
+      `(let* ((*get-formula-p* t)
+              (,result ,arg))
+         (typecase ,result
+           (cell (slot-value ,result 'formula))
+           (function ,result)
+           (otherwise
+            (prog1 ,result
+              (if (or ,warnp ,errorp)
+                  (let ((args (list "FORMULA-OF (~A) returning something not a FUNCTION (\"formula\"): ~S"
+                                    =lex-function-name= ,result)))
+                    (when ,warnp
+                      (apply #'warn args))
+                    (when ,errorp
+                      (apply #'cerror "Continue; return the value anyway" args)))))))))))
 
 
+;; TODO: This does not currently update dependencies etc.
 (defmacro setf-formula-of (place new-value)
   `(formula-of (setf ,place ,new-value)))
 
