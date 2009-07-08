@@ -42,7 +42,7 @@
                          (incf a-count-io))
                        a-square))
 
-         (b (mk-cell 3))
+         (b #~3)
          (b-count 0)
          (b-count-io 0)
          (b-square #λ(let ((b-square (* ~b ~b)))
@@ -97,17 +97,11 @@
                          (= b-square 36))))))))
 
 
-(defun test-circularity ()
-  (let* ((a #~0)
-         (b #λ(incf ~a)))
-    (declare (ignore b))
-    (incf ~a)))
-
 
 
 (defun test-sheet (size &optional (num-tests 1))
   (let ((sheet (make-array (list size))))
-    (declare (optimize speed))
+    ;;(declare (optimize speed))
 
     ;; Set value cell and formula cells.
     (setf (svref sheet 0) #~0)
@@ -124,18 +118,17 @@
 
 
 (defclass person (self-ref)
-  ((first-name :initform "Lars Rune")
-   (last-name  :initform "Nøstdal")
-   (full-name  :initform ↑λ(let ((result (catstr ¤first-name " " ¤last-name)))
-                             (format t "notify UI that `full-name' is now: ~S~%" result)
-                             result)))
-
-  (:metaclass mvc-stm-class))
+  ((first-name :initform #λ"Lars Rune")
+   (last-name  :initform #λ"Nøstdal")
+   (full-name  :initform ↑#λ(let ((result (catstr ¤first-name " " ¤last-name)))
+                              (format t "notify UI that `full-name' is now: ~S~%" result)
+                              result)))
+  (:metaclass mvc-class))
 
 
 (defun test-clos ()
   (let ((lars ¤(person)))
     (with-object lars
       (format t "full-name on our (model) end is: ~S~%" ¤full-name)
-      (setf ¤last-name "Naustdal")
+      (setf ¤last-name (string-upcase ¤last-name))
       (format t "full-name on our (model) end is: ~S~%" ¤full-name))))
