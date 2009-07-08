@@ -58,12 +58,13 @@
 
 (let ((closure (lambda () 42)))
   (defclass clos-simple-test-4 ()
-    ((function-as-value :cellp t :initform (as-value closure)))
+    ((function-as-value :cellp t :initform (as-value closure))
+     (function-as-formula :cellp t :initform closure))
     (:metaclass mvc-class))
 
   (with-object (make-instance 'clos-simple-test-4)
-    (assert (eq ¤function-as-value closure))))
-
+    (assert (eq ¤function-as-value closure))
+    (assert (= 42 ¤function-as-formula))))
 
 
 
@@ -73,4 +74,5 @@
                 (find-class 'clos-simple-test-4 nil))
           (unintern 'clos-simple-test-1)
           (unintern 'clos-simple-test-2)
-          (unintern 'clos-simple-test-3))
+          (unintern 'clos-simple-test-3)
+          (unintern 'clos-simple-test-4))

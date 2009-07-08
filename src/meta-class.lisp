@@ -8,10 +8,10 @@
 (defclass mvc-class (standard-class)
   ()
   (:documentation "
-  This metaclass enables transparent access to CELLs's values stored in CLASS
-slots.
+  This metaclass enables slot access to have CELL-like features.
 
-  The CELL-OF macro allows one to refer to the CELL stored in the slot:
+  The CELL-OF macro allows one to refer directly to a CELL used to represent a
+slot:
 
     (cell-of (slot-value some-object 'some-slot))
     (setf (cell-of (slot-value some-object 'some-slot)) :replace-the-cell)
@@ -20,7 +20,8 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE).
 
   Supplying :CELLP T as a slot option will cause the slot to always have
 a CELL backend storage. Using AS-VALUE allows one to initialize such a slot
-with a function as a value. E.g.,
+with a function as a value instead of treating it as a formula yielding a value.
+E.g.,
 
   SW-MVC> (let ((some-function (lambda () 42)))
             (defclass some-class ()
@@ -108,5 +109,5 @@ with a function as a value. E.g.,
 
 (defun as-value (function)
   "This enables one to initialize a CLOS CELL-slot with a FUNCTION as a value."
-  (check-type function function)
+  (declare (function function))
   (cons '%as-value function))
