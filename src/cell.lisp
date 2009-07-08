@@ -15,25 +15,39 @@
   ((formula :initarg :formula
             :type function
             :initform λλnil)
+
    (value :initform nil)
+
    (writer-fn :accessor writer-fn-of :initarg :writer-fn
               :type function
               :initform (lambda (cell new-value) (setf (slot-value (truly-the cell cell) 'value) new-value)))
+
    (reader-fn :accessor reader-fn-of :initarg :reader-fn
               :type function
               :initform (lambda (cell) (slot-value (truly-the cell cell) 'value)))
+
    (equal-p-fn :accessor equal-p-fn-of :initarg :equal-p-fn
                :type function
                :initform #'eq)
+
    (init-evalp :accessor init-evalp-of :initarg :init-evalp
                 :type (member t nil)
                 :initform nil)
+
    (input-evalp :accessor input-evalp-of :initarg :input-evalp
                  :type (member t nil)
-                 :initform t)
+                 :initform t
+                 :documentation "
+Note that setting this slot might not have any immediate effect; use
+CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
+
    (output-evalp :accessor output-evalp-of :initarg :output-evalp
                   :type (member t nil :cached)
-                  :initform nil)
+                  :initform nil
+                  :documentation "
+Note that setting this slot might not have any immediate effect; use
+CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
+
    ;; STM-CLASS doesn't cover the hash-table here, but I think that's ok.
    (target-cells :reader target-cells-of
                  :type hash-table
@@ -58,13 +72,19 @@
 (defmethod cell-execute-formula ((cell cell))
   (if (member cell *source-cells* :test #'eq)
       (value-of cell)
-      (let ((*target-cell* cell)
+      ;; NOTE: We track dependencies even though INPUT-EVALP is NIL. This will enable the user to set INPUT-EVALP
+      ;; to T later and have it update based on those dependencies from there on.
+      (let ((*target-cell* cell #|(when (input-evalp-of cell) cell)|#)
             (*source-cells* (cons cell *source-cells*)))
         (catch :abort-cell-propagation
           (let ((result (funcall (truly-the function (slot-value cell 'formula)))))
             (prog1 result
               (setf ~cell result
                     (init-evalp-of cell) t)))))))
+
+
+(defmethod cell-force-update ((cell cell))
+  (cell-execute-formula cell))
 
 
 (defmethod cell-set-formula ((cell cell) (formula function))
