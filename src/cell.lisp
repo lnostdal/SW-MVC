@@ -182,7 +182,8 @@ Nesting of WITH-CELL and/or WITH-FORMULA forms? Debug output follows:
                               :collect `(when (symbol-macro-bound-p ,cell-sym)
                                           (format ss "  (SYMBOL-MACRO-BOUND-P ~A) => T (culprit?)~%" ',cell-sym)))))))
 
-       (symbol-macrolet (,@(loop :for cell :in cells
-                              :for index fixnum :from 0
-                              :collect `(,cell (cell-deref (svref ,mcells ,index)))))
+       (symbol-macrolet (,@(muffle-compiler-note
+                            (loop :for cell :in cells
+                               :for index fixnum :from 0
+                               :collect `(,cell (cell-deref (svref ,mcells ,index))))))
          ,@body))))
