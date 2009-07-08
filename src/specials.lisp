@@ -12,10 +12,6 @@
     :value nil
     :type (member t nil))
 
-(define-variable *get-formula-p*
-    :value nil
-    :type (member t nil))
-
 (define-variable *source-cells*
     :value nil
     :type list)

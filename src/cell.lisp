@@ -109,16 +109,13 @@ CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
           #|(proclaim '(notinline cell-deref))|#)
 (declaim (inline cell-deref))
 (defun cell-deref (cell)
-  (if *get-formula-p*
-      (slot-value cell 'formula)
-      (progn
-        (when *target-cell*
-          (cell-add-target-cell cell *target-cell*))
-        (if (init-evalp-of cell)
-            (case (output-evalp-of cell)
-              ((or :cached nil) (value-of cell))
-              ((t) (cell-execute-formula cell)))
-            (cell-execute-formula cell)))))
+  (when *target-cell*
+    (cell-add-target-cell cell *target-cell*))
+  (if (init-evalp-of cell)
+      (case (output-evalp-of cell)
+        ((or :cached nil) (value-of cell))
+        ((t) (cell-execute-formula cell)))
+      (cell-execute-formula cell)))
 (declaim (notinline cell-deref))
 
 
