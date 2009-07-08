@@ -39,8 +39,9 @@ This tends to mean FORMULA instances stored in CLOS slots of MVC-CLASS classes."
       `(let* ((*get-formula-p* t)
               (,result ,arg))
          (typecase ,result
-           (cell (slot-value ,result 'formula))
            (function ,result)
+           ;; This'll enable one to do: (let ((x #λ42)) (formula-of x))
+           (cell (slot-value ,result 'formula))
            (otherwise
             (prog1 ,result
               (if (or ,warnp ,errorp)
