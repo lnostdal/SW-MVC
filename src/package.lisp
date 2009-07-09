@@ -132,10 +132,9 @@
    #:*formula*
 
    ;; symbol-macros.lisp
-   #:=event=
-   #:=event-model=
-   #:=slot-set-event-p=
-   #:=old-value= #:=new-value=
+   #:=cell=
+   #:=cell-value= #:=cell-old-value=
+   #:=cell-boundp=
 
    ;; model-common.lisp
    #:input-translator-of #:input-translator-restart
