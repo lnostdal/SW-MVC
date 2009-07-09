@@ -30,7 +30,7 @@ object which is a sub-type of VIEW-BASE.")))
   (when model
     (setf (model-of view) model))
   (when formula
-    (add-formula view formula)))
+    (add-formulas view formula)))
 
 
 (defmethod print-object ((view-base view-base) stream)
@@ -43,12 +43,12 @@ object which is a sub-type of VIEW-BASE.")))
     (format stream " :MODEL ~S" (slot-value view-base 'model))))
 
 
-(defmethod add-formula ((view view-base) (formula formula))
-  "Returns FORMULA."
+(defmethod add-formulas ((view view-base) &rest formula-cells)
   (with-slots (views-in-context) view
-    (sb-ext:with-locked-hash-table (views-in-context) ;; We borrow the lock here.
-      (push #~formula (slot-value view 'formula-cells))))
-  formula)
+    (sb-ext:with-locked-hash-table (views-in-context) ;; Borrow the lock.
+      (dolist (cell formula-cells)
+        (check-type cell cell)
+        (push cell (slot-value view 'formula-cells))))))
 
 
 (defmethod deref ((view view-base))
