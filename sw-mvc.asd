@@ -57,5 +57,6 @@ has turned into a dataflow thing."
      (:file "set-formula-@-transaction")
      (:file "input-translation-simple")
      (:file "clos-simple")
+     (:file "model-container-list")
      ))
    ))
