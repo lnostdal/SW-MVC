@@ -2,6 +2,8 @@
 
 (in-package #:sw-mvc)
 
+(declaim #.(optimizations))
+
 
 (defclass container (self-ref)
   ((test-fn :accessor test-fn-of :initarg :test-fn

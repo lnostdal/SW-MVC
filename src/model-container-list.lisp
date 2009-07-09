@@ -5,11 +5,6 @@
 (declaim #.(optimizations))
 
 
-(eval-when (:compile-toplevel :load-toplevel)
-  (defclass dlist-node () () (:metaclass mvc-stm-class))
-  (defclass dlist () () (:metaclass mvc-stm-class)))
-
-
 (defclass dlist-node (single-value-model)
   ((dlist :accessor dlist-of :accessor container-of :initarg :dlist
           :type (or dlist null)

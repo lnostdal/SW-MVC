@@ -6,12 +6,14 @@
 
 
 (defclass container-event (event)
+  ;; TODO: I don't think this slot belongs here; it is too specific. We often manipulate many containers.
   ((container :reader container-of :reader model-of :initarg :container
               :type container
               :initform (error ":CONTAINER needed.")
               :documentation "
 The container instance in question which had an event.")
 
+   ;; TODO: I don't think this slot belongs here; it is too specific.
    ;; Initialization of this slot happens below.
    (objects :reader objects-of
             :type list
