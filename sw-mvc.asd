@@ -30,7 +30,6 @@ has turned into a dataflow thing."
      (:file "mixins")
      (:file "model-common")
      (:file "input-translators")
-     #|
      (:file "model-boolean")
      (:file "model-container")
      (:file "event")
@@ -38,11 +37,13 @@ has turned into a dataflow thing."
      (:file "event-container-remove")
      (:file "event-container-insert")
      (:file "event-container-exchange")
-     (:file "event-slot-set")
-     (:file "model-container-pair")
      (:file "model-container-list")
 
      (:file "view-base")
+     #|
+     (:file "event-slot-set")
+     (:file "model-container-pair")
+
      |#
      ))
 

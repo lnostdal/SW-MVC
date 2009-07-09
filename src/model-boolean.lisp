@@ -12,7 +12,7 @@
    (old-t :reader old-t-of
           :initform t))
 
-  (:metaclass mvc-stm-class)
+  (:metaclass mvc-class)
   (:documentation "
 Boolean state thingy with \"memory\" of T state value."))
 

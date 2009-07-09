@@ -7,10 +7,10 @@
 
 (defclass container-exchange-mvc ()
   ((exchange-event :reader exchange-event-of
-                   :type (or null container-exchange)
+                   :cellp t
                    :initform nil))
 
-  (:metaclass mvc-stm-class))
+  (:metaclass mvc-class))
 
 
 
@@ -30,8 +30,7 @@
     (dolist (observable (observables-of event))
       (when (typep observable 'container-exchange-mvc)
         (with-object observable
-          (setf ¤exchange-event event
-                ¤exchange-event nil))))))
+          (pulse ¤exchange-event event))))))
 
 
 (defmethod exchange (object-1 object-2)

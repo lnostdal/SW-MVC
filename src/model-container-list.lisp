@@ -26,7 +26,7 @@
    (value :accessor value-of :initarg :value
           :initform (error ":VALUE needed.")))
 
-  (:metaclass mvc-stm-class)
+  (:metaclass mvc-class)
   (:documentation "
 Doubly-linked list node with support for dataflow and transactions."))
 
@@ -56,7 +56,7 @@ Doubly-linked list node with support for dataflow and transactions."))
          :initform nil))
 
   (:default-initargs :key-fn #'value-of)
-  (:metaclass mvc-stm-class)
+  (:metaclass mvc-class)
   (:documentation "
 Doubly-linked list with support for dataflow and transactions."))
 

@@ -7,10 +7,10 @@
 
 (defclass container-remove-mvc ()
   ((remove-event :reader remove-event-of
-                 :type (or null container-remove)
+                 :cellp t
                  :initform nil))
 
-  (:metaclass mvc-stm-class))
+  (:metaclass mvc-class))
 
 
 
@@ -28,8 +28,7 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
       ;; Notify stuff observing the container and the objects being removed.
       (when (typep observable 'container-remove-mvc)
         (with-object observable
-          (setf ¤remove-event event
-                ¤remove-event nil))))))
+          (pulse ¤remove-event event))))))
 
 
 (defun remove (object container)

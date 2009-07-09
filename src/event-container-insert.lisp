@@ -7,10 +7,10 @@
 
 (defclass container-insert-mvc ()
   ((insert-event :reader insert-event-of
-                 :type (or null container-insert)
+                 :cellp t
                  :initform nil))
 
-  (:metaclass mvc-stm-class))
+  (:metaclass mvc-class))
 
 
 
@@ -34,8 +34,7 @@ into some location(s?) in a container."))
       ;; Notify stuff observing the container and the objects being inserted.
       (when (typep observable 'container-insert-mvc)
         (with-object observable
-          (setf ¤insert-event event
-                ¤insert-event nil))))))
+          (pulse ¤insert-event event))))))
 
 
 (defmethod insert (object &rest args &key

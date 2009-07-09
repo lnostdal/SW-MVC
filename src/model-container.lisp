@@ -12,7 +12,7 @@
            :type function
            :initform #'identity))
 
-  (:metaclass mvc-stm-class))
+  (:metaclass mvc-class))
 
 
 (defmethod container-of ((container container))
