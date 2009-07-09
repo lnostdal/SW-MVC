@@ -9,8 +9,7 @@
   "This is used to extract a CELL instance from \"something\".
 This tends to mean CELL instances stored in CLOS slots of MVC-CLASS classes."
   (with-gensyms (result)
-    `(let* ((*get-cell-p* t)
-            (,result ,arg))
+    `(let ((,result (let ((*get-cell-p* t)) ,arg)))
        (typecase ,result
          (cell ,result)
          (otherwise
@@ -37,7 +36,7 @@ This tends to mean FORMULA instances stored in CLOS slots of MVC-CLASS classes."
                'formula))
 
 
-;; TODO: This does not currently update dependencies etc.
+;; TODO: This does not currently update/swap dependencies etc.
 (defmacro setf-formula-of (place new-value)
   `(cell-set-formula (cell-of ,place) ,new-value))
 (defsetf formula-of setf-formula-of)

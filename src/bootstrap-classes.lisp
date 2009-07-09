@@ -6,5 +6,6 @@
 
 
 (class-forward-reference view-base)
+
 (class-forward-reference cell
   (:metaclass stm-class))

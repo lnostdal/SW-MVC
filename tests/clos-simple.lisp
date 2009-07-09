@@ -64,7 +64,12 @@
 
   (with-object (make-instance 'clos-simple-test-4)
     (assert (eq ¤function-as-value closure))
-    (assert (= 42 ¤function-as-formula))))
+    (assert (= 42 ¤function-as-formula))
+    (assert (eq (formula-of ¤function-as-formula) closure))
+    (check-type (cell-of ¤function-as-value) cell)
+    (check-type (cell-of ¤function-as-formula) cell)
+    (setf (formula-of ¤function-as-formula) λλ1234)
+    (assert (= 1234 ¤function-as-formula))))
 
 
 
