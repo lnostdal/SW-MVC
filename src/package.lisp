@@ -98,10 +98,6 @@
    ;; view-base.lisp
    #:view-base
    #:model #:model-of
-   #:handle-model-event
-   #:handle-model-slot-set-event
-   #:handle-view-set-object-model
-   #:handle-view-set-slot-model
    #:view-constructor
    #:view-constructor-fn #:view-constructor-fn-of
    #:add-formulas
@@ -122,14 +118,7 @@
    #:=cell-boundp=
 
    ;; model-common.lisp
-   #:input-translator-of #:input-translator-restart
-   #:translate-input
-   #:input-validator-of
-   #:feedback-event-of
    #:pulse
-   #:integer-input-translator
-   #:number-input-translator
-   #:model-equal-p
    ))
 
 
