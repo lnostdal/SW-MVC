@@ -120,13 +120,6 @@
    #:mk-view
    #:views-in-context #:view-in-context-of
 
-   ;; formula.lisp
-   #:creating-formula-p
-   #:formula #:value-of
-   #:mk-formula #:mk-fcell
-   #:formula-of
-   #:with-ignored-sources
-
    ;; specials.lisp
    #:*event-stack*
    #:*formula*
