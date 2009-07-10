@@ -95,14 +95,6 @@
    #:exchange-event-of
    #:target-position-of
 
-   ;; event-slot-set.lisp
-   #:slot-set
-   #:instance #:instance-of
-   #:slot-name #:slot-name-of
-   #:old-value #:old-value-of
-   #:new-value #:new-value-of
-   #:slot-set-event-of
-
    ;; view-base.lisp
    #:view-base
    #:model #:model-of
