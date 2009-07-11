@@ -10,10 +10,9 @@
 (let ((worksp nil))
 
   (defmethod (setf model-of) ((container dlist) (view test-view))
-    (add-formulas
-     view
-     #λ(when-let (insert-event (insert-event-of container))
-         (tf worksp))))
+    (with-lifetime view
+      #λ(when-let (insert-event (insert-event-of container))
+          (tf worksp))))
 
   (let* ((model (dlist))
          (view (make-instance 'test-view :model model)))
