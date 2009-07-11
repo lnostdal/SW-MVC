@@ -11,7 +11,7 @@
 |#
 
 
-(defclass cell ()
+(defclass cell (single-value-model)
   ((formula :initarg :formula
             :type function
             :initform λλnil)
