@@ -119,6 +119,27 @@ garbage. See AMX:WITH-LIFETIME."))
 
 (defmethod cell-observedp ((cell cell))
   (plusp (hash-table-count (target-cells-of cell))))
+(defmethod cell-notify-targets ((cell cell))
+  "Re-evaluate target-cells which depend on the value of CELL."
+  (maphash (lambda (%not-used target-cell)
+             (declare (ignore %not-used))
+             (when (input-evalp-of target-cell)
+               (cell-execute-formula target-cell)))
+           (target-cells-of cell)))
+
+
+(eval-now (proclaim '(ftype (function (t cell) (values t (member t nil) &optional))
+                      (setf cell-deref)))
+          (proclaim '(inline (setf cell-deref))))
+(defun (setf cell-deref) (new-value cell)
+  (values new-value
+          (if (funcall (truly-the function (equal-p-fn-of cell))
+                       (value-of cell)
+                       (funcall (the function (writer-fn-of cell)) new-value))
+              nil
+              (prog1 t
+                (setf (value-of cell) new-value)
+                (cell-notify-targets cell)))))
 
 
 (eval-now (proclaim '(ftype (function (cell) (values t &optional))
@@ -135,24 +156,6 @@ garbage. See AMX:WITH-LIFETIME."))
         ((t) (cell-execute-formula cell)))
       (cell-execute-formula cell)))
 (declaim (notinline cell-deref))
-
-
-(eval-now (proclaim '(ftype (function (t cell) (values t (member t nil) &optional))
-                      (setf cell-deref)))
-          (proclaim '(inline (setf cell-deref))))
-(defun (setf cell-deref) (new-value cell)
-  (values new-value
-          (if (funcall (truly-the function (equal-p-fn-of cell))
-                       (value-of cell)
-                       (funcall (the function (writer-fn-of cell)) new-value))
-              nil
-              (prog1 t
-                (setf (value-of cell) new-value)
-                (maphash (lambda (key target-cell)
-                           (declare (ignore key))
-                           (when (input-evalp-of (truly-the cell target-cell))
-                             (cell-execute-formula (truly-the cell target-cell))))
-                         (target-cells-of cell))))))
 
 
 (defmethod deref ((cell cell))
