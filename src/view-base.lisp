@@ -35,14 +35,6 @@ object which is a sub-type of VIEW-BASE.")))
     (setf (model-of view) model)))
 
 
-(defmethod print-object ((view-base view-base) stream)
-  (print-unreadable-object (view-base stream :type t :identity t)
-    (print-slots view-base stream)))
-
-
-(defmethod print-slots progn ((view-base view-base) stream)
-  (when (slot-boundp view-base 'model)
-    (format stream " :MODEL ~S" (slot-value view-base 'model))))
 (defmethod (setf model-of) :around (new-model (view view-base))
   (setf (slot-value view 'model) new-model)
   (let ((old-model (model-of view))

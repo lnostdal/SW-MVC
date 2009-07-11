@@ -22,6 +22,7 @@
 
 
 (defmethod container-find (value (container container))
+  "Find VALUE in CONTAINER."
   (find value ~container
         :test (test-fn-of container)
         :key (key-fn-of container)))
