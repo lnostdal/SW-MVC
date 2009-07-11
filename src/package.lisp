@@ -30,6 +30,8 @@
    #:cell #:mk-cell
    #:with-cells
    #:cell-force-update
+   #:add-writer-fn
+   #:add-reader-fn
 
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class

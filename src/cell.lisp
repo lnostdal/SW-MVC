@@ -20,11 +20,11 @@
 
    (writer-fn :accessor writer-fn-of :initarg :writer-fn
               :type function
-              :initform (lambda (cell new-value) (setf (slot-value (truly-the cell cell) 'value) new-value)))
+              :initform (lambda (new-value) new-value))
 
    (reader-fn :accessor reader-fn-of :initarg :reader-fn
               :type function
-              :initform (lambda (cell) (slot-value (truly-the cell cell) 'value)))
+              :initform (lambda (value) value))
 
    (equal-p-fn :accessor equal-p-fn-of :initarg :equal-p-fn
                :type function
@@ -51,7 +51,12 @@ CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
    ;; STM-CLASS doesn't cover the hash-table here, but I think that's ok.
    (target-cells :reader target-cells-of
                  :type hash-table
-                 :initform (make-hash-table :test #'eq :weakness :value)))
+                 :initform (make-hash-table :test #'eq :weakness :value)
+                 :documentation "
+This contains CELLs that will be notified when our value changes.
+
+NOTE: Weak links; the target CELL will be removed if it would otherwise be
+garbage. See AMX:WITH-LIFETIME."))
 
   (:metaclass stm-class))
 
@@ -61,12 +66,25 @@ CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
     (cell-execute-formula cell)))
 
 
+(defmethod add-writer-fn ((cell cell) (fn function))
+  (setf (writer-fn-of cell)
+        (compose (writer-fn-of cell) fn)))
+
+
+(defmethod add-reader-fn ((cell cell) (fn function))
+  (setf (reader-fn-of cell)
+        (compose (reader-fn-of cell) fn)))
+
+
 (defmethod value-of ((cell cell))
-  (funcall (truly-the function (reader-fn-of cell)) cell))
+  (funcall (truly-the function (reader-fn-of cell))
+           (slot-value cell 'value)))
 
 
 (defmethod (setf value-of) (new-value (cell cell))
-  (funcall (truly-the function (writer-fn-of cell)) cell new-value))
+  (setf (slot-value cell 'value)
+        (funcall (truly-the function (writer-fn-of cell))
+                 new-value)))
 
 
 (defmethod cell-execute-formula ((cell cell))
@@ -126,7 +144,7 @@ CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
   (values new-value
           (if (funcall (truly-the function (equal-p-fn-of cell))
                        (value-of cell)
-                       new-value)
+                       (funcall (the function (writer-fn-of cell)) new-value))
               nil
               (prog1 t
                 (setf (value-of cell) new-value)
