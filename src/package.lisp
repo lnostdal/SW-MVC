@@ -71,7 +71,8 @@
    #:event
    #:handle
    #:observables-of
-   #:propagate
+   #:event-router
+   #:event-of
 
    ;; event-container.lisp
    #:container-event
@@ -82,19 +83,16 @@
    ;; event-container-remove.lisp
    #:remove #:remove-from #:remove-all
    #:container-remove
-   #:remove-event-of
 
    ;; event-container-insert.lisp
    #:insert
    #:container-insert
    #:relative-position #:relative-position-of
    #:relative-object #:relative-object-of
-   #:insert-event-of
 
    ;; event-container-exchange.lisp
    #:exchange
    #:container-exchange
-   #:exchange-event-of
    #:target-position-of
 
    ;; view-base.lisp
