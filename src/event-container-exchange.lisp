@@ -5,15 +5,6 @@
 (declaim #.(optimizations))
 
 
-(defclass container-exchange-mvc ()
-  ((exchange-event :reader exchange-event-of
-                   :cellp t
-                   :initform nil))
-
-  (:metaclass mvc-class))
-
-
-
 (defclass container-exchange (container-event)
   ((target-position :reader target-position-of :initarg :target-position
                     :initform (error ":TARGET-POSITION needed."))))
@@ -28,9 +19,8 @@
     (container-exchange event container)
     ;; Notify stuff observing the container and the objects being exchanged.
     (dolist (observable (observables-of event))
-      (when (typep observable 'container-exchange-mvc)
-        (with-object observable
-          (pulse ¤exchange-event event))))))
+      (when (typep observable 'event-router)
+        (event-router-notify observable event)))))
 
 
 (defmethod exchange (object-1 object-2)

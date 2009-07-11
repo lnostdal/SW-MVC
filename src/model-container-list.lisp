@@ -40,8 +40,7 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 
 
-(defclass dlist (container
-                 container-insert-mvc container-remove-mvc container-exchange-mvc)
+(defclass dlist (container event-router)
   ((head :accessor head-of :initarg :head
          :type (or dlist-node null)
          :initform nil)

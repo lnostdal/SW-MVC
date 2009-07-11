@@ -5,15 +5,6 @@
 (declaim #.(optimizations))
 
 
-(defclass container-insert-mvc ()
-  ((insert-event :reader insert-event-of
-                 :cellp t
-                 :initform nil))
-
-  (:metaclass mvc-class))
-
-
-
 (defclass container-insert (container-event)
   ((relative-position :reader relative-position-of :initarg :relative-position
                       :type symbol
@@ -32,9 +23,8 @@ into some location(s?) in a container."))
     (container-insert event container)
     (dolist (observable (observables-of event))
       ;; Notify stuff observing the container and the objects being inserted.
-      (when (typep observable 'container-insert-mvc)
-        (with-object observable
-          (pulse ¤insert-event event))))))
+      (when (typep observable 'event-router)
+        (event-router-notify observable event)))))
 
 
 (defmethod insert (object &rest args &key

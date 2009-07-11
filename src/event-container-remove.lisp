@@ -5,15 +5,6 @@
 (declaim #.(optimizations))
 
 
-(defclass container-remove-mvc ()
-  ((remove-event :reader remove-event-of
-                 :cellp t
-                 :initform nil))
-
-  (:metaclass mvc-class))
-
-
-
 (defclass container-remove (container-event)
   ()
 
@@ -26,9 +17,8 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
     (container-remove event container)
     (dolist (observable (observables-of event))
       ;; Notify stuff observing the container and the objects being removed.
-      (when (typep observable 'container-remove-mvc)
-        (with-object observable
-          (pulse ¤remove-event event))))))
+      (when (typep observable 'event-router)
+        (event-router-notify observable event)))))
 
 
 (defun remove (object container)

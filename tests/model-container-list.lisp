@@ -11,7 +11,7 @@
 
   (defmethod (setf model-of) ((container dlist) (view test-view))
     (with-lifetime view
-      #λ(when-let (insert-event (insert-event-of container))
+      #λ(when-let (event (event-of container))
           (tf worksp))))
 
   (let* ((model (dlist))
