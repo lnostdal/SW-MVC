@@ -8,10 +8,6 @@
 (defclass view-base ()
   ((model :reader model-of)
 
-   (formula-cells :reader formula-cells-of
-                  :type (or null (cons cell))
-                  :initform nil)
-
    ;; [SIGNATURE (context-view . model) -> VIEW]
    (views-in-context :type hash-table
                      :initform (make-hash-table :test #'equal :weakness :value))
@@ -26,11 +22,9 @@ Function with lambda-list (CONTEXT-VIEW MODEL &REST ARGS). Must return an
 object which is a sub-type of VIEW-BASE.")))
 
 
-(defmethod initialize-instance :after ((view view-base) &key model formula)
+(defmethod initialize-instance :after ((view view-base) &key model)
   (when model
-    (setf (model-of view) model))
-  (when formula
-    (add-formulas view formula)))
+    (setf (model-of view) model)))
 
 
 (defmethod print-object ((view-base view-base) stream)
@@ -41,14 +35,6 @@ object which is a sub-type of VIEW-BASE.")))
 (defmethod print-slots progn ((view-base view-base) stream)
   (when (slot-boundp view-base 'model)
     (format stream " :MODEL ~S" (slot-value view-base 'model))))
-
-
-(defmethod add-formulas ((view view-base) &rest formula-cells)
-  (with-slots (views-in-context) view
-    (sb-ext:with-locked-hash-table (views-in-context) ;; Borrow the lock.
-      (dolist (cell formula-cells)
-        (check-type cell cell)
-        (push cell (slot-value view 'formula-cells))))))
 
 
 (defmethod deref ((view view-base))
