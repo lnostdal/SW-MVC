@@ -111,14 +111,16 @@ garbage. See AMX:WITH-LIFETIME."))
   (values))
 
 
+(defmethod cell-observedp ((cell cell))
+  (plusp (hash-table-count (target-cells-of cell))))
+
+
 (defmethod cell-add-target-cell ((cell cell) (target-cell cell))
   "When CELL changes, TARGET-CELL wants to know about it."
   (setf (gethash target-cell (target-cells-of cell)) target-cell)
   (values))
 
 
-(defmethod cell-observedp ((cell cell))
-  (plusp (hash-table-count (target-cells-of cell))))
 (defmethod cell-notify-targets ((cell cell))
   "Re-evaluate target-cells which depend on the value of CELL."
   (maphash (lambda (%not-used target-cell)
@@ -145,7 +147,7 @@ garbage. See AMX:WITH-LIFETIME."))
 (eval-now (proclaim '(ftype (function (cell) (values t &optional))
                        cell-deref))
           ;; TODO: Inlining causes weird problems wrt. the WITH-CELLS macro.
-          #|(proclaim '(notinline cell-deref))|#)
+          #|(proclaim '(inline cell-deref))|#)
 (declaim (inline cell-deref))
 (defun cell-deref (cell)
   (when *target-cell*

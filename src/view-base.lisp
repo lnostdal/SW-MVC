@@ -93,3 +93,13 @@ constructed, stored and returned."
               (values (setf (gethash signature views-in-context)
                             (view-constructor context-view model))
                       nil)))))))
+
+
+(defmethod print-object ((view-base view-base) stream)
+  (print-unreadable-object (view-base stream :type t :identity t)
+    (print-slots view-base stream)))
+
+
+(defmethod print-slots progn ((view-base view-base) stream)
+  (when (slot-boundp view-base 'model)
+    (format stream " :MODEL ~S" (slot-value view-base 'model))))
