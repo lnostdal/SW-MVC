@@ -6,7 +6,15 @@
 
 
 (defclass view-base ()
-  ((model :reader model-of)
+  (;; TODO: Do we even need to store this here? Will not simply MODEL-OBSERVER, below, do?
+   ;; Think about this wrt. GC.
+   (model :reader model-of
+          :initform nil)
+
+   ;; Dataflow: MODEL -> MODEL-OBSERVER (updates the View).
+   (model-observer :reader model-observer-of
+                   :type (or cell null)
+                   :initform nil)
 
    ;; [SIGNATURE (context-view . model) -> VIEW]
    (views-in-context :type hash-table
@@ -35,6 +43,19 @@ object which is a sub-type of VIEW-BASE.")))
 (defmethod print-slots progn ((view-base view-base) stream)
   (when (slot-boundp view-base 'model)
     (format stream " :MODEL ~S" (slot-value view-base 'model))))
+(defmethod (setf model-of) :around (new-model (view view-base))
+  (setf (slot-value view 'model) new-model)
+  (let ((old-model (model-of view))
+        (old-model-observer (model-observer-of view)))
+    (unwind-protect-case ()
+        (progn
+          (setf (slot-value view 'model) new-model
+                (slot-value view 'model-observer) (call-next-method))
+          (when (typep old-model-observer 'cell)
+            (nilf (slot-value old-model-observer 'input-evalp))))
+      (:abort
+       ;; TODO: This is probably not enough, but then again the only point of failure here should be C-N-M.
+       (setf (slot-value view 'model) old-model)))))
 
 
 (defmethod deref ((view view-base))
@@ -43,10 +64,6 @@ object which is a sub-type of VIEW-BASE.")))
 
 (defmethod (setf deref) (new-model (view view-base))
   (setf (model-of view) new-model))
-
-
-(defmethod (setf model-of) :before (new-model (view view-base))
-  (setf (slot-value view 'model) new-model))
 
 
 (defmethod view-constructor ((context-view view-base) model)
