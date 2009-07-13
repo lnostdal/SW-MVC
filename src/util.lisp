@@ -15,8 +15,7 @@ LIFETIME object exists."
   "Forward changes done to SOURCE to TARGET, unless the change to SOURCE was
 caused by a change to TARGET."
   (with-formula target
-    (unless (member target *source-cells*)
-      (setf ~target ~source))))
+    (setf ~target ~source)))
 
 
 (defun sync-cells (x y)
