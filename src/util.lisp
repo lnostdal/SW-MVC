@@ -26,3 +26,11 @@ Y will update if X changes, unless the change to X was caused by a change to Y."
   (declare (cell x y))
   (forward-cell x y)
   (forward-cell y x))
+
+
+(defun sync-back (back middle front)
+  "Any change to MIDDLE is forwarded to BACK, which will in turn forward its change to FRONT.
+Any change to BACK is forwarded to FRONT."
+  (forward-cell middle back)
+  (forward-cell back front))
+(export 'sync-back)
