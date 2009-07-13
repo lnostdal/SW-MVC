@@ -119,6 +119,17 @@
 
    ;; model-common.lisp
    #:pulse
+
+   ;; input-translators.lisp
+   #:mk-input-handler
+   #:mk-validator
+   #:mk-integer-parser
+   #:mk-number-parser
+
+   ;; util.lisp
+   #:with-formula
+   #:forward-cell
+   #:sync-cells
    ))
 
 

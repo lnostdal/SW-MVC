@@ -4,9 +4,10 @@
 
 
 (let* ((x λv0)
-       (calc λi(incf ~x))) ;; 0 -> 1
+       (calc λi(incf ~x)))
+
   (assert (equalp (list ~x ~calc)
                   (list 1 1)))
-  (incf ~x)                ;; 1 -> 2, then 2 -> 3
+  (incf ~x)
   (assert (equalp (list ~x ~calc)
-                  (list 3 3))))
+                  (list 2 2))))

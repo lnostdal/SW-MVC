@@ -12,21 +12,19 @@
   (letp1 ((cell λi(let ((input ~input-cell)
                         (old-value =cell-old-value=))
                     (handler-case
-                        (funcall translator-fn input)
+                        (prog1 (funcall translator-fn input)
+                          (when (and feedback-cell ~feedback-cell)
+                            (nilf ~feedback-cell)))
                       (error (c)
-                        (if (and feedback-cell
-                                 (cell-observedp feedback-cell))
-                            (progn
-                              (pulse ~feedback-cell (cons c input))
-                              old-value)
-                            (progn
+                        (prog1 old-value
+                          (if (and feedback-cell
+                                   (cell-observedp feedback-cell))
+                              (setf ~feedback-cell (cons c input))
                               (cerror "Return old value ~S and continue."
                                       (fmtn "MK-INPUT-HANDLER (lambda): Got condition ~S~%on input ~S" c input)
-                                      old-value)
-                              old-value)))))))
+                                      old-value))))))))
     (when equal-p-fn
       (setf (equal-p-fn-of cell) equal-p-fn))))
-
 
 
 (declaim (ftype (function (function cell &optional cell) (values cell &optional))
@@ -39,8 +37,6 @@
                             input
                             (error "MK-VALIDATOR (lambda): Validation of input failed: ~S" input))))
                     :feedback-cell feedback-cell))
-
-
 
 
 (declaim (ftype (function (cell &optional cell) (values cell &optional))
@@ -56,14 +52,15 @@ INPUT-CELL through AMX:PARSE-INTEGER."
                         (t (error "MK-INTEGER-PARSER (lambda): Don't know what to do with input: ~S~%" input))))
                     :equal-p-fn #'=
                     :feedback-cell feedback-cell))
-(export 'mk-integer-parser)
 
 
-(declaim (ftype (function (cell &optional cell) (values cell &optional))
+(declaim (ftype (function (cell &optional t) (values cell &optional))
                 mk-number-parser))
 (defun mk-number-parser (input-cell &optional feedback-cell)
   "Returns a CELL that'll represent the result of sending the content of
 INPUT-CELL through AMX:PARSE-NUMBER."
+  (when (eq t feedback-cell)
+    (setf feedback-cell (feedback-event-of input-cell)))
   (mk-input-handler input-cell
                     (lambda (input)
                       (typecase input
@@ -72,4 +69,3 @@ INPUT-CELL through AMX:PARSE-NUMBER."
                         (t (error "MK-NUMBER-PARSER (lambda): Don't know what to do with input: ~S~%" input))))
                     :equal-p-fn #'=
                     :feedback-cell feedback-cell))
-(export 'mk-number-parser)

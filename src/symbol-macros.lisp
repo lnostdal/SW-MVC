@@ -8,7 +8,6 @@
 (define-symbol-macro =cell=
     *target-cell*)
 
-
 (define-symbol-macro =cell-old-value=
     (value-of *target-cell*))
 

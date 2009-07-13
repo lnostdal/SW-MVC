@@ -11,7 +11,8 @@
    (model :reader model-of
           :initform nil)
 
-   ;; Dataflow: MODEL -> MODEL-OBSERVER (updates the View).
+   ;; Dataflow: MODEL -> MODEL-OBSERVER => VIEW-BASE (some widget in SW).
+   ;; This slot is set by the :AROUND (SETF MODEL-OF) method.
    (model-observer :reader model-observer-of
                    :type (or cell null)
                    :initform nil)
@@ -31,8 +32,7 @@ object which is a sub-type of VIEW-BASE.")))
 
 
 (defmethod initialize-instance :after ((view view-base) &key model)
-  (when model
-    (setf (model-of view) model)))
+  (when model (setf (model-of view) model)))
 
 
 (defmethod (setf model-of) :around (new-model (view view-base))

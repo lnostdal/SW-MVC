@@ -92,8 +92,7 @@ garbage. See AMX:WITH-LIFETIME."))
       (value-of cell)
       ;; NOTE: We track dependencies even though INPUT-EVALP is NIL. This will enable the user to set INPUT-EVALP
       ;; to T later and have it update based on those dependencies from there on.
-      (let ((*target-cell* cell #|(when (input-evalp-of cell) cell)|#)
-            (*source-cells* (cons cell *source-cells*)))
+      (let ((*target-cell* cell #|(when (input-evalp-of cell) cell)|#))
         (catch :abort-cell-propagation
           (let ((result (funcall (truly-the function (slot-value cell 'formula)))))
             (prog1 result
@@ -123,25 +122,29 @@ garbage. See AMX:WITH-LIFETIME."))
 
 (defmethod cell-notify-targets ((cell cell))
   "Re-evaluate target-cells which depend on the value of CELL."
-  (maphash (lambda (%not-used target-cell)
-             (declare (ignore %not-used))
-             (when (input-evalp-of target-cell)
-               (cell-execute-formula target-cell)))
-           (target-cells-of cell)))
+  (maphash-values (lambda (target-cell)
+                    (when (input-evalp-of target-cell)
+                      (cell-execute-formula target-cell)))
+                  (target-cells-of cell)))
 
 
-(eval-now (proclaim '(ftype (function (t cell) (values t (member t nil) &optional))
+(eval-now (proclaim '(ftype (function (t cell) #|(values t #|(member t nil)|# &optional)|#)
                       (setf cell-deref)))
           (proclaim '(inline (setf cell-deref))))
+;; TODO: Document why this needs to return multiple values. IIRC it has something to do with dom-cache.lisp in SW,
+;; and it's probably a bad idea.
 (defun (setf cell-deref) (new-value cell)
-  (values new-value
-          (if (funcall (truly-the function (equal-p-fn-of cell))
-                       (value-of cell)
-                       (funcall (the function (writer-fn-of cell)) new-value))
-              nil
-              (prog1 t
-                (setf (value-of cell) new-value)
-                (cell-notify-targets cell)))))
+  (if (member cell *source-cells*)
+      (values (value-of cell) t)
+      (let ((*source-cells* (cons cell *source-cells*)))
+        (values new-value
+                (if (funcall (the function (equal-p-fn-of cell))
+                             (value-of cell)
+                             (funcall (the function (writer-fn-of cell)) new-value))
+                    nil
+                    (prog1 t
+                      (setf (value-of cell) new-value)
+                      (cell-notify-targets cell)))))))
 
 
 (eval-now (proclaim '(ftype (function (cell) (values t &optional))
