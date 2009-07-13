@@ -25,8 +25,8 @@ the View (USER-INPUT) to update. At the same time, stuff should not get stuck pr
 
 
 (let* ((x #λ0)
-       (user-input #λ~x) ;; X -> USER-INPUT (sync-back).
-       (square #λ(* ~x ~x)))
+       (square #λ(* ~x ~x))
+       (user-input #λ~x))  ;; X -> USER-INPUT (sync-back).
 
   ;; USER-INPUT -> X.
   (forward-cell (mk-validator #'evenp (mk-number-parser user-input)) x)
@@ -38,5 +38,5 @@ the View (USER-INPUT) to update. At the same time, stuff should not get stuck pr
 
   (setf ~x 4)
   (assert (= 4 ~x))
-  (assert (= 4 ~user-input))
+  (assert (= 4 ~user-input)) ;; The code updating the UI will deal fine with this not being a string.
   (assert (= 16 ~square)))

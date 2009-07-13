@@ -18,14 +18,6 @@
 
    (value :initform nil)
 
-   (writer-fn :accessor writer-fn-of :initarg :writer-fn
-              :type function
-              :initform (lambda (new-value) new-value))
-
-   (reader-fn :accessor reader-fn-of :initarg :reader-fn
-              :type function
-              :initform (lambda (value) value))
-
    (equal-p-fn :accessor equal-p-fn-of :initarg :equal-p-fn
                :type function
                :initform #'eq)
@@ -66,25 +58,12 @@ garbage. See AMX:WITH-LIFETIME."))
     (cell-execute-formula cell)))
 
 
-(defmethod add-writer-fn ((cell cell) (fn function))
-  (setf (writer-fn-of cell)
-        (compose (writer-fn-of cell) fn)))
-
-
-(defmethod add-reader-fn ((cell cell) (fn function))
-  (setf (reader-fn-of cell)
-        (compose (reader-fn-of cell) fn)))
-
-
 (defmethod value-of ((cell cell))
-  (funcall (truly-the function (reader-fn-of cell))
-           (slot-value cell 'value)))
+  (slot-value cell 'value))
 
 
 (defmethod (setf value-of) (new-value (cell cell))
-  (setf (slot-value cell 'value)
-        (funcall (truly-the function (writer-fn-of cell))
-                 new-value)))
+  (setf (slot-value cell 'value) new-value))
 
 
 (defmethod cell-execute-formula ((cell cell))
@@ -140,7 +119,7 @@ garbage. See AMX:WITH-LIFETIME."))
         (values new-value
                 (if (funcall (the function (equal-p-fn-of cell))
                              (value-of cell)
-                             (funcall (the function (writer-fn-of cell)) new-value))
+                             new-value)
                     nil
                     (prog1 t
                       (setf (value-of cell) new-value)
