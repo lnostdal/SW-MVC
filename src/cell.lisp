@@ -16,27 +16,28 @@
             :type function
             :initform λλnil)
 
-   (value :initform nil)
+   (value :accessor value-of
+          :initform nil)
 
    (equal-p-fn :accessor equal-p-fn-of :initarg :equal-p-fn
                :type function
                :initform #'eq)
 
    (init-evalp :accessor init-evalp-of :initarg :init-evalp
-                :type (member t nil)
-                :initform nil)
+               :type (member t nil)
+               :initform nil)
 
    (input-evalp :accessor input-evalp-of :initarg :input-evalp
-                 :type (member t nil)
-                 :initform t
-                 :documentation "
+                :type (member t nil)
+                :initform t
+                :documentation "
 Note that setting this slot might not have any immediate effect; use
 CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
 
    (output-evalp :accessor output-evalp-of :initarg :output-evalp
-                  :type (member t nil :cached)
-                  :initform nil
-                  :documentation "
+                 :type (member t nil :cached)
+                 :initform nil
+                 :documentation "
 Note that setting this slot might not have any immediate effect; use
 CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
 
@@ -58,12 +59,9 @@ garbage. See AMX:WITH-LIFETIME."))
     (cell-execute-formula cell)))
 
 
-(defmethod value-of ((cell cell))
-  (slot-value cell 'value))
-
-
-(defmethod (setf value-of) (new-value (cell cell))
-  (setf (slot-value cell 'value) new-value))
+(defmethod print-object ((cell cell) stream)
+  (print-unreadable-object (cell stream :type t :identity t)
+    (prin1 (value-of cell) stream)))
 
 
 (defmethod cell-execute-formula ((cell cell))
