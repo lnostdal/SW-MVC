@@ -6,15 +6,13 @@
 
 
 (defclass view-base ()
-  (;; TODO: Do we even need to store this here? Will not simply MODEL-OBSERVER, below, do?
-   ;; Think about this wrt. GC.
-   (model :reader model-of
+  ((model :reader model-of
           :initform nil)
 
-   ;; Dataflow: MODEL -> MODEL-OBSERVER => VIEW-BASE (some widget in SW).
+   ;; Dataflow: MODEL -> MODEL-OBSERVERS => VIEW-BASE (some widget in SW).
    ;; This slot is set by the :AROUND (SETF MODEL-OF) method.
-   (model-observer :reader model-observer-of
-                   :type (or cell null)
+   (model-observers :reader model-observers-of
+                   ;;:type (or cell null)
                    :initform nil)
 
    ;; [SIGNATURE (context-view . model) -> VIEW]
@@ -36,18 +34,17 @@ object which is a sub-type of VIEW-BASE.")))
 
 
 (defmethod (setf model-of) :around (new-model (view view-base))
-  (setf (slot-value view 'model) new-model)
-  (let ((old-model (model-of view))
-        (old-model-observer (model-observer-of view)))
-    (unwind-protect-case ()
-        (progn
-          (setf (slot-value view 'model) new-model
-                (slot-value view 'model-observer) (call-next-method))
-          (when (typep old-model-observer 'cell)
-            (nilf (slot-value old-model-observer 'input-evalp))))
-      (:abort
-       ;; TODO: This is probably not enough, but then again the only point of failure here should be C-N-M.
-       (setf (slot-value view 'model) old-model)))))
+  (let ((old-model-observers (model-observers-of view)))
+    (prog1 new-model
+      (with-object view
+        (setf ¤model-observers (with1 (ensure-list (call-next-method))
+                                 (dolist (model-observer it)
+                                   (check-type model-observer cell)))
+              ¤model new-model))
+      (dolist (old-model-observers old-model-observers)
+        ;; TODO: Should probably have a designated method for disabling CELLs, or perhaps it is time to add
+        ;; a SOURCE-CELLS slot to the CELL class and do things proper.
+        (nilf (slot-value old-model-observers 'input-evalp))))))
 
 
 (defmethod deref ((view view-base))

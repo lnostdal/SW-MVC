@@ -60,5 +60,6 @@ has turned into a dataflow thing."
      (:file "clos-simple")
      (:file "model-container-list")
      (:file "user-input-sync-back")
+     (:file "model-view-connection")
      ))
    ))
