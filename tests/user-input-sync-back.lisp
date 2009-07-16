@@ -26,7 +26,7 @@ the View (USER-INPUT) to update. At the same time, stuff should not get stuck pr
 
 (let* ((x #λ0)
        (square #λ(* ~x ~x))
-       (user-input #λ~x))  ;; X -> USER-INPUT (sync-back).
+       (user-input #λ~x))   ;; X -> USER-INPUT (sync-back).
 
   ;; USER-INPUT -> X.
   (forward-cell (mk-validator #'evenp (mk-number-parser user-input)) x)
