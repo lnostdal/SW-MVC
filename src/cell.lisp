@@ -8,11 +8,16 @@
 
 #| TODO:
   * Consider constructing the hash-tables lazily to save some space.
+  * I should think about locking TARGET-CELLS a bit.
 |#
 
 
 (defclass cell (single-value-model)
-  ((formula :initarg :formula
+  ((alivep :reader alivep-of
+           :type (member t nil)
+           :initform t)
+
+   (formula :initarg :formula
             :type function
             :initform λλnil)
 
@@ -82,6 +87,11 @@ garbage. See AMX:WITH-LIFETIME."))
 
 
 (defmethod cell-set-formula ((cell cell) (formula function))
+(defun cell-mark-as-dead (cell)
+  (declare (cell cell))
+  (nilf (slot-value cell 'alivep)))
+
+
   (setf (init-evalp-of cell) nil
         (slot-value cell 'formula) formula)
   (values))
@@ -100,8 +110,10 @@ garbage. See AMX:WITH-LIFETIME."))
 (defmethod cell-notify-targets ((cell cell))
   "Re-evaluate target-cells which depend on the value of CELL."
   (maphash-values (lambda (target-cell)
-                    (when (input-evalp-of target-cell)
-                      (cell-execute-formula target-cell)))
+                    (if (alivep-of target-cell)
+                        (when (input-evalp-of target-cell)
+                          (cell-execute-formula target-cell))
+                        (remhash target-cell (target-cells-of cell))))
                   (target-cells-of cell)))
 
 

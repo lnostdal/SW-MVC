@@ -41,10 +41,8 @@ object which is a sub-type of VIEW-BASE.")))
                                  (dolist (model-observer it)
                                    (check-type model-observer cell)))
               ¤model new-model))
-      (dolist (old-model-observers old-model-observers)
-        ;; TODO: Should probably have a designated method for disabling CELLs, or perhaps it is time to add
-        ;; a SOURCE-CELLS slot to the CELL class and do things proper.
-        (nilf (slot-value old-model-observers 'input-evalp))))))
+      (dolist (old-model-observer old-model-observers)
+        (cell-mark-as-dead old-model-observer)))))
 
 
 (defmethod deref ((view view-base))
