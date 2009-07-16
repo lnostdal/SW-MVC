@@ -54,7 +54,7 @@ CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
 This contains CELLs that will be notified when our value changes.
 
 NOTE: Weak links; the target CELL will be removed if it would otherwise be
-garbage. See AMX:WITH-LIFETIME."))
+garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 
   (:metaclass stm-class))
 
@@ -69,7 +69,8 @@ garbage. See AMX:WITH-LIFETIME."))
     (prin1 (value-of cell) stream)))
 
 
-(defmethod cell-execute-formula ((cell cell))
+(defun cell-execute-formula (cell)
+  (declare (cell cell))
   (if (member cell *source-cells* :test #'eq)
       (value-of cell)
       ;; NOTE: We track dependencies even though INPUT-EVALP is NIL. This will enable the user to set INPUT-EVALP
@@ -82,32 +83,38 @@ garbage. See AMX:WITH-LIFETIME."))
                     (init-evalp-of cell) t)))))))
 
 
-(defmethod cell-force-update ((cell cell))
+(defun cell-force-update (cell)
+  (declare (cell cell))
   (cell-execute-formula cell))
 
 
-(defmethod cell-set-formula ((cell cell) (formula function))
 (defun cell-mark-as-dead (cell)
   (declare (cell cell))
   (nilf (slot-value cell 'alivep)))
 
 
+(defun cell-set-formula (cell formula)
+  (declare (cell cell)
+           (function formula))
   (setf (init-evalp-of cell) nil
         (slot-value cell 'formula) formula)
   (values))
 
 
-(defmethod cell-observedp ((cell cell))
+(defun cell-observedp (cell)
+  (declare (cell cell))
   (plusp (hash-table-count (target-cells-of cell))))
 
 
-(defmethod cell-add-target-cell ((cell cell) (target-cell cell))
+(defun cell-add-target-cell (cell target-cell)
+  (declare (cell cell target-cell))
   "When CELL changes, TARGET-CELL wants to know about it."
   (setf (gethash target-cell (target-cells-of cell)) target-cell)
   (values))
 
 
-(defmethod cell-notify-targets ((cell cell))
+(defun cell-notify-targets (cell)
+  (declare (cell cell))
   "Re-evaluate target-cells which depend on the value of CELL."
   (maphash-values (lambda (target-cell)
                     (if (alivep-of target-cell)
