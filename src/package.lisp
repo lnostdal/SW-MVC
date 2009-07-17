@@ -31,6 +31,7 @@
    #:with-cells
    #:cell-force-update
    #:cell-mark-as-dead
+   #:equal-p-fn-of
 
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class

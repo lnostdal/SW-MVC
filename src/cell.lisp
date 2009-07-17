@@ -88,6 +88,7 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
   (cell-execute-formula cell))
 
 
+#| This will mark a CELL as dead and it'll lazily be removed from other CELL's TARGET-CELLS hash-table. |#
 (defun cell-mark-as-dead (cell)
   (declare (cell cell))
   (nilf (slot-value cell 'alivep)))

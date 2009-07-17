@@ -12,14 +12,15 @@
    ;; Dataflow: MODEL -> MODEL-OBSERVERS => VIEW-BASE (some widget in SW).
    ;; This slot is set by the :AROUND (SETF MODEL-OF) method.
    (model-observers :reader model-observers-of
-                   ;;:type (or cell null)
-                   :initform nil)
+                    :type list
+                    :initform nil)
 
    ;; [SIGNATURE (context-view . model) -> VIEW]
    (views-in-context :type hash-table
                      :initform (make-hash-table :test #'equal :weakness :value))
 
    (view-constructor-fn :accessor view-constructor-fn-of :initarg :view-constructor-fn
+                        :type function
                         :initform (lambda (context-view model &key)
                                     (declare (ignore model))
                                     (error "SW-MVC: The VIEW-CONSTRUCTOR-FN slot in ~A has not been assigned."
@@ -55,8 +56,8 @@ object which is a sub-type of VIEW-BASE.")))
 
 (defmethod view-constructor ((context-view view-base) model)
   "This is called to construct a new View based on MODEL in context of
-CONTEXT-VIEW. The default method calls the function held in the slot
-VIEW-CONSTRUCTOR-FN in CONTEXT-VIEW if there is a function there."
+CONTEXT-VIEW (probably a container). The default method calls the function held
+in the slot VIEW-CONSTRUCTOR-FN in CONTEXT-VIEW if there is a function there."
   (if-let ((view-constructor-fn (view-constructor-fn-of context-view)))
     (funcall (the function view-constructor-fn) context-view model)
     (error "No suitable VIEW-CONSTRUCTOR method found for ~A and ~A,
