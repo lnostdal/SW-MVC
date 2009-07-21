@@ -2,8 +2,8 @@
 
 
 (defun test-cell-3 ()
-  (let* ((a1 #~0)
-         (a2 #~1)
+  (let* ((a1 #λ0)
+         (a2 #λ1)
          (a3 #λ(let ((sum (+ ~a1 ~a2)))
                  (format t "cell a3 changing value to: ~A~%" sum)
                  sum))
@@ -30,7 +30,7 @@
 
 
 (defun test-cell-and-transaction ()
-  (let* ((a #~2)
+  (let* ((a #λ2)
          (a-count 0)
          (a-count-io 0)
          (a-square #λ(let ((a-square (* ~a ~a)))
@@ -42,7 +42,7 @@
                          (incf a-count-io))
                        a-square))
 
-         (b #~3)
+         (b #λ3)
          (b-count 0)
          (b-count-io 0)
          (b-square #λ(let ((b-square (* ~b ~b)))

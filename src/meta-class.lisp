@@ -18,7 +18,7 @@ slot:
 
 This will also work for accessor methods (i.e., not just SLOT-VALUE).
 
-  Supplying :CELLP T as a slot option will cause the slot to always have
+  Supplying :CELLP T as a slot option will cause the slot to _always_ have
 a CELL backend storage. Using AS-VALUE allows one to initialize such a slot
 with a function as a value instead of treating it as a formula yielding a value.
 E.g.,
@@ -35,6 +35,7 @@ E.g.,
   t)
 
 
+
 ;;; :CELLP keyarg support for DEFCLASS forms follows.
 
 (defclass direct-cell-slot (standard-direct-slot-definition)
@@ -48,6 +49,7 @@ E.g.,
 
 (define-variable *direct-cell-slot*
     :value nil)
+
 
 (defclass effective-cell-slot (standard-effective-slot-definition)
   ((direct-slotd :initform *direct-cell-slot* :reader direct-slot-of)))
@@ -67,7 +69,8 @@ E.g.,
       (call-next-method)))
 
 
-;;; Reader and writer.
+
+;;; Reader and writer for MVC-CLASS.
 
 (defmethod slot-value-using-class :around ((class mvc-class) instance slotd)
   (let ((value (call-next-method)))

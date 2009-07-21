@@ -8,7 +8,11 @@
 
 #| TODO:
   * Consider constructing the hash-tables lazily to save some space.
+
   * I should think about locking TARGET-CELLS a bit.
+
+  * Think about type declarations and the VALUE slot. It's probably possible to do something using
+    MOP here (meta-class.lisp).
 |#
 
 
