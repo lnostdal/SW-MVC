@@ -6,8 +6,9 @@
 (defmacro with-formula (lifetime &body body)
   "Creates a new formula (CELL) that'll stick around for at least as long as the
 LIFETIME object exists."
-  `(with1 #λ,@body
-     (with-lifetime ,lifetime it)))
+  (with-gensyms (formula-res)
+    `(letp1 ((,formula-res #λ,@body))
+       (with-lifetime ,lifetime ,formula-res))))
 
 
 (defun forward-cell (source target)
