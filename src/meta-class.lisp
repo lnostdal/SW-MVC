@@ -111,6 +111,7 @@ E.g.,
           (call-next-method)))))
 
 
+(declaim (inline as-value))
 (defun as-value (function)
   "This enables one to initialize a CLOS CELL-slot with a FUNCTION as a value."
   (declare (function function))
