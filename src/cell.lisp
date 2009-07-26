@@ -75,7 +75,8 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 
 (defun cell-execute-formula (cell)
   (declare (cell cell))
-  (if (member cell *source-cells* :test #'eq)
+  (if (or (member cell *source-cells* :test #'eq)
+          (eq *target-cell* cell))
       (value-of cell)
       ;; NOTE: We track dependencies even though INPUT-EVALP is NIL. This will enable the user to set INPUT-EVALP
       ;; to T later and have it update based on those dependencies from there on.

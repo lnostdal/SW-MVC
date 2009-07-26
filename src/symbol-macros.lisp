@@ -17,4 +17,4 @@
 
 
 (define-symbol-macro =cell-boundp=
-    (init-eval-p-of *target-cell*))
+    (init-evalp-of *target-cell*))
