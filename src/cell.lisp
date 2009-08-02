@@ -82,23 +82,18 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
       ;; to T later and have it update based on those dependencies from there on.
       (let ((*target-cell* cell #|(when (input-evalp-of cell) cell)|#))
         (let* ((condition)
-               (result (handler-bind
-                           ((error (lambda (c)
-                                     (setf condition c)
-                                     (unless (maybe-debug cell)
-                                       (invoke-restart 'return-condition c)))))
-                         (restart-case
-                             (funcall (truly-the function (slot-value cell 'formula)))
+               (result (restart-case
+                           (funcall (truly-the function (slot-value cell 'formula)))
 
-                           (assign-condition ()
-                             :report (lambda (stream)
-                                       (format stream "Assign ~S as a value for ~S." condition cell))
-                             condition)
+                         (assign-condition ()
+                           :report (lambda (stream)
+                                     (format stream "Assign ~S as a value for ~S." condition cell))
+                           condition)
 
-                           (skip-cell ()
-                             :report (lambda (stream)
-                                       (format stream "Skip ~S (only) and keep propagating." cell))
-                             (return-from cell-execute-formula (value-of cell)))))))
+                         (skip-cell ()
+                           :report (lambda (stream)
+                                     (format stream "Skip ~S (only) and keep propagating." cell))
+                           (return-from cell-execute-formula (value-of cell))))))
           (prog1 result
             (setf ~cell result
                   (init-evalp-of cell) t))))))
