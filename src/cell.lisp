@@ -81,11 +81,27 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
       ;; NOTE: We track dependencies even though INPUT-EVALP is NIL. This will enable the user to set INPUT-EVALP
       ;; to T later and have it update based on those dependencies from there on.
       (let ((*target-cell* cell #|(when (input-evalp-of cell) cell)|#))
-        (catch :abort-cell-propagation
-          (let ((result (funcall (truly-the function (slot-value cell 'formula)))))
-            (prog1 result
-              (setf ~cell result
-                    (init-evalp-of cell) t)))))))
+        (let* ((condition)
+               (result (handler-bind
+                           ((error (lambda (c)
+                                     (setf condition c)
+                                     (unless (maybe-debug cell)
+                                       (invoke-restart 'return-condition c)))))
+                         (restart-case
+                             (funcall (truly-the function (slot-value cell 'formula)))
+
+                           (assign-condition ()
+                             :report (lambda (stream)
+                                       (format stream "Assign ~S as a value for ~S." condition cell))
+                             condition)
+
+                           (skip-cell ()
+                             :report (lambda (stream)
+                                       (format stream "Skip ~S (only) and keep propagating." cell))
+                             (return-from cell-execute-formula (value-of cell)))))))
+          (prog1 result
+            (setf ~cell result
+                  (init-evalp-of cell) t))))))
 
 
 (defun cell-force-update (cell)

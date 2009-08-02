@@ -32,6 +32,7 @@
    #:cell-force-update
    #:cell-mark-as-dead
    #:equal-p-fn-of
+   #:assign-condition #:skip-cell
 
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class
@@ -101,7 +102,7 @@
    #:view-constructor
    #:view-constructor-fn #:view-constructor-fn-of
    #:add-formulas
-   #:formula-cells-of
+   #:formula-of
 
    ;; model-base.lisp
    #:model-base
