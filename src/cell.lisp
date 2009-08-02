@@ -78,22 +78,31 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
   (if (or (member cell *source-cells* :test #'eq)
           (eq *target-cell* cell))
       (value-of cell)
-      ;; NOTE: We track dependencies even though INPUT-EVALP is NIL. This will enable the user to set INPUT-EVALP
-      ;; to T later and have it update based on those dependencies from there on.
+      #| NOTE: We track dependencies even though INPUT-EVALP is NIL. This will enable the user to set INPUT-EVALP
+      to T later and have it update based on those dependencies from there on. |#
       (let ((*target-cell* cell #|(when (input-evalp-of cell) cell)|#))
+        #| TODO: This "HANDLER-BIND + RESTART-CASE with CONDITION bound seems like a candidate for a macro. |#
         (let* ((condition)
-               (result (restart-case
-                           (funcall (truly-the function (slot-value cell 'formula)))
+               (result
+                (handler-bind
+                    ((error (lambda (c) (setf condition c))))
+                  (restart-case
+                      (funcall (truly-the function (slot-value cell 'formula)))
 
-                         (assign-condition ()
-                           :report (lambda (stream)
-                                     (format stream "Assign ~S as a value for ~S." condition cell))
-                           condition)
+                    (feedback-event ()
+                      :report (lambda (stream)
+                                (format stream "balh"))
+                      (setf ~(feedback-event-of cell) condition))
 
-                         (skip-cell ()
-                           :report (lambda (stream)
-                                     (format stream "Skip ~S (only) and keep propagating." cell))
-                           (return-from cell-execute-formula (value-of cell))))))
+                    (assign-condition ()
+                      :report (lambda (stream)
+                                (format stream "Assign ~S as a value for ~S." condition cell))
+                      condition)
+
+                    (skip-cell ()
+                      :report (lambda (stream)
+                                (format stream "Skip ~S (and any \"child CELLs\") and keep propagating." cell))
+                      (return-from cell-execute-formula (value-of cell)))))))
           (prog1 result
             (setf ~cell result
                   (init-evalp-of cell) t))))))
