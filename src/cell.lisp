@@ -73,6 +73,11 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
     (prin1 (value-of cell) stream)))
 
 
+(define-condition cell-eval-error (error)
+  ((cell :initarg :cell)
+   (condition :reader condition-of :initarg :condition)))
+
+
 (defun cell-execute-formula (cell)
   (declare (cell cell))
   (if (or (member cell *source-cells* :test #'eq)
@@ -86,13 +91,16 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
                (result
                 (restart-case
                     (handler-bind
-                        ((error (lambda (c) (setf condition c))))
+                        ((error (lambda (c)
+                                  (setf condition (make-instance 'cell-eval-error :cell cell :condition c)))))
                       (funcall (truly-the function (slot-value cell 'formula))))
 
                   (feedback-event ()
                     :report (lambda (stream)
-                              (format stream "balh"))
-                    (setf ~(feedback-event-of cell) condition))
+                              (format stream "Assign condition and trigger 'feedback-event' for source cell(s)."))
+                    (dolist (cell *source-cells*)
+                      (setf ~(feedback-event-of cell) condition))
+                    condition)
 
                   (assign-condition ()
                     :report (lambda (stream)
