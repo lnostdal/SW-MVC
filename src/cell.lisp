@@ -84,25 +84,25 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
         #| TODO: This "HANDLER-BIND + RESTART-CASE with CONDITION bound seems like a candidate for a macro. |#
         (let* ((condition)
                (result
-                (handler-bind
-                    ((error (lambda (c) (setf condition c))))
-                  (restart-case
-                      (funcall (truly-the function (slot-value cell 'formula)))
+                (restart-case
+                    (handler-bind
+                        ((error (lambda (c) (setf condition c))))
+                      (funcall (truly-the function (slot-value cell 'formula))))
 
-                    (feedback-event ()
-                      :report (lambda (stream)
-                                (format stream "balh"))
-                      (setf ~(feedback-event-of cell) condition))
+                  (feedback-event ()
+                    :report (lambda (stream)
+                              (format stream "balh"))
+                    (setf ~(feedback-event-of cell) condition))
 
-                    (assign-condition ()
-                      :report (lambda (stream)
-                                (format stream "Assign ~S as a value for ~S." condition cell))
-                      condition)
+                  (assign-condition ()
+                    :report (lambda (stream)
+                              (format stream "Assign ~S as a value for ~S." condition cell))
+                    condition)
 
-                    (skip-cell ()
-                      :report (lambda (stream)
-                                (format stream "Skip ~S (and any \"child CELLs\") and keep propagating." cell))
-                      (return-from cell-execute-formula (value-of cell)))))))
+                  (skip-cell ()
+                    :report (lambda (stream)
+                              (format stream "Skip ~S (and any \"child CELLs\") and keep propagating." cell))
+                    (return-from cell-execute-formula (value-of cell))))))
           (prog1 result
             (setf ~cell result
                   (init-evalp-of cell) t))))))
