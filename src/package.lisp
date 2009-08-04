@@ -33,6 +33,7 @@
    #:cell-mark-as-dead
    #:equal-p-fn-of
    #:feedback-event #:assign-condition #:skip-cell
+   #:cell-eval-error #:condition-of
 
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class

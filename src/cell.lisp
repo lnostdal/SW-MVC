@@ -74,8 +74,14 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 
 
 (define-condition cell-eval-error (error)
-  ((cell :initarg :cell)
+  ((cell :initarg :cell) ;; NOTE: The CELL-OF macro has a CELL-EVAL-ERROR clause.
    (condition :reader condition-of :initarg :condition)))
+
+
+(defmethod print-object ((obj cell-eval-error) stream)
+  (print-unreadable-object (obj stream :type t :identity t)
+    (when (slot-boundp obj 'condition)
+      (format stream ":CONDITION ~S" (slot-value obj 'condition)))))
 
 
 (defun cell-execute-formula (cell)
