@@ -120,6 +120,7 @@
 
    ;; model-common.lisp
    #:pulse
+   #:feedback-event-of
 
    ;; input-translators.lisp
    #:mk-input-handler
