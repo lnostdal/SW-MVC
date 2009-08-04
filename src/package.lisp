@@ -32,7 +32,7 @@
    #:cell-force-update
    #:cell-mark-as-dead
    #:equal-p-fn-of
-   #:assign-condition #:skip-cell
+   #:feedback-event #:assign-condition #:skip-cell
 
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class
@@ -131,6 +131,7 @@
    #:with-formula
    #:forward-cell
    #:sync-cells
+   #:sync-back
    ))
 
 

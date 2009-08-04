@@ -12,9 +12,7 @@ Used for dataflow \"event pulses\"."
                `(setf ,place ,value)
                `(tf ,place))
           (nilf ,place)))
-(export 'pulse)
 
 
 (defmacro feedback-event-of (obj)
   `(metadata-of ,obj 'feedback-event #~nil))
-(export 'feedback-event-of)

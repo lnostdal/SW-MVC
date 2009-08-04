@@ -33,4 +33,3 @@ Y will update if X changes, unless the change to X was caused by a change to Y."
 Any change to BACK is forwarded to FRONT."
   (forward-cell middle back)
   (forward-cell back front))
-(export 'sync-back)
