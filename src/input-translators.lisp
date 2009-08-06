@@ -19,8 +19,7 @@
                             (nilf ~feedback-cell)))
                       (error (c)
                         (prog1 old-value
-                          (if (and feedback-cell
-                                   (cell-observedp feedback-cell))
+                          (if (and feedback-cell (cell-observedp feedback-cell))
                               (setf ~feedback-cell (cons c input))
                               (cerror "Return old value ~S and continue."
                                       (fmtn "MK-INPUT-HANDLER (lambda): Got condition ~S~%on input ~S" c input)

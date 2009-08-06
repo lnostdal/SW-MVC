@@ -9,8 +9,6 @@
 #| TODO:
   * Consider constructing the hash-tables lazily to save some space.
 
-  * I should think about locking TARGET-CELLS a bit.
-
   * Think about type declarations and the VALUE slot. It's probably possible to do something using
     MOP here (meta-class.lisp).
 |#
@@ -143,25 +141,31 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 
 (defun cell-observedp (cell)
   (declare (cell cell))
-  (plusp (hash-table-count (target-cells-of cell))))
+  (let ((target-cells (target-cells-of cell)))
+    (sb-ext:with-locked-hash-table (target-cells)
+      (plusp (hash-table-count target-cells)))))
 
 
 (defun cell-add-target-cell (cell target-cell)
   (declare (cell cell target-cell))
   "When CELL changes, TARGET-CELL wants to know about it."
-  (setf (gethash target-cell (target-cells-of cell)) target-cell)
+  (let ((target-cells (target-cells-of cell)))
+    (sb-ext:with-locked-hash-table (target-cells)
+      (setf (gethash target-cell (target-cells-of cell)) target-cell)))
   (values))
 
 
 (defun cell-notify-targets (cell)
   (declare (cell cell))
   "Re-evaluate target-cells which depend on the value of CELL."
-  (maphash-values (lambda (target-cell)
-                    (if (alivep-of target-cell)
-                        (when (input-evalp-of target-cell)
-                          (cell-execute-formula target-cell))
-                        (remhash target-cell (target-cells-of cell))))
-                  (target-cells-of cell)))
+  (let ((target-cells (target-cells-of cell)))
+    (sb-ext:with-locked-hash-table (target-cells)
+      (maphash-values (lambda (target-cell)
+                        (if (alivep-of target-cell)
+                            (when (input-evalp-of target-cell)
+                              (cell-execute-formula target-cell))
+                            (remhash target-cell target-cells)))
+                      target-cells))))
 
 
 (eval-now (proclaim '(ftype (function (t cell) #|(values t #|(member t nil)|# &optional)|#)
