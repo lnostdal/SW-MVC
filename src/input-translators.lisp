@@ -11,19 +11,7 @@
 (defun mk-input-handler (input-cell translator-fn &key feedback-cell equal-p-fn)
   (when (eq t feedback-cell)
     (setf feedback-cell (feedback-event-of input-cell)))
-  (letp1 ((cell λi(let ((input ~input-cell)
-                        (old-value =cell-old-value=))
-                    (handler-case
-                        (prog1 (funcall translator-fn input)
-                          (when (and feedback-cell ~feedback-cell)
-                            (nilf ~feedback-cell)))
-                      (error (c)
-                        (prog1 old-value
-                          (if (and feedback-cell (cell-observedp feedback-cell))
-                              (setf ~feedback-cell (cons c input))
-                              (cerror "Return old value ~S and continue."
-                                      (fmtn "MK-INPUT-HANDLER (lambda): Got condition ~S~%on input ~S" c input)
-                                      old-value))))))))
+  (letp1 ((cell λi(funcall translator-fn ~input-cell)))
     (when equal-p-fn
       (setf (equal-p-fn-of cell) equal-p-fn))))
 

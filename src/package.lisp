@@ -32,7 +32,7 @@
    #:cell-force-update
    #:cell-mark-as-dead
    #:equal-p-fn-of
-   #:feedback-event #:assign-condition #:skip-cell
+   #:assign-condition #:skip-cell
    #:cell-eval-error #:condition-of
 
    ;; meta-class.lisp

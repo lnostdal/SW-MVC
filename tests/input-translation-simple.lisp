@@ -13,9 +13,10 @@
   (declare (ignorable update-ui))
   (always-continue
     (loop :for i :from 1 :upto 25
-       :do (setf confirm i
-                 ~input (format nil "~D" i)
-                 ~input "junk")))
+       :do (with-continue-restart
+             (setf confirm i
+                   ~input (format nil "~D" i)
+                   ~input "junk"))))
   ~output)
 
 
@@ -29,7 +30,8 @@
   (declare (ignorable update-ui))
   (always-continue
     (loop :for i :from 1 :upto 25
-       :do (setf confirm i
-                 ~input (format nil "~D" i)
-                 ~input "junk")))
+       :do (with-continue-restart
+             (setf confirm i
+                   ~input (format nil "~D" i)
+                   ~input "junk"))))
   ~output)

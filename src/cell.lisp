@@ -11,6 +11,8 @@
 
   * Think about type declarations and the VALUE slot. It's probably possible to do something using
     MOP here (meta-class.lisp).
+
+  * Consider inlining functions so stack traces look better.
 |#
 
 
@@ -71,6 +73,7 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
     (prin1 (value-of cell) stream)))
 
 
+#| TODO: Generalize to talk about Model. |#
 (define-condition cell-eval-error (error)
   ((cell :initarg :cell) ;; NOTE: The CELL-OF macro has a CELL-EVAL-ERROR clause.
    (condition :reader condition-of :initarg :condition)))
@@ -79,7 +82,7 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 (defmethod print-object ((obj cell-eval-error) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (when (slot-boundp obj 'condition)
-      (format stream ":CONDITION ~S" (slot-value obj 'condition)))))
+      (format stream " :CONDITION ~S" (slot-value obj 'condition)))))
 
 
 (defun cell-execute-formula (cell)
@@ -90,30 +93,26 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
       #| NOTE: We track dependencies even though INPUT-EVALP is NIL. This will enable the user to set INPUT-EVALP
       to T later and have it update based on those dependencies from there on. |#
       (let ((*target-cell* cell #|(when (input-evalp-of cell) cell)|#))
-        #| TODO: This "HANDLER-BIND + RESTART-CASE with CONDITION bound seems like a candidate for a macro. |#
+        #| TODO: This "RESTART-CASE + HANDLER-BIND with CONDITION bound" stuff seems like a candidate for a macro. |#
         (let* ((condition)
                (result
                 (restart-case
                     (handler-bind
                         ((error (lambda (c)
-                                  (setf condition (make-instance 'cell-eval-error :cell cell :condition c)))))
+                                  (setf condition
+                                        (if (typep c 'cell-eval-error)
+                                            c
+                                            (make-instance 'cell-eval-error :cell cell :condition c))))))
                       (funcall (truly-the function (slot-value cell 'formula))))
-
-                  (feedback-event ()
-                    :report (lambda (stream)
-                              (format stream "Assign condition and trigger 'feedback-event' for source cell(s)."))
-                    (dolist (cell *source-cells*)
-                      (setf ~(feedback-event-of cell) condition))
-                    condition)
 
                   (assign-condition ()
                     :report (lambda (stream)
-                              (format stream "Assign ~S as a value for ~S." condition cell))
+                              (format stream "SW-MVC: Assign ~S as a value for ~S." condition cell))
                     condition)
 
                   (skip-cell ()
                     :report (lambda (stream)
-                              (format stream "Skip ~S (and any \"child CELLs\") and keep propagating." cell))
+                              (format stream "SW-MVC: Skip ~S (and any \"child CELLs\") and keep propagating." cell))
                     (return-from cell-execute-formula (value-of cell))))))
           (prog1 result
             (setf ~cell result
@@ -178,9 +177,16 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
       (values (value-of cell) t)
       (let ((*source-cells* (cons cell *source-cells*)))
         (values new-value
-                (if (funcall (the function (equal-p-fn-of cell))
-                             (value-of cell)
-                             new-value)
+                (if (handler-case
+                        (funcall (the function (equal-p-fn-of cell))
+                                 (value-of cell)
+                                 new-value)
+                      (error (c)
+                        #| TODO: Maybe invoke debugger here? What about a restart with a default invokeer
+                        in server.lisp? |#
+                        (warn "SW-MVC: Condition when calling EQUAL-P-FN (~S with arguments ~S and ~S) of ~S: ~S"
+                              (equal-p-fn-of cell) (value-of cell) new-value cell c)
+                        nil))
                     nil
                     (prog1 t
                       (setf (value-of cell) new-value)
