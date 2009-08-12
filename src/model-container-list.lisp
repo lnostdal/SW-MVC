@@ -58,7 +58,7 @@ Doubly-linked list with support for dataflow and transactions."))
 (defmethod list<- ((dlist dlist) &rest args)
   "Return a snapshot view of DLIST in form of a CONS-based Lisp list.
 If this is done while in a WITH-SYNC context it'll basically mean exclusive
-access to the DLIST for the duration of the WITH-SYNC form."
+access to the entire DLIST for the duration of the WITH-SYNC form."
   (declare (ignore args))
   ;; Yes, you probably don't want to do this too often.
   (when-let ((head (head-of dlist)))
@@ -82,84 +82,76 @@ access to the DLIST for the duration of the WITH-SYNC form."
   (error "TODO: (SETF DEREF .. DLIST). Or, does this even make sense?"))
 
 
-(defun dlist (&rest items)
-  (declare (dynamic-extent items))
-  (let ((dlist (make-instance 'dlist)))
-    (prog1 dlist
-      (when items
-        (let ((tail (setf (head-of dlist)
-                          (make-instance 'dlist-node
-                                         :dlist dlist
-                                         :value (first items)))))
-          (dolist (item (rest items))
-            (setf tail
-                  (setf (right-of tail)
-                        (make-instance 'dlist-node
-                                       :dlist dlist
-                                       :left tail
-                                       :value item))))
-          (setf (tail-of dlist) tail))))))
+(flet ((fill-dlist (dlist items)
+         (when items
+           (let ((tail (setf (head-of dlist)
+                             (make-instance 'dlist-node
+                                            :dlist dlist
+                                            :value (first items)))))
+             (dolist (item (rest items))
+               (setf tail
+                     (setf (right-of tail)
+                           (make-instance 'dlist-node
+                                          :dlist dlist
+                                          :left tail
+                                          :value item))))
+             (setf (tail-of dlist) tail)))))
+  (declare (inline fill-dlist))
 
 
-(defmethod transform-into ((target dlist) (source list))
-  "Transform TARGET container to contain the values in SOURCE by initiating
+  (defun dlist (&rest items)
+    (declare (dynamic-extent items))
+    (letp1 ((dlist (make-instance 'dlist)))
+      (fill-dlist dlist items)))
+
+
+    (defmethod transform-into ((target dlist) (source list))
+      "Transform TARGET container to contain the values in SOURCE by initiating
 container type events vs. TARGET."
-  (let ((key (key-fn-of target))
-        (test (test-fn-of target))
-        (before (list<- target)) ;; DLIST-NODE instances.
-        (after nil)
-        (to-insert nil))
-    (declare (list before after to-insert)
-             (function key test))
+      (let ((key (key-fn-of target))
+            (test (test-fn-of target))
+            (before (list<- target)) ;; DLIST-NODE instances.
+            (after nil)
+            (to-insert nil))
+        (declare (list before after to-insert)
+                 (function key test))
 
-    ;; TARGET is empty.
-    ;; TODO: This is basically a copy of the code in #'DLIST
-    (unless before
-      (when source
-        (let ((tail (setf (head-of target)
-                          (make-instance 'dlist-node
-                                         :dlist target
-                                         :value (first source)))))
-          (dolist (value (rest source))
-            (setf tail
-                  (setf (right-of tail)
-                        (make-instance 'dlist-node
-                                       :dlist target
-                                       :left tail
-                                       :value value))))
-          (setf (tail-of target) tail)))
-      (return-from transform-into))
+        ;; TARGET is empty.
+        (unless before
+          (when source
+            (fill-dlist target source))
+          (return-from transform-into))
 
-    (dolist (value source (nreversef after))
-      (if-let (node (find value before :key key :test test))
-        (push node after)
-        (push (make-instance 'dlist-node :value value :dlist target)
-              to-insert)))
+        (dolist (value source (nreversef after))
+          (if-let (node (find value before :key key :test test))
+            (push node after)
+            (push (make-instance 'dlist-node :value value :dlist target)
+                  to-insert)))
 
-    ;; REMOVE.
-    (dolist (removed-element (set-difference before after :test #'eq))
-      (deletef before removed-element :test #'eq)
-      (remove removed-element target))
+        ;; REMOVE.
+        (dolist (removed-element (set-difference before after :test #'eq))
+          (deletef before removed-element :test #'eq)
+          (remove removed-element target))
 
-    ;; EXCHANGE.
-    (let ((already-swapped nil))
-      (map nil (lambda (before-elt after-elt)
-                 (when (and (not (funcall test (deref before-elt) (deref after-elt)))
-                            (not (find after-elt already-swapped :test #'eq)))
-                   (push before-elt already-swapped)
-                   (exchange before-elt after-elt)))
-           before
-           after))
+        ;; EXCHANGE.
+        (let ((already-swapped nil))
+          (map nil (lambda (before-elt after-elt)
+                     (when (and (not (funcall test (deref before-elt) (deref after-elt)))
+                                (not (find after-elt already-swapped :test #'eq)))
+                       (push before-elt already-swapped)
+                       (exchange before-elt after-elt)))
+               before
+               after))
 
-    ;; INSERT.
-    (if before
-        (let ((last-node (last1 before)))
-          (dolist (node to-insert)
-            (if-let ((right-val (cadr (member (funcall key node) source :test test))))
-              ;; TODO: CONTAINER-FIND currently converts the DLIST to a CONS-list on each iteration.
-              (insert node :before (container-find right-val target))
-              (insert node :after last-node))))
-        (insert (nreversef to-insert) :in target))))
+        ;; INSERT.
+        (if before
+            (let ((last-node (last1 before)))
+              (dolist (node to-insert)
+                (if-let ((right-val (cadr (member (funcall key node) source :test test))))
+                  ;; TODO: CONTAINER-FIND currently converts the DLIST to a CONS-list on each iteration.
+                  (insert node :before (container-find right-val target))
+                  (insert node :after last-node))))
+            (insert (nreversef to-insert) :in target)))))
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
