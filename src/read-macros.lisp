@@ -2,13 +2,7 @@
 
 (in-package #:sw-mvc)
 
-
 (declaim #.(optimizations))
-
-
-(eval-now
-  (ignore-errors ;; In case we recompile.
-    (make-dispatch-macro-character #\λ)))
 
 
 ;; Shortcut for CL:LAMBDA.
@@ -41,7 +35,7 @@
                                                   :input-evalp t :output-evalp nil))))
 
 
-;; Lambda type semantics.
+;; Lambda or lazy-eval type semantics.
 (eval-now
   (set-dispatch-macro-character #\# #\l
                                 (lambda (stream char arg)
@@ -68,7 +62,7 @@
                                   `#λ,(read stream))))
 
 
-;; Lambda type semantics.
+;; Lambda or laze-eval type semantics.
 (eval-now
   (set-dispatch-macro-character #\λ #\o
                                 (lambda (stream char arg)
