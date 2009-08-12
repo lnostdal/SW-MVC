@@ -48,10 +48,11 @@ suitable or natural position in IN."
                   (t
                    (error "INSERT was given incorrect arguments: ~A" args)))))
 
-    (handle (apply #'make-instance 'container-insert
-                   :objects object
-                   `(,@(if (eq t result)
-                           `(:container ,(container-of in))
-                           `(:container ,(container-of (cdr result))
-                             :relative-position ,(car result)
-                             :relative-object ,(cdr result))))))))
+    (handle (multiple-value-call #'make-instance
+              'container-insert
+              :objects object
+              (if (eq t result)
+                  (values :container (container-of in))
+                  (values :container (container-of (cdr result))
+                          :relative-position (car result)
+                          :relative-object (cdr result)))))))
