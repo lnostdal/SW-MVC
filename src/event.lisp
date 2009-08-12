@@ -26,6 +26,7 @@ about the event."))
   ((event :reader event-of
           :cellp t
           :initform nil))
+
   (:metaclass mvc-class))
 
 

@@ -120,6 +120,7 @@ container type events vs. TARGET."
         (unless before
           (when source
             (fill-dlist target source))
+          ;; TODO: Hm. We're returning without triggering any "container type events".
           (return-from transform-into))
 
         (dolist (value source (nreversef after))
