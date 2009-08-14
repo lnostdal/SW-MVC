@@ -1,25 +1,4 @@
   I don't think CELLs and FORMULAs "know about" unbound-ness at the moment.
 I'm not sure it even makes sense for them to deal with this in some way or
-another.
-
-
-  It is starting to become clear that the CELL class is the core component here.
-I.e., even compound objects or CLOS classes with multiple slots should just
-store one CELL pr. slot -- instead of what is currently being done wrt. any
-MVC-CLASS metaclass's slots are "cells" including the CELL class itself as is
-with its VALUE slot.
-
-To hide the indirection for each slot, we'll just let the MVC-CLASS metaclass's
-SVUC method handle slots with CELLs in them by deref'ing their content. This
-is already being done, actually.
-
-I think this means that CELL should be a struct; not a CLOS class - and I think
-this'll both make things simpler and improve performance.
-
-I think this change can wait though. I can just use things as they are now;
-changing things later should be easy.
-
-
-  To add to what was said above; it is CELL and FORMULA that are the fundamental
-things here. The way (HANDLE SLOT-SET) (in event-slot-set.lisp) deals with
-low-level callbacks instead of FORMULA instances is wrong, for instance.
+another. Oz seems to have some blocking, wrt. reading/requesting thread, scheme
+wrt. variables that are still unbound.
