@@ -34,7 +34,8 @@ question. The content of this slot might change while it is being handled.")))
           (objects-supplied-p
            (if (atom objects)
                (list objects)
-               objects))
+               ;; The (CONTAINER-INSERT CONTAINER-INSERT DLIST) method mutates the OBJECTS slot.
+               (copy-seq objects)))
 
           (t
            (error ":OBJECT or :OBJECTS needed.")))))
