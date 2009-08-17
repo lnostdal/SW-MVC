@@ -51,7 +51,9 @@
    #:as-value
 
    ;; mixins.lisp
+   #:model
    #:single-value-model
+   #:multiple-value-model
 
    ;; boolean-model.lisp
    #:boolean-model

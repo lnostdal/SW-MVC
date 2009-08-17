@@ -5,7 +5,7 @@
 (declaim #.(optimizations))
 
 
-(defclass container (self-ref)
+(defclass container (self-ref multiple-value-model)
   ((test-fn :accessor test-fn-of :initarg :test-fn
             :type function
             :initform #'eql)
