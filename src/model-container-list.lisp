@@ -35,7 +35,7 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 (defmethod print-object ((dlist-node dlist-node) stream)
   (print-unreadable-object (dlist-node stream :type t :identity t)
-    (prin1 (value-of dlist-node) stream)))
+    (prin1 (cell-of (value-of dlist-node)) stream)))
 
 
 (defmethod deref ((dlist-node dlist-node))
