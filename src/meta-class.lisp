@@ -75,8 +75,9 @@ E.g.,
 (defmethod slot-value-using-class :around ((class mvc-class) instance slotd)
   (let ((value (call-next-method)))
     (cond
+      ;; TODO: This deals with CELL only; what about SINGLE-VALUE-MODEL (and perhaps even MODEL)?
       ((and (typep value 'cell) (not *get-cell-p*))
-       ~value)
+       (cell-deref value))
 
       (t
        value))))
@@ -86,8 +87,9 @@ E.g.,
   (if-let ((old-value (and (slot-boundp-using-class class instance slotd)
                            (cell-of (slot-value-using-class class instance slotd)))))
     (cond
+      ;; TODO: This deals with CELL only; what about SINGLE-VALUE-MODEL (and perhaps even MODEL)?
       ((and (typep old-value 'cell) (not *get-cell-p*))
-       (setf ~old-value new-value))
+       (setf (cell-deref old-value) new-value))
 
       (t
        (let ((*get-cell-p* nil))
@@ -114,5 +116,5 @@ E.g.,
 (declaim (inline as-value))
 (defun as-value (function)
   "This enables one to initialize a CLOS CELL-slot with a FUNCTION as a value."
-  (declare (function function))
+  ;;(declare (function function))
   (cons '%as-value function))
