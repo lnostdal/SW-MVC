@@ -94,6 +94,7 @@ E.g.,
       (t
        (let ((*get-cell-p* nil))
          (call-next-method))))
+
     ;; Slot was not bound..
     (let ((*get-cell-p* nil))
       (if (typep slotd 'effective-cell-slot)
@@ -116,5 +117,5 @@ E.g.,
 (declaim (inline as-value))
 (defun as-value (function)
   "This enables one to initialize a CLOS CELL-slot with a FUNCTION as a value."
-  ;;(declare (function function))
+  (declare (function function))
   (cons '%as-value function))

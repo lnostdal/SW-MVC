@@ -33,7 +33,8 @@ into some location(s?) in a container."))
                    (in nil in-supplied-p))
   "If :IN is given OBJECT will be inserted at what is determined to be the most
 suitable or natural position in IN."
-  (assert (= 1 (count t (list before-supplied-p after-supplied-p in-supplied-p))))
+  (assert (= 1 (count t (list before-supplied-p after-supplied-p in-supplied-p))) nil
+          "SW-MVC:INSERT: :BEFORE, :AFTER or :IN is needed (only one of them), got: ~S" args)
   ;; TODO: Proper objects with class-hierarchy to specify 'positions'?
   (let ((result (cond
                   (before-supplied-p
