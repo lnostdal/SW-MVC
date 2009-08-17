@@ -9,3 +9,7 @@
 
 (class-forward-reference cell
   (:metaclass stm-class))
+
+
+(class-forward-reference direct-cell-slot)
+(class-forward-reference effective-cell-slot)
