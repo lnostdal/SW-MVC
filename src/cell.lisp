@@ -2,8 +2,7 @@
 
 (in-package #:sw-mvc)
 
-;;(declaim #.(optimizations))
-(declaim (optimize speed))
+(declaim #.(optimizations))
 
 
 #| TODO:
