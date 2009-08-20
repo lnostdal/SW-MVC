@@ -127,7 +127,7 @@
 
 
 (defun test-clos ()
-  (let ((lars ¤(person)))
+  (let ((lars (make-instance 'person)))
     (with-object lars
       (format t "full-name on our (model) end is: ~S~%" ¤full-name)
       (setf ¤last-name (string-upcase ¤last-name))
