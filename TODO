@@ -1,4 +1,9 @@
+Grep for "TODO"...
+
   I don't think CELLs and FORMULAs "know about" unbound-ness at the moment.
 I'm not sure it even makes sense for them to deal with this in some way or
 another. Oz seems to have some blocking, wrt. reading/requesting thread, scheme
 wrt. variables that are still unbound.
+
+
+  I think a query language (something Prolog'ish or SQL'ish?) is needed soon. SW-DB?

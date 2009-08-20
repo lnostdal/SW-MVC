@@ -132,3 +132,13 @@
       (format t "full-name on our (model) end is: ~S~%" ¤full-name)
       (setf ¤last-name (string-upcase ¤last-name))
       (format t "full-name on our (model) end is: ~S~%" ¤full-name))))
+
+#|
+SW-MVC> (test-clos)
+notify UI that `full-name' is now: "Lars Rune Nøstdal"
+full-name on our (model) end is: "Lars Rune Nøstdal"
+notify UI that `full-name' is now: "Lars Rune NØSTDAL"
+full-name on our (model) end is: "Lars Rune NØSTDAL"
+NIL
+SW-MVC>
+|#
