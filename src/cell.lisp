@@ -250,3 +250,18 @@ Nesting of WITH-CELL and/or WITH-FORMULA forms? Debug output follows:
                                :for index fixnum :from 0
                                :collect `(,cell (cell-deref (svref ,mcells ,index))))))
          ,@body))))
+
+
+(defmacro mk-icell (&body body)
+  "Creates an input-triggered CELL."
+  `λi,@body)
+
+
+(defmacro mk-ocell (&body body)
+  "Creates an output-triggered CELL."
+  `λo,@body)
+
+
+(defmacro mk-ccell (&body body)
+  "Creates an output-treggered  cached CELL."
+  `λc,@body)

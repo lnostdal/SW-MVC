@@ -4,9 +4,9 @@ SW-MVC - Dataflow paradigm support for Common Lisp
 Dataflow, declarative or "cell oriented" (think spreadsheets) paradigm
 and lazy-eval support for Common Lisp.
 
-  * Input-triggered Cells: λi or #λ
-  * Output-triggered Cells ("lazy eval"): λo
-  * Output-triggered Cells ("lazy eval") with caching of result: λc
+  * Input-triggered Cells: λi, #λ or MK-ICELL.
+  * Output-triggered Cells ("lazy eval"): λo or MK-OCELL
+  * Output-triggered Cells ("lazy eval") with caching of result: λc or MK-CCELL
 
 
 See examples/test.lisp or stuff in the tests/ directory.
@@ -16,12 +16,16 @@ See examples/test.lisp or stuff in the tests/ directory.
 Special characters and Emacs
 ============================
 
-It might be a good idea to add something to your .emacs so typing λ will be easier. E.g.,
+It might be a good idea to add something to your .emacs so typing λ will be
+easier. E.g.,
 
   (global-set-key (kbd "M-l") "λ")
 
 
 I have λ assigned to Shift-Caps Lock.
+
+If you wish, you can instead use the normal lispy syntax; MK-ICELL, MK-OCELL
+and MK-CCELL.
 
 
 
