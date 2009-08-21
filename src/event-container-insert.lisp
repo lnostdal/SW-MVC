@@ -20,11 +20,11 @@ into some location(s?) in a container."))
 
 (defmethod handle ((event container-insert))
   (let ((container (container-of event)))
-    (container-insert event container)
-    (dolist (observable (observables-of event))
-      ;; Notify stuff observing the container and the objects being inserted.
-      (when (typep observable 'event-router)
-        (event-router-notify observable event)))))
+    (prog1 (container-insert event container)
+      (dolist (observable (observables-of event))
+        ;; Notify stuff observing the container and the objects being inserted.
+        (when (typep observable 'event-router)
+          (event-router-notify observable event))))))
 
 
 (defmethod insert (object &rest args &key

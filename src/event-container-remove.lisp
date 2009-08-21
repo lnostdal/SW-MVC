@@ -14,11 +14,11 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
 
 (defmethod handle ((event container-remove))
   (let ((container (container-of event)))
-    (container-remove event container)
-    (dolist (observable (observables-of event))
-      ;; Notify stuff observing the container and the objects being removed.
-      (when (typep observable 'event-router)
-        (event-router-notify observable event)))))
+    (prog1 (container-remove event container)
+      (dolist (observable (observables-of event))
+        ;; Notify stuff observing the container and the objects being removed.
+        (when (typep observable 'event-router)
+          (event-router-notify observable event))))))
 
 
 (defun remove (object container)

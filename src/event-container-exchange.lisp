@@ -16,11 +16,11 @@
 
 (defmethod handle ((event container-exchange))
   (let ((container (container-of event)))
-    (container-exchange event container)
-    ;; Notify stuff observing the container and the objects being exchanged.
-    (dolist (observable (observables-of event))
-      (when (typep observable 'event-router)
-        (event-router-notify observable event)))))
+    (prog1 (container-exchange event container)
+      ;; Notify stuff observing the container and the objects being exchanged.
+      (dolist (observable (observables-of event))
+        (when (typep observable 'event-router)
+          (event-router-notify observable event))))))
 
 
 (defmethod exchange (object-1 object-2)

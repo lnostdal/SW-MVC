@@ -13,10 +13,10 @@ anything at its destination."))
 
 
 (defmethod handle ((event container-move))
-  (container-move event
-                  (container-of event)
-                  (from-of event)
-                  (to-of event)))
+  (prog1 (container-move event
+                         (container-of event)
+                         (from-of event)
+                         (to-of event))))
 
 
 (defmethod move (object from to)

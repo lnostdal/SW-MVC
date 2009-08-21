@@ -163,7 +163,7 @@ container type events vs. TARGET."
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
-  (dolist (object (objects-of event))
+  (dolist (object (objects-of event) (length (objects-of event)))
     ;; TODO: Find all objects in one go instead.
     (let* ((node (if (typep object 'dlist-node)
                      object
@@ -191,7 +191,7 @@ container type events vs. TARGET."
                        (make-instance 'dlist-node :dlist dlist :value object)))))
       (declare (inline mk-dlist-node))
 
-      (dolist (object (objects-of event))
+      (dolist (object (objects-of event) (objects-of event))
         (let ((dlist-node (mk-dlist-node object)))
           (case relative-position
             (:before
@@ -238,4 +238,5 @@ container type events vs. TARGET."
          (object-b (object-of event))
          (a-value (value-of object-a)))
     (setf (value-of object-a) (value-of object-b)
-          (value-of object-b) a-value)))
+          (value-of object-b) a-value)
+    (list object-a object-b)))
