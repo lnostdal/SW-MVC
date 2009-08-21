@@ -185,10 +185,13 @@ container type events vs. TARGET."
   (let ((relative-position (relative-position-of event))
         (relative-object (relative-object-of event)))
     (flet ((mk-dlist-node (object)
-             (if (typep object 'dlist-node)
-                 (prog1 object (setf (dlist-of object) dlist))
-                 (setf (car (member object (objects-of event)))
-                       (make-instance 'dlist-node :dlist dlist :value object)))))
+             (typecase object
+               (dlist-node (prog1 object (setf (dlist-of object) dlist)))
+               (view-base (setf (car (member object (objects-of event)))
+                                (make-instance 'dlist-node :dlist dlist :value (with1 (model-of object)
+                                                                                 (assert it)))))
+               (otherwise (setf (car (member object (objects-of event)))
+                                (make-instance 'dlist-node :dlist dlist :value object))))))
       (declare (inline mk-dlist-node))
 
       (dolist (object (objects-of event) (objects-of event))
