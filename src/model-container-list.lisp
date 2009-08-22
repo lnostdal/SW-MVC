@@ -56,7 +56,7 @@ Doubly-linked list node with support for dataflow and transactions."))
          :type (or dlist-node null)
          :initform nil))
 
-  (:default-initargs :key-fn #'value-of)
+  (:default-initargs :key-fn (lambda (obj) (cell-of (value-of obj))))
   (:metaclass mvc-class)
   (:documentation "
 Doubly-linked list with support for dataflow and transactions."))
@@ -165,9 +165,11 @@ container type events vs. TARGET."
 (defmethod container-remove ((event container-remove) (dlist dlist))
   (dolist (object (objects-of event) (length (objects-of event)))
     ;; TODO: Find all objects in one go instead.
-    (let* ((node (if (typep object 'dlist-node)
-                     object
-                     (container-find object dlist)))
+    (let* ((node (typecase object
+                   (dlist-node object)
+                   (otherwise (with1 (container-find (model-of object) dlist)
+                                (assert it)
+                                (setf (car (member object (objects-of event))) it)))))
            (left (left-of node))
            (right (right-of node)))
       (nilf (dlist-of node)

@@ -34,13 +34,19 @@ object which is a sub-type of VIEW-BASE.")))
   (when model (setf (model-of view) model)))
 
 
+(defmethod model-of (object)
+  "Fallback; we're probably dealing with some sort of Model already."
+  object)
+
+
 (defmethod (setf model-of) :around (new-model (view view-base))
   (let ((old-model-observers (model-observers-of view)))
     (prog1 new-model
       (with-object view
         (setf ¤model-observers (with1 (ensure-list (call-next-method))
                                  (dolist (model-observer it)
-                                   (check-type model-observer cell)))
+                                   (check-type model-observer cell)
+                                   (assert (input-evalp-of model-observer))))
               ¤model new-model))
       (dolist (old-model-observer old-model-observers)
         (cell-mark-as-dead old-model-observer)))))
@@ -70,7 +76,9 @@ CONTEXT-VIEW.
 A second value FOUND-P is also returned. This is T if an already existing View
 was found based on MODEL and CONTEXT-VIEW and NIL if a new View was
 constructed, stored and returned."
-  (declare (view-base context-view))
+  (declare (view-base context-view)
+           #|(values view-base (member t nil &optional))|#)
+  (dbg-prin1 (list context-view model) "view-in-context-of")
   (with-slots (views-in-context) context-view
     (sb-ext:with-locked-hash-table (views-in-context)
       (let ((signature (cons context-view model)))
@@ -85,6 +93,7 @@ constructed, stored and returned."
 
 (defun (setf view-in-context-of) (view context-view model)
   (declare (view-base view context-view))
+  (dbg-prin1 (list view context-view model) "(setf view-in-context-of)")
   (with-slots (views-in-context) context-view
     (sb-ext:with-locked-hash-table (views-in-context)
       (let ((signature (cons context-view model)))

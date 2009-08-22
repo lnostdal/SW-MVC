@@ -13,7 +13,7 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
 
 
 (defmethod handle ((event container-remove))
-  (let ((container (container-of event)))
+  (let ((container (container-of (container-of event))))
     (prog1 (container-remove event container)
       (dolist (observable (observables-of event))
         ;; Notify stuff observing the container and the objects being removed.
