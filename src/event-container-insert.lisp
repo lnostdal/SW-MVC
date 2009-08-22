@@ -43,10 +43,10 @@ suitable or natural position in IN."
               (before-supplied-p
                (values :container before
                        :relative-position :before
-                       :relative-object before))
+                       :relative-object (model-of before)))
               (after-supplied-p
                (values :container after
                        :relative-position :after
-                       :relative-object after))
+                       :relative-object (model-of after)))
               (in-supplied-p
                (values :container in))))))
