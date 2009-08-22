@@ -8,7 +8,7 @@
 (defclass container-event (event)
   ;; TODO: I don't think this slot belongs here; it is too specific. We often manipulate many containers.
   ((container :reader container-of :reader model-of :initarg :container
-              :type container
+              ;;:type container ;; NOTE: This might be a Model or a View.
               :initform (error ":CONTAINER needed.")
               :documentation "
 The container instance in question which had an event.")
@@ -42,8 +42,12 @@ question. The content of this slot might change while it is being handled.")))
 
 
 (defmethod observables-of append ((event container-event))
-  (cons (container-of event)
-        (objects-of event)))
+  (with (cons (container-of event)
+              (objects-of event))
+    (let ((maybe-container-model (container-of (car it))))
+      (if (eq (car it) maybe-container-model)
+          it
+          (cons maybe-container-model it)))))
 
 
 (defmethod object-of ((event container-event))

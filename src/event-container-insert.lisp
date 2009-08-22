@@ -19,8 +19,8 @@ into some location(s?) in a container."))
 
 
 (defmethod handle ((event container-insert))
-  (let ((container (container-of event)))
-    (prog1 (container-insert event container)
+  (let ((container (container-of (container-of event)))) ;; (or VIEW-BASE  -> MODEL (Sw-MVC:CONTAINER)
+    (prog1 (container-insert event container)            ;;     DLIST-NODE -> DLIST)
       (dolist (observable (observables-of event))
         ;; Notify stuff observing the container and the objects being inserted.
         (when (typep observable 'event-router)
@@ -34,26 +34,19 @@ into some location(s?) in a container."))
   "If :IN is given OBJECT will be inserted at what is determined to be the most
 suitable or natural position in IN."
   (assert (= 1 (count t (list before-supplied-p after-supplied-p in-supplied-p))) nil
-          "SW-MVC:INSERT: :BEFORE, :AFTER or :IN is needed (only one of them), got: ~S" args)
+          ":BEFORE, :AFTER or :IN is needed (only one of them), got: ~S" args)
   ;; TODO: Proper objects with class-hierarchy to specify 'positions'?
-  (let ((result (cond
-                  (before-supplied-p
-                   (cons :before before))
-
-                  (after-supplied-p
-                   (cons :after after))
-
-                  (in-supplied-p
-                   t)
-
-                  (t
-                   (error "INSERT was given incorrect arguments: ~A" args)))))
-
-    (handle (multiple-value-call #'make-instance
-              'container-insert
-              :objects object
-              (if (eq t result)
-                  (values :container (container-of in))
-                  (values :container (container-of (cdr result))
-                          :relative-position (car result)
-                          :relative-object (cdr result)))))))
+  (handle (multiple-value-call #'make-instance
+            'container-insert
+            :objects object
+            (cond
+              (before-supplied-p
+               (values :container before
+                       :relative-position :before
+                       :relative-object before))
+              (after-supplied-p
+               (values :container after
+                       :relative-position :after
+                       :relative-object after))
+              (in-supplied-p
+               (values :container in))))))

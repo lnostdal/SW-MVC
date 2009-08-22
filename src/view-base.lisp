@@ -6,7 +6,7 @@
 
 
 (defclass view-base ()
-  ((model :reader model-of
+  ((model :reader model-of :reader container-of
           :initform nil)
 
    ;; Dataflow: MODEL -> MODEL-OBSERVERS => VIEW-BASE (some widget in SW).
@@ -82,6 +82,14 @@ constructed, stored and returned."
               (values (setf (gethash signature views-in-context)
                             (view-constructor context-view model))
                       nil)))))))
+
+
+(defun (setf view-in-context-of) (view context-view model)
+  (declare (view-base view context-view))
+  (with-slots (views-in-context) context-view
+    (sb-ext:with-locked-hash-table (views-in-context)
+      (let ((signature (cons context-view model)))
+        (setf (gethash signature views-in-context) view)))))
 
 
 (defmethod print-object ((view-base view-base) stream)

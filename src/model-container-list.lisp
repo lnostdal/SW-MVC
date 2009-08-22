@@ -186,12 +186,24 @@ container type events vs. TARGET."
         (relative-object (relative-object-of event)))
     (flet ((mk-dlist-node (object)
              (typecase object
-               (dlist-node (prog1 object (setf (dlist-of object) dlist)))
-               (view-base (setf (car (member object (objects-of event)))
-                                (make-instance 'dlist-node :dlist dlist :value (with1 (model-of object)
-                                                                                 (assert it)))))
-               (otherwise (setf (car (member object (objects-of event)))
-                                (make-instance 'dlist-node :dlist dlist :value object))))))
+               (dlist-node
+                (prog1 object (setf (dlist-of object) dlist)))
+
+               (view-base
+                (let* ((object-view object)
+                       (object-model (model-of object-view))
+                       (context-view (container-of event)))
+                  (assert (typep context-view 'view-base) nil
+                          "When inserting an object like ~S (sub-type of VIEW-BASE),
+the container must also be a View (sub-type of VIEW-BASE). Got ~S" object-view context-view)
+                  (assert object-model)
+                  (with1 (setf (car (member object-view (objects-of event)))
+                               (make-instance 'dlist-node :dlist dlist :value object-model))
+                    (setf (view-in-context-of context-view it) object-view))))
+
+               (otherwise
+                (setf (car (member object (objects-of event)))
+                      (make-instance 'dlist-node :dlist dlist :value object))))))
       (declare (inline mk-dlist-node))
 
       (dolist (object (objects-of event) (objects-of event))
