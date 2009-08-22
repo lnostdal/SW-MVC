@@ -73,8 +73,8 @@ constructed, stored and returned."
   (declare (view-base context-view)
            (values view-base &optional))
   (with-slots (views-in-context) context-view
-    (let ((signature (cons context-view model)))
-      (sb-ext:with-locked-hash-table (views-in-context)
+    (sb-ext:with-locked-hash-table (views-in-context)
+      (let ((signature (cons context-view model)))
         (multiple-value-bind (view found-p)
             (gethash signature views-in-context)
           (if found-p
