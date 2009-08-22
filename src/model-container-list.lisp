@@ -168,7 +168,7 @@ container type events vs. TARGET."
     (let* ((node (typecase object
                    (dlist-node object)
                    (otherwise (with1 (container-find (model-of object) dlist)
-                                (assert it)
+                                (check-type it dlist-node)
                                 (setf (car (member object (objects-of event))) it)))))
            (left (left-of node))
            (right (right-of node)))

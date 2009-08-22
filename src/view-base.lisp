@@ -76,9 +76,7 @@ CONTEXT-VIEW.
 A second value FOUND-P is also returned. This is T if an already existing View
 was found based on MODEL and CONTEXT-VIEW and NIL if a new View was
 constructed, stored and returned."
-  (declare (view-base context-view)
-           #|(values view-base (member t nil &optional))|#)
-  (dbg-prin1 (list context-view model) "view-in-context-of")
+  (declare (view-base context-view))
   (with-slots (views-in-context) context-view
     (sb-ext:with-locked-hash-table (views-in-context)
       (let ((signature (cons context-view model)))
@@ -93,7 +91,6 @@ constructed, stored and returned."
 
 (defun (setf view-in-context-of) (view context-view model)
   (declare (view-base view context-view))
-  (dbg-prin1 (list view context-view model) "(setf view-in-context-of)")
   (with-slots (views-in-context) context-view
     (sb-ext:with-locked-hash-table (views-in-context)
       (let ((signature (cons context-view model)))

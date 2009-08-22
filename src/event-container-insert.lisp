@@ -31,6 +31,7 @@ into some location(s?) in a container."))
                    (before nil before-supplied-p)
                    (after nil after-supplied-p)
                    (in nil in-supplied-p))
+  #|(declare ((or model view-base) object))|#
   "If :IN is given OBJECT will be inserted at what is determined to be the most
 suitable or natural position in IN."
   (assert (= 1 (count t (list before-supplied-p after-supplied-p in-supplied-p))) nil
