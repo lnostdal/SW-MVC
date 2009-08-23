@@ -198,7 +198,7 @@ container type events vs. TARGET."
                   (assert (typep context-view 'view-base) nil
                           "When inserting an object like ~S (sub-type of VIEW-BASE),
 the container must also be a View (sub-type of VIEW-BASE). Got ~S" object-view context-view)
-                  (assert object-model)
+                  (assert object-model nil "Got ~S" object-model)
                   (with1 (setf (car (member object-view (objects-of event)))
                                (make-instance 'dlist-node :dlist dlist :value object-model))
                     (setf (view-in-context-of context-view it) object-view))))
