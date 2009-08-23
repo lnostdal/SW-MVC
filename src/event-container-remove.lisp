@@ -24,22 +24,27 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
 (defun remove (object container)
   "Remove OBJECT from CONTAINER.
 Returns CONTAINER."
+  (declare ((or model view-base) container))
+  (dolist (object (setf object (ensure-list object)))
+    (check-type object (or model view-base)))
   (handle (make-instance 'container-remove
                          :container container
-                         :objects object))
-  container)
+                         :objects object)))
 
 
 (defun remove-from (container &rest objects)
   "Remove OBJECTS from CONTAINER.
 Returns CONTAINER."
+  (declare ((or model view-base) container))
+  (dolist (object objects)
+    (check-type object (or model view-base)))
   (handle (make-instance 'container-remove
                          :container container
-                         :objects objects))
-  container)
+                         :objects objects)))
 
 
 (defun remove-all (container)
+  (declare ((or model view-base) container))
   (let ((objects ~container))
     (when objects
       (handle (make-instance 'container-remove

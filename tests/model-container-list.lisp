@@ -16,7 +16,7 @@
 
   (let* ((model (dlist))
          (view (make-instance 'test-view :model model)))
-    (insert 42 :in model)
+    (insert #λ42 :in model)
     (assert worksp)
     view))
 

@@ -27,27 +27,31 @@ into some location(s?) in a container."))
           (event-router-notify observable event))))))
 
 
-(defmethod insert (object &rest args &key
-                   (before nil before-supplied-p)
-                   (after nil after-supplied-p)
-                   (in nil in-supplied-p))
-  #|(declare ((or model view-base) object))|#
+(defun insert (object &rest args &key
+               (before nil before-supplied-p)
+               (after nil after-supplied-p)
+               (in nil in-supplied-p))
   "If :IN is given OBJECT will be inserted at what is determined to be the most
 suitable or natural position in IN."
   (assert (= 1 (count t (list before-supplied-p after-supplied-p in-supplied-p))) nil
           ":BEFORE, :AFTER or :IN is needed (only one of them), got: ~S" args)
+  (dolist (object (setf object (ensure-list object)))
+    (check-type object (or model view-base)))
   ;; TODO: Proper objects with class-hierarchy to specify 'positions'?
   (handle (multiple-value-call #'make-instance
             'container-insert
             :objects object
             (cond
               (before-supplied-p
+               (check-type before (or model view-base))
                (values :container before
                        :relative-position :before
                        :relative-object (model-of before)))
               (after-supplied-p
+               (check-type after (or model view-base))
                (values :container after
                        :relative-position :after
                        :relative-object (model-of after)))
               (in-supplied-p
+               (check-type in (or model view-base))
                (values :container in))))))
