@@ -70,12 +70,13 @@ in the slot VIEW-CONSTRUCTOR-FN in CONTEXT-VIEW if there is a function there."
 and VIEW-CONSTRUCTOR-FN in ~A was NIL." context-view model context-view)))
 
 
-(defun view-in-context-of (context-view model)
+(defun view-in-context-of (context-view model &optional create-if-not-found-p)
   "Returns a View (some sub-instance of VIEW-BASE) of MODEL in context of
 CONTEXT-VIEW.
-A second value FOUND-P is also returned. This is T if an already existing View
-was found based on MODEL and CONTEXT-VIEW and NIL if a new View was
-constructed, stored and returned."
+
+A second value, FOUND-P, is also returned. This is T if an already existing View
+was found, :CREATED if a new View was constructed and NIL if no View was found
+or constructed."
   (declare (view-base context-view)
            (model model))
   (with-slots (views-in-context) context-view
@@ -85,9 +86,11 @@ constructed, stored and returned."
             (gethash signature views-in-context)
           (if found-p
               (values view t)
-              (values (setf (gethash signature views-in-context)
-                            (view-constructor context-view model))
-                      nil)))))))
+              (if create-if-not-found-p
+                  (values (setf (gethash signature views-in-context)
+                                (view-constructor context-view model))
+                          :created)
+                  (values nil nil))))))))
 
 
 (defun (setf view-in-context-of) (view context-view model)
