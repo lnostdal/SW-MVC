@@ -39,7 +39,7 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 
 (defmethod deref ((dlist-node dlist-node))
-  (slot-value dlist-node 'value))
+  (cell-of (slot-value dlist-node 'value)))
 
 
 (defmethod (setf deref) (new-value (dlist-node dlist-node))
@@ -166,10 +166,12 @@ container type events vs. TARGET."
   (dolist (object (objects-of event) (length (objects-of event)))
     ;; TODO: Find all objects in one go instead.
     (let* ((node (typecase object
-                   (dlist-node object)
-                   (otherwise (with1 (container-find (model-of object) dlist)
-                                (check-type it dlist-node)
-                                (setf (car (member object (objects-of event))) it)))))
+                   (dlist-node
+                    object)
+
+                   (otherwise
+                    (with1 (container-find (model-of object) dlist)
+                      (check-type it dlist-node)))))
            (left (left-of node))
            (right (right-of node)))
       (nilf (dlist-of node)
@@ -189,23 +191,14 @@ container type events vs. TARGET."
     (flet ((mk-dlist-node (object)
              (typecase object
                (dlist-node
+                ;; TODO: This operation probably denotes a move; start a remove-operation at this point?
                 (prog1 object (setf (dlist-of object) dlist)))
 
                (view-base
-                (let* ((object-view object)
-                       (object-model (model-of object-view))
-                       (context-view (container-of event)))
-                  (assert (typep context-view 'view-base) nil
-                          "When inserting an object like ~S (sub-type of VIEW-BASE),
-the container must also be a View (sub-type of VIEW-BASE). Got ~S" object-view context-view)
-                  (assert object-model nil "Got ~S" object-model)
-                  (with1 (setf (car (member object-view (objects-of event)))
-                               (make-instance 'dlist-node :dlist dlist :value object-model))
-                    (setf (view-in-context-of context-view it) object-view))))
+                (make-instance 'dlist-node :dlist dlist :value (model-of object)))
 
                (otherwise
-                (setf (car (member object (objects-of event)))
-                      (make-instance 'dlist-node :dlist dlist :value object))))))
+                (make-instance 'dlist-node :dlist dlist :value object)))))
       (declare (inline mk-dlist-node))
 
       (dolist (object (objects-of event) (objects-of event))
