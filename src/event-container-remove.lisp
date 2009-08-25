@@ -45,7 +45,7 @@ Returns CONTAINER."
 
 (defun remove-all (container)
   (declare ((or model view-base) container))
-  (let ((objects ~container))
+  (let ((objects ~(container-of container)))
     (when objects
       (handle (make-instance 'container-remove
                              :container container
