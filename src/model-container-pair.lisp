@@ -13,15 +13,29 @@ objects. This is the key point and the answer I've been looking for:
 |#
 
 
-(defclass pair (container)
+(defclass pair (container event-router)
   ((left :accessor left-of :initarg :left
          :initform nil)
+
    (right :accessor right-of :initarg :right
           :initform nil))
 
-  (:metaclass mvc-stm-class))
+  (:metaclass mvc-class))
+(export '(pair left left-of right right-of))
+
+
+(defmethod print-object ((pair pair) stream)
+  (print-unreadable-object (pair stream :type t :identity t)
+    (format stream ":LEFT ~S :RIGHT ~S"
+            (cell-of (left-of pair))
+            (cell-of (right-of pair)))))
+
+
+(defmethod deref ((pair pair))
+  (cons (cell-of (left-of pair))
+        (cell-of (right-of pair))))
 
 
 (defun mk-pair (&optional left right)
   (make-instance 'pair :left left :right right))
-
+(export 'mk-pair)
