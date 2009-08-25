@@ -191,7 +191,7 @@ container type events vs. TARGET."
     (flet ((mk-dlist-node (object)
              (typecase object
                (dlist-node
-                ;; TODO: This operation probably denotes a move; start a remove-operation at this point?
+                ;; TODO: It is not clear what the user intends to do here. Think about this.
                 (prog1 object (setf (dlist-of object) dlist)))
 
                (view-base
@@ -203,7 +203,7 @@ container type events vs. TARGET."
 
       (dolist (object (objects-of event) (objects-of event))
         (let ((dlist-node (mk-dlist-node object)))
-          (case relative-position
+          (ecase relative-position
             (:before
              (with-slots (head tail) dlist
                (with-slots (left right) dlist-node
@@ -234,10 +234,7 @@ container type events vs. TARGET."
                            (right-of tail) dlist-node
                            tail dlist-node)
                      (setf head dlist-node
-                           tail dlist-node)))))
-
-            (otherwise
-             (error "CONTAINER-INSERT: Got an invalid value for RELATIVE-POSITION: ~A" relative-position)))
+                           tail dlist-node))))))
 
           (setf relative-position :after
                 relative-object dlist-node))))))
