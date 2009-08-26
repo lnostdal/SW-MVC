@@ -15,17 +15,21 @@
 (defclass dlist-node (single-value-model)
   ((dlist :accessor dlist-of :accessor container-of :initarg :dlist
           :type (or dlist null)
+          :cellp t
           :initform nil)
 
    (left :accessor left-of :initarg :left
          :type (or dlist-node null)
+         :cellp t
          :initform nil)
 
    (right :accessor right-of :initarg :right
           :type (or dlist-node null)
+          :cellp t
           :initform nil)
 
    (value :accessor value-of :initarg :value
+          :cellp t
           :initform (error ":VALUE needed.")))
 
   (:metaclass mvc-class)
@@ -35,7 +39,8 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 (defmethod print-object ((dlist-node dlist-node) stream)
   (print-unreadable-object (dlist-node stream :type t :identity t)
-    (prin1 (cell-of (value-of dlist-node)) stream)))
+    (when (slot-boundp dlist-node 'value)
+      (prin1 (cell-of (value-of dlist-node)) stream))))
 
 
 (defmethod deref ((dlist-node dlist-node))
@@ -50,10 +55,12 @@ Doubly-linked list node with support for dataflow and transactions."))
 (defclass dlist (container event-router)
   ((head :accessor head-of :initarg :head
          :type (or dlist-node null)
+         :cellp t
          :initform nil)
 
    (tail :accessor tail-of
          :type (or dlist-node null)
+         :cellp t
          :initform nil))
 
   (:default-initargs :key-fn (lambda (obj) (cell-of (value-of obj))))
