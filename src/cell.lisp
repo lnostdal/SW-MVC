@@ -69,7 +69,9 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 
 (defmethod print-object ((cell cell) stream)
   (print-unreadable-object (cell stream :type t :identity t)
-    (prin1 (value-of cell) stream)))
+    (if (slot-boundp cell 'value)
+        (prin1 (value-of cell) stream)
+        (prin1 :not-bound stream))))
 
 
 #| TODO: Generalize to talk about Model. |#
