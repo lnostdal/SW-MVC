@@ -5,7 +5,7 @@
 (declaim #.(optimizations))
 
 
-(defclass container (self-ref multiple-value-model)
+(defclass container (self-ref multiple-value-model) ;; TODO: Think about use of SELF-REF here..
   ((test-fn :accessor test-fn-of :initarg :test-fn
             :type function
             :initform #'eql)

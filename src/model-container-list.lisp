@@ -173,7 +173,6 @@ container type events vs. TARGET."
             (let ((last-node (last1 before)))
               (dolist (node to-insert)
                 (if-let ((right-val (cadr (member (funcall key node) source :test test))))
-                  ;; TODO: CONTAINER-FIND currently converts the DLIST to a CONS-list on each iteration.
                   (insert node :before (container-find right-val target))
                   (insert node :after last-node))))
             (insert (nreversef to-insert) :in target)))))
@@ -181,7 +180,6 @@ container type events vs. TARGET."
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
   (dolist (object (objects-of event) (length (objects-of event)))
-    ;; TODO: Find all objects in one go instead.
     (let* ((node (typecase object
                    (dlist-node
                     object)
@@ -208,11 +206,13 @@ container type events vs. TARGET."
     (flet ((mk-dlist-node (object)
              (typecase object
                (dlist-node
-                ;; TODO: It is not clear what the user intends to do here. Think about this.
-                (prog1 object (setf (dlist-of object) dlist)))
+                (prog1 object
+                  ;; TODO: It is not clear what the user intends to do here. Think about this.
+                  (setf (dlist-of object) dlist)))
 
                (view-base
                 (make-instance 'dlist-node :dlist dlist :value (model-of object)))
+
 
                (otherwise
                 (make-instance 'dlist-node :dlist dlist :value object)))))
