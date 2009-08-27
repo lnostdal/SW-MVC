@@ -7,8 +7,8 @@
 
 (class-forward-reference view-base)
 
-(class-forward-reference cell
-  (:metaclass stm-class))
+#|(class-forward-reference cell
+  (:metaclass stm-class))|#
 
 
 (class-forward-reference direct-cell-slot)

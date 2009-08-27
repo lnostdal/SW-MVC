@@ -21,8 +21,6 @@
   container)
 
 
-(defmethod container-find (value (container container))
+(defmethod container-find ((value model) (container container))
   "Find VALUE in CONTAINER."
-  (find value ~container
-        :test (test-fn-of container)
-        :key (key-fn-of container)))
+  (node-of value))

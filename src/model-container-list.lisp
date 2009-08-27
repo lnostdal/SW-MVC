@@ -13,7 +13,7 @@
 
 
 (defclass dlist-node (single-value-model)
-  ((dlist :accessor dlist-of :accessor container-of :initarg :dlist
+  ((dlist :accessor dlist-of :accessor container-of
           ;;:type (or dlist null)
           :cellp t
           :initform nil)
@@ -37,6 +37,11 @@
 Doubly-linked list node with support for dataflow and transactions."))
 
 
+(defmethod initialize-instance :after ((dlist-node dlist-node) &key (dlist nil dlist-supplied-p))
+  (when dlist-supplied-p
+    (setf (dlist-of dlist-node) dlist)))
+
+
 (defmethod print-object ((dlist-node dlist-node) stream)
   (print-unreadable-object (dlist-node stream :type t :identity t)
     (when (slot-boundp dlist-node 'value)
@@ -49,6 +54,11 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 (defmethod (setf deref) (new-value (dlist-node dlist-node))
   (setf (slot-value dlist-node 'value) new-value))
+
+
+(defmethod (setf dlist-of) :after ((dlist dlist) (dlist-node dlist-node))
+  (let ((model ~dlist-node))
+    (setf (node-of model) dlist-node)))
 
 
 
