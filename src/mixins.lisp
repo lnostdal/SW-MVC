@@ -17,6 +17,15 @@ be a pointer to the DLIST-NODE instance."))
 Common base class for all Models."))
 
 
+(defmethod node-of ((view view-base))
+  (node-of (model-of view)))
+
+
+;; TODO: Hm .. what if we want to nest things; (node-of dlist-node) ..?
+(defmethod node-of ((dlist-node dlist-node))
+  dlist-node)
+
+
 
 (defclass single-value-model (model)
   ()
