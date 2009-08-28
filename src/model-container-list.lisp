@@ -173,13 +173,7 @@ container type events vs. TARGET."
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
   (dolist (object (objects-of event) (length (objects-of event)))
-    (let* ((node (typecase object
-                   (dlist-node
-                    object)
-
-                   (otherwise
-                    (with1 (container-find (model-of object) dlist)
-                      (check-type it dlist-node)))))
+    (let* ((node (node-of object))
            (left (left-of node))
            (right (right-of node)))
       (nilf (dlist-of node)
@@ -197,17 +191,21 @@ container type events vs. TARGET."
   (let ((relative-position (relative-position-of event))
         (relative-object (relative-object-of event)))
     (flet ((mk-dlist-node (object)
-             (typecase object
+             (etypecase object
                (dlist-node
                 (prog1 object
-                  ;; TODO: It is not clear what the user intends to do here. Think about this.
+                  ;; TODO: It is not clear what the user intends to do here (remove/move?). Think about this.
                   (setf (dlist-of object) dlist)))
 
                (view-base
-                (make-instance 'dlist-node :dlist dlist :value (model-of object)))
+                (let ((context-view (container-of event)))
+                  (assert (typep context-view 'view-base) nil
+                          "When inserting a VIEW-BASE/SW:WIDGET object the container must also be a VIEW-BASE.")
+                  #| NOTE: Wrt. STM this is OK since we'll simply overwrite this on retry. |#
+                  (setf (view-in-context-of context-view (model-of object)) object)
+                  (make-instance 'dlist-node :dlist dlist :value (model-of object))))
 
-
-               (otherwise
+               (model
                 (make-instance 'dlist-node :dlist dlist :value object)))))
       (declare (inline mk-dlist-node))
 
