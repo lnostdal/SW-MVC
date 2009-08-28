@@ -13,3 +13,10 @@
 
 (class-forward-reference direct-cell-slot)
 (class-forward-reference effective-cell-slot)
+
+
+(class-forward-reference dlist
+  (:metaclass mvc-class))
+
+(class-forward-reference dlist-node
+  (:metaclass mvc-class))

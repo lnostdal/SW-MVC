@@ -19,14 +19,16 @@ has turned into a dataflow thing."
     ((:file "package")
      (:file "config")
      (:file "bootstrap")
+     (:file "meta-class")
      (:file "bootstrap-classes")
+
      (:file "read-macros")
      (:file "specials")
      (:file "symbol-macros")
      ;;(:file "cell-decls")
      (:file "model-common")
      (:file "mixins")
-     (:file "meta-class")
+
      (:file "cell")
      ;;(:file "formula")
 
@@ -40,7 +42,6 @@ has turned into a dataflow thing."
      (:file "event-container-insert")
      (:file "event-container-exchange")
      (:file "model-container-list")
-
      (:file "view-base")
      #|
      (:file "event-slot-set")

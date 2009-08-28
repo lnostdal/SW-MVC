@@ -5,13 +5,6 @@
 (declaim #.(optimizations))
 
 
-(class-forward-reference dlist
-  (:metaclass mvc-class))
-
-(class-forward-reference dlist-node
-  (:metaclass mvc-class))
-
-
 (defclass dlist-node (single-value-model)
   ((dlist :accessor dlist-of :accessor container-of
           ;;:type (or dlist null)
