@@ -24,7 +24,6 @@ about the event."))
 
 (defclass event-router ()
   ((event :reader event-of
-          :cellp t
           :initform nil))
 
   (:metaclass mvc-class))

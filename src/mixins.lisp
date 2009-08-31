@@ -21,11 +21,6 @@ Common base class for all Models."))
   (node-of (model-of view)))
 
 
-;; TODO: Hm .. what if we want to nest things; (node-of dlist-node) ..?
-(defmethod node-of ((dlist-node dlist-node))
-  dlist-node)
-
-
 
 (defclass single-value-model (model)
   ()

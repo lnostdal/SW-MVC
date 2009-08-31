@@ -19,8 +19,8 @@ has turned into a dataflow thing."
     ((:file "package")
      (:file "config")
      (:file "bootstrap")
-     (:file "meta-class")
      (:file "bootstrap-classes")
+
 
      (:file "read-macros")
      (:file "specials")
@@ -28,26 +28,25 @@ has turned into a dataflow thing."
      ;;(:file "cell-decls")
      (:file "model-common")
      (:file "mixins")
-
      (:file "cell")
-     ;;(:file "formula")
+
+     (:file "meta-class")
 
      (:file "input-translators")
      (:file "util")
      (:file "model-boolean")
      (:file "model-container")
+
      (:file "event")
      (:file "event-container")
      (:file "event-container-remove")
      (:file "event-container-insert")
      (:file "event-container-exchange")
-     (:file "model-container-list")
-     (:file "view-base")
-     #|
-     (:file "event-slot-set")
-     (:file "model-container-pair")
 
-     |#
+     (:file "model-container-list")
+     (:file "model-container-pair")
+     (:file "model-container-with-1-active-item")
+     (:file "view-base")
      ))
 
 
