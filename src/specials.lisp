@@ -10,15 +10,14 @@
 
 (define-variable *get-cell-p*
     :value nil
-    :type (member t nil)
-    :always-boundp t)
+    :type (member t nil))
+
 
 (define-variable *source-cells*
     :value nil
-    :type list
-    :always-boundp t)
+    :type list)
+
 
 (define-variable *target-cell*
     :value nil
-    :type (or null cell)
-    :always-boundp t)
+    :type (or null cell))
