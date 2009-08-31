@@ -75,9 +75,10 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 
 
 #| TODO: Generalize to talk about Model. |#
-(define-condition cell-eval-error (error)
-  ((cell :initarg :cell) ;; NOTE: The CELL-OF macro has a CELL-EVAL-ERROR clause.
-   (condition :reader condition-of :initarg :condition)))
+(eval-now
+  (define-condition cell-eval-error (error)
+    ((cell :initarg :cell) ;; NOTE: The CELL-OF macro has a CELL-EVAL-ERROR clause.
+     (condition :reader condition-of :initarg :condition))))
 
 
 (defmethod print-object ((obj cell-eval-error) stream)
@@ -86,8 +87,7 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
       (format stream " :CONDITION ~S" (slot-value obj 'condition)))))
 
 
-(defun cell-execute-formula (cell)
-  (declare (cell cell))
+(defn cell-execute-formula (t ((cell cell)))
   (if (or (member cell *source-cells* :test #'eq)
           (eq *target-cell* cell))
       (value-of cell)
@@ -126,28 +126,24 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 
 
 #| This will mark a CELL as dead and it'll lazily be removed from other CELL's TARGET-CELLS hash-table. |#
-(defun cell-mark-as-dead (cell)
-  (declare (cell cell))
-  (nilf (slot-value cell 'alivep)))
+(defn cell-mark-as-dead (null ((cell cell)))
+  (nilf (slot-value cell 'alivep))
+  (values))
 
 
-(defun cell-set-formula (cell formula)
-  (declare (cell cell)
-           (function formula))
+(defn cell-set-formula (null ((cell cell) (formula function)))
   (setf (init-evalp-of cell) nil
         (slot-value cell 'formula) formula)
   (values))
 
 
-(defun cell-observedp (cell)
-  (declare (cell cell))
+(defn cell-observedp ((member t nil) ((cell cell)))
   (let ((target-cells (target-cells-of cell)))
     (sb-ext:with-locked-hash-table (target-cells)
       (plusp (hash-table-count target-cells)))))
 
 
-(defun cell-add-target-cell (cell target-cell)
-  (declare (cell cell target-cell))
+(defn cell-add-target-cell (null ((cell cell) (target-cell cell)))
   "When CELL changes, TARGET-CELL wants to know about it."
   (let ((target-cells (target-cells-of cell)))
     (sb-ext:with-locked-hash-table (target-cells)
@@ -155,8 +151,7 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
   (values))
 
 
-(defun cell-notify-targets (cell)
-  (declare (cell cell))
+(defn cell-notify-targets (null ((cell cell)))
   "Re-evaluate target-cells which depend on the value of CELL."
   (let ((target-cells (target-cells-of cell)))
     (sb-ext:with-locked-hash-table (target-cells)
@@ -165,10 +160,11 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
                             (when (input-evalp-of target-cell)
                               (cell-execute-formula target-cell))
                             (remhash target-cell target-cells)))
-                      target-cells))))
+                      target-cells)))
+  (values))
 
 
-(eval-now (proclaim '(ftype (function (t cell) #|(values t #|(member t nil)|# &optional)|#)
+(eval-now (proclaim '(ftype (function (t cell) (values t (member t nil) &optional))
                       (setf cell-deref)))
           (proclaim '(inline (setf cell-deref))))
 ;; TODO: Document why this needs to return multiple values. IIRC it has something to do with dom-cache.lisp in SW,
@@ -194,16 +190,14 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
                       (cell-notify-targets cell)))))))
 
 
-(eval-now (proclaim '(ftype (function (cell) (values t &optional))
-                       cell-deref))
-          ;; TODO: Inlining causes weird problems wrt. the WITH-CELLS macro.
-          #|(proclaim '(inline cell-deref))|#)
+;; TODO: Inlining causes weird problems wrt. the WITH-CELLS macro.
+#|(eval-now (proclaim '(inline cell-deref)))|#
 (declaim (inline cell-deref))
-(defun cell-deref (cell)
+(defn cell-deref (t ((cell cell)))
   (when *target-cell*
     (cell-add-target-cell cell *target-cell*))
   (if (init-evalp-of cell)
-      (case (output-evalp-of cell)
+      (ecase (output-evalp-of cell)
         ((or :cached nil) (value-of cell))
         ((t) (cell-execute-formula cell)))
       (cell-execute-formula cell)))
@@ -265,5 +259,5 @@ Nesting of WITH-CELL and/or WITH-FORMULA forms? Debug output follows:
 
 
 (defmacro mk-ccell (&body body)
-  "Creates an output-treggered  cached CELL."
+  "Creates an output-treggered cached CELL."
   `λc,@body)
