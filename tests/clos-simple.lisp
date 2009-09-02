@@ -4,7 +4,7 @@
 
 
 (defclass clos-simple-test-1 (self-ref)
-  ((x :initform 2)
+  ((x :initform #λ2)
    (square :initform ↑#λ(* ¤x ¤x)))
   (:metaclass mvc-class))
 
@@ -29,7 +29,7 @@
   (:metaclass mvc-class))
 
 (with-object (make-instance 'clos-simple-test-2)
-  (setf ¤x 2)
+  (setf ¤x #λ2)
   (setf ¤square #λ(* ¤x ¤x))
   (assert (equalp (list 2 4) (list ¤x ¤square)))
   (incf ¤x)

@@ -8,18 +8,16 @@
 (eval-now
 (defclass dlist-node (single-value-model)
   ((dlist :accessor dlist-of :accessor container-of
-          ;;:type (or dlist null)
-          :initform nil)
+          :initform #λnil)
 
    (left :accessor left-of :initarg :left
-         ;;:type (or dlist-node null)
-         :initform nil)
+         :initform #λnil)
 
    (right :accessor right-of :initarg :right
-          ;;:type (or dlist-node null)
-          :initform nil)
+          :initform #λnil)
 
-   (value :accessor value-of))
+   (value :accessor value-of :initarg :value
+          :initform ":VALUE needed."))
 
   (:metaclass mvc-class)
   (:documentation "
@@ -28,12 +26,10 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 (defclass dlist (container event-router)
   ((head :accessor head-of :initarg :head
-         ;;:type (or dlist-node null)
-         :initform nil)
+         :initform #λnil)
 
    (tail :accessor tail-of
-         ;;:type (or dlist-node null)
-         :initform nil))
+         :initform #λnil))
 
   (:default-initargs :key-fn (lambda (obj) (cell-of (value-of obj))))
   (:metaclass mvc-class)
@@ -43,12 +39,8 @@ Doubly-linked list with support for dataflow and transactions."))
 
 
 (defmethod initialize-instance :after ((dlist-node dlist-node) &key
-                                       (dlist nil dlist-supplied-p)
-                                       (value (error ":VALUE needed.")))
-  (setf (value-of dlist-node)
-        (typecase value
-          (cell (as-value value))
-          (t value)))
+                                       (dlist nil dlist-supplied-p))
+
   (when dlist-supplied-p
     (setf (dlist-of dlist-node) dlist)))
 
@@ -73,8 +65,8 @@ Doubly-linked list with support for dataflow and transactions."))
 
 
 (defmethod (setf dlist-of) :after ((dlist dlist) (dlist-node dlist-node))
-  (let ((model ~dlist-node))
-    (setf (node-of model) dlist-node)))
+  (setf (node-of (cell-of (value-of dlist-node)))
+        dlist-node))
 
 
 (defmethod list<- ((dlist dlist) &rest args)

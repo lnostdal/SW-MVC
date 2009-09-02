@@ -24,7 +24,7 @@ about the event."))
 
 (defclass event-router ()
   ((event :reader event-of
-          :initform nil))
+          :initform #λnil))
 
   (:metaclass mvc-class))
 

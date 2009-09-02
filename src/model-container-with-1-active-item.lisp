@@ -6,7 +6,6 @@
 (defclass container-with-1-active-item (dlist)
   ((active-item :reader active-item-of
                 ;;:type (or null 1-active-item)
-                :cellp t
                 :initform nil))
 
   (:metaclass mvc-class))

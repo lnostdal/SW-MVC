@@ -21,7 +21,6 @@
     view))
 
 
-
 (remove-method #'(setf model-of)
                (find-method #'(setf model-of) nil (mapcar #'find-class '(dlist test-view))))
 (setf (find-class 'test-view nil) nil)
