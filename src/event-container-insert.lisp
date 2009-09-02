@@ -47,11 +47,13 @@ suitable or natural position in IN."
                (values :container before
                        :relative-position :before
                        :relative-object (model-of before)))
+
               (after-supplied-p
                (check-type after (or model view-base))
                (values :container after
                        :relative-position :after
                        :relative-object (model-of after)))
+
               (in-supplied-p
                (check-type in (or model view-base))
                (values :container in))))))

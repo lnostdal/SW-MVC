@@ -4,9 +4,11 @@ SW-MVC - Dataflow paradigm support for Common Lisp
 Dataflow, declarative or "cell oriented" (think spreadsheets) paradigm
 and lazy-eval support for Common Lisp.
 
-  * Input-triggered Cells: λi, #λ or MK-ICELL.
-  * Output-triggered Cells ("lazy eval"): λo or MK-OCELL
-  * Output-triggered Cells ("lazy eval") with caching of result: λc or MK-CCELL
+  * Input-triggered cells: λi, #λ or MK-ICELL.
+
+  * Output-triggered cells ("lazy eval"): λo or MK-OCELL
+
+  * Output-triggered cells ("lazy eval") with caching of result: λc or MK-CCELL
 
 
 See examples/test.lisp or stuff in the tests/ directory.
