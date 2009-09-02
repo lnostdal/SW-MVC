@@ -26,11 +26,11 @@ objects. This is the key point and the answer I've been looking for:
 
 (defmethod print-object ((pair pair) stream)
   (print-unreadable-object (pair stream :type t :identity t)
-    (cell-of (format stream ":LEFT ~S :RIGHT ~S" (left-of pair) (right-of pair)))))
+    (format stream ":LEFT ~S :RIGHT ~S" (left-of pair) (right-of pair))))
 
 
 (defmethod deref ((pair pair))
-  (cell-of (cons (left-of pair) (right-of pair))))
+  (cons (left-of pair) (right-of pair)))
 
 
 (defun mk-pair (&optional left right)

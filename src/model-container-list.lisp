@@ -169,7 +169,7 @@ container type events vs. TARGET."
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
-  (dolist (object (objects-of event) (length (objects-of event)))
+  (dolist (object (objects-of event) (length (the list (objects-of event))))
     (let* ((node (node-of object))
            (left (left-of node))
            (right (right-of node)))

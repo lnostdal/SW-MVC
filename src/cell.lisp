@@ -15,7 +15,7 @@
 |#
 
 
-(defclass cell (single-value-model)
+(defclass cell (single-value-model) ;; TODO: EVENT-ROUTER? .. hm ..
   ((alivep :reader alivep-of
            :type (member t nil)
            :initform t)

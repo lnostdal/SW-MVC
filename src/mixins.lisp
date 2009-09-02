@@ -21,6 +21,10 @@ Common base class for all Models."))
   (node-of (model-of view)))
 
 
+(defmethod print-object :around ((model model) stream)
+  (cell-of (call-next-method)))
+
+
 
 (defclass single-value-model (model)
   ()
