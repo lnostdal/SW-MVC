@@ -8,13 +8,16 @@
 (eval-now
 (defclass dlist-node (single-value-model)
   ((dlist :accessor dlist-of :accessor container-of
-          :initform #λnil)
+          :type (or null dlist)
+          :initform nil)
 
    (left :accessor left-of :initarg :left
-         :initform #λnil)
+         :type (or null dlist-node)
+         :initform nil)
 
    (right :accessor right-of :initarg :right
-          :initform #λnil)
+          :type (or null dlist-node)
+          :initform nil)
 
    (value :accessor value-of :initarg :value
           :initform ":VALUE needed."))
@@ -26,10 +29,12 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 (defclass dlist (container event-router)
   ((head :accessor head-of :initarg :head
-         :initform #λnil)
+         :type (or null dlist-node)
+         :initform nil)
 
    (tail :accessor tail-of
-         :initform #λnil))
+         :type (or null dlist-node)
+         :initform nil))
 
   (:default-initargs :key-fn (lambda (obj) (cell-of (value-of obj))))
   (:metaclass mvc-class)

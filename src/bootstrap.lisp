@@ -5,6 +5,21 @@
 (declaim #.(optimizations))
 
 
+(defmacro mk-icell (&body body)
+  "Creates an input-triggered CELL."
+  `λi,@body)
+
+
+(defmacro mk-ocell (&body body)
+  "Creates an output-triggered CELL."
+  `λo,@body)
+
+
+(defmacro mk-ccell (&body body)
+  "Creates an output-treggered cached CELL."
+  `λc,@body)
+
+
 (defmacro cell-of (arg &key warnp errorp)
   "This is used to extract a CELL instance from \"something\".
 This tends to mean CELL instances stored in CLOS slots of MVC-CLASS classes."

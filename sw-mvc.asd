@@ -18,19 +18,16 @@ has turned into a dataflow thing."
     :components
     ((:file "package")
      (:file "config")
+     (:file "read-macros")
      (:file "bootstrap")
      (:file "bootstrap-classes")
 
-
-     (:file "read-macros")
      (:file "specials")
      (:file "symbol-macros")
-     ;;(:file "cell-decls")
      (:file "model-common")
+     (:file "meta-class")
      (:file "mixins")
      (:file "cell")
-
-     (:file "meta-class")
 
      (:file "input-translators")
      (:file "util")
