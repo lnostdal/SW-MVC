@@ -8,15 +8,15 @@
 (eval-now
 (defclass dlist-node (single-value-model)
   ((dlist :accessor dlist-of :accessor container-of
-          :type (or null dlist)
+          ;;:type (or null dlist)
           :initform nil)
 
    (left :accessor left-of :initarg :left
-         :type (or null dlist-node)
+         ;;:type (or null dlist-node)
          :initform nil)
 
    (right :accessor right-of :initarg :right
-          :type (or null dlist-node)
+          ;;:type (or null dlist-node)
           :initform nil)
 
    (value :accessor value-of :initarg :value
@@ -29,11 +29,11 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 (defclass dlist (container event-router)
   ((head :accessor head-of :initarg :head
-         :type (or null dlist-node)
+         ;;:type (or null dlist-node)
          :initform nil)
 
    (tail :accessor tail-of
-         :type (or null dlist-node)
+         ;;:type (or null dlist-node)
          :initform nil))
 
   (:default-initargs :key-fn (lambda (obj) (cell-of (value-of obj))))
