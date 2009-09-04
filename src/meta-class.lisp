@@ -12,17 +12,20 @@
 This metaclass enables slot access to have CELL-like features.
 
 Initialization of unbound slots has one special property; if initialized with a
-CELL instance, that CELL will be used to directly represent the slot value.
+pointer (MK-PTR or #&) pointing to a CELL, that CELL will be used to represent
+the slot value. The λf reader macro can be used to construct a CELL wrapped in
+a pointer easily.
 
-To initialize a slot with a CELL as a value use AMX:MK-PTR or the #& reader
-macro. If a pointer is to be stored as a value, just wrap it in another
-pointer.
+If a pointer is to be stored as a value, just wrap it in another pointer.
 
 The CELL-OF macro allows one to refer directly to a CELL used to represent a
 slot:
 
     (cell-of (slot-value some-object 'some-slot)) => #<CELL ...>
-    (setf (cell-of (slot-value some-object 'some-slot)) :replace-the-cell-itself)
+
+    (setf (cell-of (slot-value some-object 'some-slot))
+          :replace-the-cell-itself)
+
 
 This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
 
