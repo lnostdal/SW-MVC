@@ -36,7 +36,7 @@ Doubly-linked list node with support for dataflow and transactions."))
          ;;:type (or null dlist-node)
          :initform nil))
 
-  (:default-initargs :key-fn (lambda (obj) (cell-of (value-of obj))))
+  (:default-initargs :key-fn (lambda (obj) (value-of obj)))
   (:metaclass mvc-class)
   (:documentation "
 Doubly-linked list with support for dataflow and transactions."))
@@ -70,7 +70,7 @@ Doubly-linked list with support for dataflow and transactions."))
 
 
 (defmethod (setf dlist-of) :after ((dlist dlist) (dlist-node dlist-node))
-  (setf (node-of (cell-of (value-of dlist-node)))
+  (setf (node-of (value-of dlist-node))
         dlist-node))
 
 

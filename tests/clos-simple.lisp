@@ -2,10 +2,12 @@
 
 (in-package #:sw-mvc)
 
+(declaim (optimize (speed 0) (safety 2)))
+
 
 (defclass clos-simple-test-1 (self-ref)
-  ((x :initform #λ2)
-   (square :initform ↑#λ(* ¤x ¤x)))
+  ((x :initform 2)
+   (square :initform ↑λf(* ¤x ¤x)))
   (:metaclass mvc-class))
 
 
@@ -29,8 +31,8 @@
   (:metaclass mvc-class))
 
 (with-object (make-instance 'clos-simple-test-2)
-  (setf ¤x #λ2)
-  (setf ¤square #λ(* ¤x ¤x))
+  (setf ¤x 2)
+  (setf ¤square λf(* ¤x ¤x))
   (assert (equalp (list 2 4) (list ¤x ¤square)))
   (incf ¤x)
   (assert (equalp (list 3 9) (list ¤x ¤square))))

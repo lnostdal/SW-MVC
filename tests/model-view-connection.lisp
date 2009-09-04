@@ -2,10 +2,12 @@
 
 (in-package #:sw-mvc)
 
+(declaim (optimize (speed 0) (safety 2)))
+
 
 (defclass test-model ()
   ((x :initarg :x
-      :initform #λ0))
+      :initform λf0))
 
   (:metaclass mvc-class))
 
@@ -27,7 +29,7 @@
       (assert (= 0 confirm))
       (incf ox)
       (assert (= 1 confirm))
-      (let ((imodel (make-instance 'test-model :x #λ2)))
+      (let ((imodel (make-instance 'test-model :x λf2)))
         (symbol-macrolet ((ix (slot-value imodel 'x)))
           (setf (model-of view) imodel)
           (assert (= 3 confirm))

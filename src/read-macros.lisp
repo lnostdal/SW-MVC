@@ -81,3 +81,11 @@
                                                   :formula λλ,(read stream)
                                                   :input-evalp nil
                                                   :output-evalp :cached))))
+
+
+;; Wraps an ICELL in a "pointer" for use when initializing a MVC-CLASS class' slots.
+(eval-now
+  (set-dispatch-macro-character #\λ #\f
+                                (lambda (stream char arg)
+                                  (declare (ignore char arg))
+                                  `#&(mk-icell ,(read stream)))))

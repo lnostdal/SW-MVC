@@ -2,6 +2,8 @@
 
 (in-package #:sw-mvc)
 
+(declaim (optimize (speed 0) (safety 2)))
+
 
 (assert (sequence-of-length-p (let ((c (dlist #λ0 #λ1))
                                     (new #λ2))
