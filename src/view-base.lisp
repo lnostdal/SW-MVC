@@ -103,7 +103,9 @@ or constructed."
 
 
 (defmethod print-object ((view-base view-base) stream)
-  (print-unreadable-object (view-base stream :type t :identity t)
+  #| NOTE: We're not printing identity here because it is assumed that any sub-class of VIEW-BASE will have its own
+  ID slot or mechanism and print this. |#
+  (print-unreadable-object (view-base stream :type t :identity nil)
     (print-slots view-base stream)))
 
 
