@@ -78,7 +78,11 @@ A second value, FOUND-P, is also returned. This is T if an already existing View
 was found, :CREATED if a new View was constructed and NIL if no View was found
 or constructed."
   (declare (view-base context-view)
-           (model model))
+           ((or model view-base) model))
+  (when (typep model 'view-base)
+    (assert (not (view-in-context-of context-view (model-of model))))
+    (setf (view-in-context-of context-view (model-of model)) model)
+    (return-from view-in-context-of model))
   (with-slots (views-in-context) context-view
     (sb-ext:with-locked-hash-table (views-in-context)
       (let ((signature (cons context-view model)))
