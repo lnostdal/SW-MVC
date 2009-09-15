@@ -25,12 +25,6 @@
 
 
   (defmethod initialize-instance :after ((container container-with-1-active-item) &key)
-    (let ((old-active-item #λnil))
-      (with-formula container
-        (with (active-item-of container)
-          (when (not (eq it ~old-active-item))
-            (setf ~old-active-item it)))))
-
     (with-formula container
       (when-let (event (event-of container))
         (typecase event
