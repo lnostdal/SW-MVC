@@ -8,18 +8,15 @@
 (eval-now
 (defclass dlist-node (single-value-model)
   ((dlist :accessor dlist-of :accessor container-of
-          ;;:type (or null dlist)
           :initform nil)
 
    (left :accessor left-of :initarg :left
-         ;;:type (or null dlist-node)
          :initform nil)
 
    (right :accessor right-of :initarg :right
-          ;;:type (or null dlist-node)
           :initform nil)
 
-   (value :accessor value-of :initarg :value
+   (value :accessor value-of
           :initform ":VALUE needed."))
 
   (:metaclass mvc-class)
@@ -27,13 +24,12 @@
 Doubly-linked list node with support for dataflow and transactions."))
 
 
+
 (defclass dlist (container event-router)
   ((head :accessor head-of :initarg :head
-         ;;:type (or null dlist-node)
          :initform nil)
 
    (tail :accessor tail-of
-         ;;:type (or null dlist-node)
          :initform nil))
 
   (:default-initargs :key-fn (lambda (obj) (value-of obj)))
@@ -44,8 +40,13 @@ Doubly-linked list with support for dataflow and transactions."))
 
 
 (defmethod initialize-instance :after ((dlist-node dlist-node) &key
-                                       (dlist nil dlist-supplied-p))
+                                       (dlist nil dlist-supplied-p)
+                                       (value (error ":VALUE needed.")))
 
+  (setf (slot-value dlist-node 'value)
+        (etypecase value
+          (view-base (model-of value))
+          (model value)))
   (when dlist-supplied-p
     (setf (dlist-of dlist-node) dlist)))
 
@@ -115,62 +116,61 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
                                           :left tail
                                           :value item))))
              (setf (tail-of dlist) tail)))))
-  (declare (inline fill-dlist))
 
 
   (defun dlist (&rest items)
     (declare (dynamic-extent items))
-    (letp1 ((dlist (make-instance 'dlist)))
-      (fill-dlist dlist items)))
+    (with1 (make-instance 'dlist)
+      (fill-dlist it items)))
 
 
-    (defmethod transform-into ((target dlist) (source list))
-      "Transform TARGET container to contain the values in SOURCE by initiating
+  (defmethod transform-into ((target dlist) (source list))
+    "Transform TARGET container to contain the values in SOURCE by initiating
 container type events vs. TARGET."
-      (let ((key (key-fn-of target))
-            (test (test-fn-of target))
-            (before (list<- target)) ;; DLIST-NODE instances.
-            (after nil)
-            (to-insert nil))
-        (declare (list before after to-insert)
-                 (function key test))
+    (let ((key (key-fn-of target))
+          (test (test-fn-of target))
+          (before (list<- target)) ;; DLIST-NODE instances.
+          (after nil)
+          (to-insert nil))
+      (declare (list before after to-insert)
+               (function key test))
 
-        ;; TARGET is empty.
-        (unless before
-          (when source
-            (fill-dlist target source))
-          ;; TODO: Hm. We're returning without triggering any "container type events".
-          (return-from transform-into))
+      ;; TARGET is empty.
+      (unless before
+        (when source
+          (fill-dlist target source))
+        ;; TODO: Hm. We're returning without triggering any "container type events".
+        (return-from transform-into))
 
-        (dolist (value source (nreversef after))
-          (if-let (node (find value before :key key :test test))
-            (push node after)
-            (push (make-instance 'dlist-node :value value :dlist target)
-                  to-insert)))
+      (dolist (value source (nreversef after))
+        (if-let (node (find value before :key key :test test))
+          (push node after)
+          (push (make-instance 'dlist-node :value value :dlist target)
+                to-insert)))
 
-        ;; REMOVE.
-        (dolist (removed-element (set-difference before after :test #'eq))
-          (deletef before removed-element :test #'eq)
-          (remove removed-element target))
+      ;; REMOVE.
+      (dolist (removed-element (set-difference before after :test #'eq))
+        (deletef before removed-element :test #'eq)
+        (remove removed-element target))
 
-        ;; EXCHANGE.
-        (let ((already-swapped nil))
-          (map nil (lambda (before-elt after-elt)
-                     (when (and (not (funcall test (deref before-elt) (deref after-elt)))
-                                (not (find after-elt already-swapped :test #'eq)))
-                       (push before-elt already-swapped)
-                       (exchange before-elt after-elt)))
-               before
-               after))
+      ;; EXCHANGE.
+      (let ((already-swapped nil))
+        (map nil (lambda (before-elt after-elt)
+                   (when (and (not (funcall test (deref before-elt) (deref after-elt)))
+                              (not (find after-elt already-swapped :test #'eq)))
+                     (push before-elt already-swapped)
+                     (exchange before-elt after-elt)))
+             before
+             after))
 
-        ;; INSERT.
-        (if before
-            (let ((last-node (last1 before)))
-              (dolist (node to-insert)
-                (if-let ((right-val (cadr (member (funcall key node) source :test test))))
-                  (insert node :before (container-find right-val target))
-                  (insert node :after last-node))))
-            (insert (nreversef to-insert) :in target)))))
+      ;; INSERT.
+      (if before
+          (let ((last-node (last1 before)))
+            (dolist (node to-insert)
+              (if-let ((right-val (cadr (member (funcall key node) source :test test))))
+                (insert node :before (container-find right-val target))
+                (insert node :after last-node))))
+        (insert (nreversef to-insert) :in target)))))
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
