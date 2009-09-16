@@ -42,7 +42,6 @@ Doubly-linked list with support for dataflow and transactions."))
 (defmethod initialize-instance :after ((dlist-node dlist-node) &key
                                        (dlist nil dlist-supplied-p)
                                        (value (error ":VALUE needed.")))
-
   (setf (slot-value dlist-node 'value)
         (etypecase value
           (view-base (model-of value))
@@ -168,7 +167,7 @@ container type events vs. TARGET."
           (let ((last-node (last1 before)))
             (dolist (node to-insert)
               (if-let ((right-val (cadr (member (funcall key node) source :test test))))
-                (insert node :before (container-find right-val target))
+                (insert node :before (node-of right-val))
                 (insert node :after last-node))))
         (insert (nreversef to-insert) :in target)))))
 
@@ -196,7 +195,7 @@ container type events vs. TARGET."
              (etypecase object
                (dlist-node
                 (prog1 object
-                  ;; TODO: It is not clear what the user intends to do here (remove/move?). Think about this.
+                  ;; TODO: It is not clear what the user intends to do here (remove/move/nest?). Think about this.
                   (setf (dlist-of object) dlist)))
 
                (view-base

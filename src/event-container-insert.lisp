@@ -33,7 +33,7 @@ into some location(s?) in a container."))
                (in nil in-supplied-p))
   "If :IN is given OBJECT will be inserted at what is determined to be the most
 suitable or natural position in IN."
-  (assert (= 1 (count t (list before-supplied-p after-supplied-p in-supplied-p))) nil
+  (assert (xor before-supplied-p after-supplied-p in-supplied-p) nil
           ":BEFORE, :AFTER or :IN is needed (only one of them), got: ~S" args)
   (dolist (object (setf object (ensure-list object)))
     (check-type object (or model view-base)))

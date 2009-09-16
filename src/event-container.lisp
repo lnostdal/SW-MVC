@@ -25,7 +25,6 @@ question. The content of this slot might change while it is being handled.")))
 (defmethod initialize-instance :after ((event container-event) &key
                                        (object nil object-supplied-p)
                                        (objects nil objects-supplied-p))
-  ;; Initialization of the OBJECTS slot using an :OBJECT or :OBJECTS initarg.
   (setf (slot-value event 'objects)
         (cond
           (object-supplied-p
