@@ -34,11 +34,6 @@ object which is a sub-type of VIEW-BASE.")))
   (when model (setf (model-of view) model)))
 
 
-(defmethod model-of (object)
-  "Fallback; we're probably dealing with some sort of Model already."
-  object)
-
-
 (defmethod (setf model-of) :around (new-model (view view-base))
   (let ((old-model-observers (model-observers-of view)))
     (prog1 new-model
@@ -101,8 +96,8 @@ or constructed."
 
 
 (defun (setf view-in-context-of) (view context-view model)
-  (declare (view-base view context-view)
-           (model model))
+  (declare (view-base view context-view))
+  (setf model (model-of model))
   (with-slots (views-in-context) context-view
     (sb-ext:with-locked-hash-table (views-in-context)
       (let ((signature (cons context-view model)))

@@ -21,6 +21,10 @@ Common base class for all Models."))
   (node-of (model-of view)))
 
 
+(defmethod model-of ((model model))
+  model)
+
+
 
 (defclass single-value-model (model)
   ()

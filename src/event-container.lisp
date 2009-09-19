@@ -40,12 +40,8 @@ question. The content of this slot might change while it is being handled.")))
 
 
 (defmethod observables-of append ((event container-event))
-  (with (cons (container-of event)
-              (objects-of event))
-    (let ((maybe-container-model (container-of (car it))))
-      (if (eq (car it) maybe-container-model)
-          it
-          (cons maybe-container-model it)))))
+  (cons (model-of (container-of event))
+        (mapcar #'model-of (objects-of event))))
 
 
 (defmethod object-of ((event container-event))

@@ -42,10 +42,7 @@ Doubly-linked list with support for dataflow and transactions."))
 (defmethod initialize-instance :after ((dlist-node dlist-node) &key
                                        (dlist nil dlist-supplied-p)
                                        (value (error ":VALUE needed.")))
-  (setf (slot-value dlist-node 'value)
-        (etypecase value
-          (view-base (model-of value))
-          (model value)))
+  (setf (value-of dlist-node) (model-of value))
   (when dlist-supplied-p
     (setf (dlist-of dlist-node) dlist)))
 

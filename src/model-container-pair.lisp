@@ -4,14 +4,21 @@
 
 
 (defclass pair (container event-router)
-  ((left :accessor left-of :initarg :left
+  ((left :accessor left-of
          :initform nil)
 
-   (right :accessor right-of :initarg :right
+   (right :accessor right-of
           :initform nil))
 
   (:metaclass mvc-class))
 (export '(pair left left-of right right-of))
+
+
+(defmethod initialize-instance :after ((pair pair) &key left right)
+  (when left
+    (setf (left-of pair) (model-of left)))
+  (when right
+    (setf (right-of pair) (model-of right))))
 
 
 (defmethod print-object ((pair pair) stream)
