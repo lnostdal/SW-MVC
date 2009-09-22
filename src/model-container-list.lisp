@@ -112,7 +112,7 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
       (fill-dlist it items)))
 
 
-  (defmethod transform-into ((target dlist) (source list))
+  #|(defmethod transform-into ((target dlist) (source list))
     "Transform TARGET container to contain the values in SOURCE by initiating
 container type events vs. TARGET."
     (let ((key (key-fn-of target))
@@ -156,9 +156,9 @@ container type events vs. TARGET."
           (let ((last-node (last1 before)))
             (dolist (node to-insert)
               (if-let ((right-val (cadr (member (funcall key node) source :test test))))
-                (insert node :before (node-of right-val))
+                (insert node :before (node-in-context-of target right-val) #|(node-of right-val)|#)
                 (insert node :after last-node))))
-        (insert (nreversef to-insert) :in target)))))
+        (insert (nreversef to-insert) :in target))))|#)
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
