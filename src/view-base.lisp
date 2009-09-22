@@ -6,7 +6,7 @@
 
 
 (defclass view-base ()
-  ((model :reader model-of :reader container-of
+  ((model :reader model-of
           :initform nil)
 
    ;; Dataflow: MODEL -> MODEL-OBSERVERS => VIEW-BASE (some widget in SW).

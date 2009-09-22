@@ -6,11 +6,8 @@
 
 
 (eval-now
-(defclass dlist-node (single-value-model)
-  ((dlist :accessor dlist-of :accessor container-of
-          :initform nil)
-
-   (left :accessor left-of :initarg :left
+(defclass dlist-node (node single-value-model)
+  ((left :accessor left-of :initarg :left
          :initform nil)
 
    (right :accessor right-of :initarg :right
@@ -44,18 +41,13 @@ Doubly-linked list with support for dataflow and transactions."))
                                        (value (error ":VALUE needed.")))
   (setf (value-of dlist-node) (model-of value))
   (when dlist-supplied-p
-    (setf (dlist-of dlist-node) dlist)))
+    (setf (container-of dlist-node) dlist)))
 
 
 (defmethod print-object ((dlist-node dlist-node) stream)
   (print-unreadable-object (dlist-node stream :type t :identity t)
     (when (slot-boundp dlist-node 'value)
       (prin1 (value-of dlist-node) stream))))
-
-
-;; TODO: Hm .. what if we want to nest things; (node-of dlist-node) ..?
-(defmethod node-of ((dlist-node dlist-node))
-  dlist-node)
 
 
 (defmethod deref ((dlist-node dlist-node))
@@ -66,8 +58,8 @@ Doubly-linked list with support for dataflow and transactions."))
   (setf (slot-value dlist-node 'value) new-value))
 
 
-(defmethod (setf dlist-of) :after ((dlist dlist) (dlist-node dlist-node))
-  (setf (node-of (value-of dlist-node))
+(defmethod (setf container-of) :after ((dlist dlist) (dlist-node dlist-node))
+  (setf (node-in-context-of dlist (value-of dlist-node))
         dlist-node))
 
 
@@ -170,11 +162,11 @@ container type events vs. TARGET."
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
-  (dolist (object (objects-of event) (length (the list (objects-of event))))
-    (let* ((node (node-of object))
+  (dolist (object (objects-of event) (length (objects-of event)))
+    (let* ((node (node-in-context-of (container-of event) object))
            (left (left-of node))
            (right (right-of node)))
-      (nilf (dlist-of node)
+      (nilf (container-of node)
             (left-of node)
             (right-of node))
       (if left
@@ -188,62 +180,44 @@ container type events vs. TARGET."
 (defmethod container-insert ((event container-insert) (dlist dlist))
   (let ((relative-position (relative-position-of event))
         (relative-object (relative-object-of event)))
-    (flet ((mk-dlist-node (object)
-             (etypecase object
-               (dlist-node
-                (prog1 object
-                  ;; TODO: It is not clear what the user intends to do here (remove/move/nest?). Think about this.
-                  (setf (dlist-of object) dlist)))
 
-               (view-base
-                (let ((context-view (container-of event)))
-                  (assert (typep context-view 'view-base) nil
-                          "When inserting a VIEW-BASE/SW:WIDGET object the container must also be a VIEW-BASE.")
-                  #| NOTE: Wrt. STM this is OK since we'll simply overwrite this on retry. |#
-                  (setf (view-in-context-of context-view (model-of object)) object)
-                  (make-instance 'dlist-node :dlist dlist :value (model-of object))))
+    (dolist (object (objects-of event) (objects-of event))
+      (let ((dlist-node (make-instance 'dlist-node :dlist dlist :value object)))
+        (ecase relative-position
+          (:before
+           (with-slots (head tail) dlist
+             (with-slots (left right) dlist-node
+               (setf left (left-of relative-object)
+                     right relative-object)
+               (if (left-of relative-object)
+                   (setf (right-of (left-of relative-object)) dlist-node
+                         (left-of relative-object) dlist-node)
+                   (setf head dlist-node
+                         (left-of relative-object) dlist-node)))))
 
-               (model
-                (make-instance 'dlist-node :dlist dlist :value object)))))
-      (declare (inline mk-dlist-node))
+          (:after
+           (with-slots (head tail) dlist
+             (with-slots (left right) dlist-node
+               (setf left relative-object
+                     right (right-of relative-object))
+               (if (right-of relative-object)
+                   (setf (left-of (right-of relative-object)) dlist-node
+                         (right-of relative-object) dlist-node)
+                   (setf tail dlist-node
+                         (right-of relative-object) dlist-node)))))
 
-      (dolist (object (objects-of event) (objects-of event))
-        (let ((dlist-node (mk-dlist-node object)))
-          (ecase relative-position
-            (:before
-             (with-slots (head tail) dlist
-               (with-slots (left right) dlist-node
-                 (setf left (left-of relative-object)
-                       right relative-object)
-                 (if (left-of relative-object)
-                     (setf (right-of (left-of relative-object)) dlist-node
-                           (left-of relative-object) dlist-node)
-                     (setf head dlist-node
-                           (left-of relative-object) dlist-node)))))
+          ((nil)
+           (with-slots (head tail) dlist
+             (with-slots (left) dlist-node
+               (if tail
+                   (setf left tail
+                         (right-of tail) dlist-node
+                         tail dlist-node)
+                   (setf head dlist-node
+                         tail dlist-node))))))
 
-            (:after
-             (with-slots (head tail) dlist
-               (with-slots (left right) dlist-node
-                 (setf left relative-object
-                       right (right-of relative-object))
-                 (if (right-of relative-object)
-                     (setf (left-of (right-of relative-object)) dlist-node
-                           (right-of relative-object) dlist-node)
-                     (setf tail dlist-node
-                           (right-of relative-object) dlist-node)))))
-
-            ((nil)
-             (with-slots (head tail) dlist
-               (with-slots (left) dlist-node
-                 (if tail
-                     (setf left tail
-                           (right-of tail) dlist-node
-                           tail dlist-node)
-                     (setf head dlist-node
-                           tail dlist-node))))))
-
-          (setf relative-position :after
-                relative-object dlist-node))))))
+        (setf relative-position :after
+              relative-object dlist-node)))))
 
 
 (defmethod container-exchange ((event container-exchange) (dlist dlist))

@@ -13,18 +13,15 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
 
 
 (defmethod handle ((event container-remove))
-  (let ((container (container-of (container-of event))))
-    (dolist (observable (observables-of event))
-      ;; Notify stuff observing the container and the objects being removed.
-      (when (typep observable 'event-router)
-        (event-router-notify observable event)))
-    (container-remove event container)))
+  (dolist (observable (observables-of event))
+    ;; Notify stuff observing the container and the objects being removed.
+    (when (typep observable 'event-router)
+      (event-router-notify observable event)))
+  (container-remove event (container-of event)))
 
 
 (defun remove (object container)
-  "Remove OBJECT from CONTAINER.
-Returns CONTAINER."
-  (declare ((or model view-base) container))
+  (declare ((or multiple-value-model view-base) container))
   (dolist (object (setf object (ensure-list object)))
     (check-type object (or model view-base)))
   (handle (make-instance 'container-remove
@@ -33,19 +30,20 @@ Returns CONTAINER."
 
 
 (defun remove-from (container &rest objects)
-  "Remove OBJECTS from CONTAINER.
-Returns CONTAINER."
-  (declare ((or model view-base) container))
-  (dolist (object objects)
-    (check-type object (or model view-base)))
-  (handle (make-instance 'container-remove
-                         :container container
-                         :objects objects)))
+  (declare ((or multiple-value-model view-base) container))
+  (when objects
+    (dolist (object objects)
+      (check-type object (or model view-base)))
+    (handle (make-instance 'container-remove
+                           :container container
+                           :objects objects))))
 
 
+;; TODO: It'd be nicer to have a separate event for this.
 (defun remove-all (container)
-  (declare ((or model view-base) container))
-  (let ((objects ~(container-of container)))
+  (declare ((or multiple-value-model view-base) container))
+  (let ((objects (with1 ~(model-of container)  ;; [VIEW-BASE ->] CONTAINER -> NODES
+                   (map-into it #'deref it)))) ;; NODES -> OBJECTS
     (when objects
       (handle (make-instance 'container-remove
                              :container container

@@ -14,15 +14,17 @@
 
 (flet ((%insert (container event)
          (dolist (object (objects-of event))
-           (unless (or (eq ~object container)
+           (unless (or (eq object container)
                        (active-item-of container))
-             (setf (active-item-of container) (node-of object)))))
+             (setf (active-item-of container)
+                   (node-in-context-of container object)))))
 
 
        (%remove (container event)
          (dolist (object (objects-of event))
-           (when (and (not (eq ~object container))
-                      (eq (node-of object) (active-item-of container)))
+           (when (and (not (eq object container))
+                      (eq (node-in-context-of container object)
+                          (active-item-of container)))
              (setf (active-item-of container) :closest)))))
 
 
@@ -38,7 +40,7 @@
   #|(assert (eq (container-of (node-of item)) container) nil
           "Trying to set ~S as active item of ~S,~%but that item is not a member of the container."
           item container)|#
-  (setf (slot-value container 'active-item) (node-of item)))
+  (setf (slot-value container 'active-item) item))
 
 
 (defmethod (setf active-item-of) ((val (eql nil)) (container container-with-1-active-item))

@@ -6,37 +6,47 @@
 
 
 (defclass container-event (event)
-  ;; TODO: I don't think this slot belongs here; it is too specific. We often manipulate many containers.
-  ((container :reader container-of :reader model-of :initarg :container
-              ;;:type container ;; NOTE: This might be a Model or a View.
-              :initform (error ":CONTAINER needed.")
+  ;; TODO: I don't think this slot belongs here; it is too specific.
+  ((container :reader container-of
+              :type container
               :documentation "
-The container instance in question which had an event.")
+The CONTAINER instance in question which has an event.")
 
    ;; TODO: I don't think this slot belongs here; it is too specific.
-   ;; Initialization of this slot happens below.
    (objects :reader objects-of
             :type list
             :documentation "
-The objects that where for instance removed or added to the container in
-question. The content of this slot might change while it is being handled.")))
+A list of MODELs to which the event is applied or related to in some way.")))
 
 
 (defmethod initialize-instance :after ((event container-event) &key
+                                       (container (error ":CONTAINER needed."))
                                        (object nil object-supplied-p)
                                        (objects nil objects-supplied-p))
+  (assert (xor object-supplied-p objects-supplied-p) nil
+          ":OBJECT or :OBJECTS needed.")
+  (setf (slot-value event 'container)
+        (etypecase container
+          (multiple-value-model container)
+          (view-base (with (model-of container)
+                       (etypecase it
+                         (multiple-value-model it)
+                         (model (container-of it)))))
+          (model (container-of container))))
   (setf (slot-value event 'objects)
-        (cond
-          (object-supplied-p
-           (list object))
+        (with (cond
+               (object-supplied-p
+                (list object))
 
-          (objects-supplied-p
-           (if (atom objects)
-               (list objects)
-               objects))
-
-          (t
-           (error ":OBJECT or :OBJECTS needed.")))))
+               (objects-supplied-p
+                (if (atom objects)
+                    (list objects)
+                    objects)))
+              (map-into it (lambda (obj)
+                             (etypecase obj
+                               (view-base (model-of obj))
+                               (model obj)))
+                        it))))
 
 
 (defmethod observables-of append ((event container-event))

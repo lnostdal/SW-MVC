@@ -7,12 +7,11 @@
 
 (assert (sequence-of-length-p (let ((c (dlist #λ0 #λ1))
                                     (new #λ2))
-                                (assert (not (node-of new)))
+                                (assert (not (dbg-prin1 (node-in-context-of c new))))
                                 (catch :fail
                                   (with-sync ()
                                     (insert new :in c)
-                                    (assert (node-of new))
+                                    (assert (node-in-context-of c new))
                                     (throw :fail nil)))
-                                (assert (not (node-of new)))
                                 ~c)
                               2))
