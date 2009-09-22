@@ -15,8 +15,3 @@
            :initform #'identity))
 
   (:metaclass mvc-class))
-
-
-(defmethod container-find ((value model) (container container))
-  "Find VALUE in CONTAINER."
-  (node-of value))
