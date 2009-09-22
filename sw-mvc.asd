@@ -60,5 +60,6 @@ has turned into a dataflow thing."
      (:file "user-input-sync-back")
      (:file "model-view-connection")
      (:file "dlist-test")
+     (:file "container-of")
      ))
    ))
