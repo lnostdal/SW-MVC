@@ -7,7 +7,7 @@
 
 (defclass view-base ()
   ((model :reader model-of
-          :initform nil)
+          :initform λvnil)
 
    ;; Dataflow: MODEL -> MODEL-OBSERVERS => VIEW-BASE (some widget in SW).
    ;; This slot is set by the :AROUND (SETF MODEL-OF) method.
