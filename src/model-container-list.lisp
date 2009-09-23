@@ -29,7 +29,7 @@ Doubly-linked list node with support for dataflow and transactions."))
    (tail :accessor tail-of
          :initform nil))
 
-  (:default-initargs :key-fn (lambda (obj) (value-of obj)))
+  (:default-initargs :key-fn (λ (obj) (value-of obj)))
   (:metaclass mvc-class)
   (:documentation "
 Doubly-linked list with support for dataflow and transactions."))
@@ -180,44 +180,44 @@ container type events vs. TARGET."
 (defmethod container-insert ((event container-insert) (dlist dlist))
   (let ((relative-position (relative-position-of event))
         (relative-object (relative-object-of event)))
+    (dolist (dlist-node (mapcar (λ (object) (make-instance 'dlist-node :dlist dlist :value object))
+                                (objects-of event))
+                        (objects-of event))
+      (ecase relative-position
+        (:before
+         (with-slots (head tail) dlist
+           (with-slots (left right) dlist-node
+             (setf left (left-of relative-object)
+                   right relative-object)
+             (if (left-of relative-object)
+                 (setf (right-of (left-of relative-object)) dlist-node
+                       (left-of relative-object) dlist-node)
+                 (setf head dlist-node
+                       (left-of relative-object) dlist-node)))))
 
-    (dolist (object (objects-of event) (objects-of event))
-      (let ((dlist-node (make-instance 'dlist-node :dlist dlist :value object)))
-        (ecase relative-position
-          (:before
-           (with-slots (head tail) dlist
-             (with-slots (left right) dlist-node
-               (setf left (left-of relative-object)
-                     right relative-object)
-               (if (left-of relative-object)
-                   (setf (right-of (left-of relative-object)) dlist-node
-                         (left-of relative-object) dlist-node)
-                   (setf head dlist-node
-                         (left-of relative-object) dlist-node)))))
+        (:after
+         (with-slots (head tail) dlist
+           (with-slots (left right) dlist-node
+             (setf left relative-object
+                   right (right-of relative-object))
+             (if (right-of relative-object)
+                 (setf (left-of (right-of relative-object)) dlist-node
+                       (right-of relative-object) dlist-node)
+                 (setf tail dlist-node
+                       (right-of relative-object) dlist-node)))))
 
-          (:after
-           (with-slots (head tail) dlist
-             (with-slots (left right) dlist-node
-               (setf left relative-object
-                     right (right-of relative-object))
-               (if (right-of relative-object)
-                   (setf (left-of (right-of relative-object)) dlist-node
-                         (right-of relative-object) dlist-node)
-                   (setf tail dlist-node
-                         (right-of relative-object) dlist-node)))))
+        ((nil)
+         (with-slots (head tail) dlist
+           (with-slots (left) dlist-node
+             (if tail
+                 (setf left tail
+                       (right-of tail) dlist-node
+                       tail dlist-node)
+                 (setf head dlist-node
+                       tail dlist-node))))))
 
-          ((nil)
-           (with-slots (head tail) dlist
-             (with-slots (left) dlist-node
-               (if tail
-                   (setf left tail
-                         (right-of tail) dlist-node
-                         tail dlist-node)
-                   (setf head dlist-node
-                         tail dlist-node))))))
-
-        (setf relative-position :after
-              relative-object dlist-node)))))
+      (setf relative-position :after
+            relative-object dlist-node))))
 
 
 (defmethod container-exchange ((event container-exchange) (dlist dlist))
