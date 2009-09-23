@@ -5,15 +5,6 @@
 (declaim #.(optimizations))
 
 
-;; Shortcut for CL:LAMBDA.
-(eval-now
-  (set-dispatch-macro-character #\λ #\λ
-                                (lambda (stream char arg)
-                                  (declare (ignore char arg))
-                                  `(lambda () ,(read stream)))))
-
-
-
 ;; Value.
 (eval-now
   (set-dispatch-macro-character #\# #\~
