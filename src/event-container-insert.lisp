@@ -10,7 +10,7 @@
                       :type symbol
                       :initform nil)
 
-   (relative-object :reader relative-object-of :initarg :relative-object
+   (relative-node :reader relative-node-of :initarg :relative-node
                     :initform nil))
 
   (:documentation "
@@ -57,14 +57,14 @@ suitable or natural position in IN."
                (check-objects)
                (values :container before
                        :relative-position :before
-                       :relative-object (model-of before)))
+                       :relative-node (model-of before)))
 
               (after-supplied-p
                (check-type after (or model view-base))
                (check-objects)
                (values :container after
                        :relative-position :after
-                       :relative-object (model-of after)))
+                       :relative-node (model-of after)))
 
               (in-supplied-p
                (check-type in (or model view-base))

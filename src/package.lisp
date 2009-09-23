@@ -94,7 +94,7 @@
    #:insert
    #:container-insert
    #:relative-position #:relative-position-of
-   #:relative-object #:relative-object-of
+   #:relative-node #:relative-node-of
 
    ;; event-container-exchange.lisp
    #:exchange
