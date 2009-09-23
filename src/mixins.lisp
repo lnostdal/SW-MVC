@@ -60,3 +60,13 @@ DEREF or ~ will most likely return a list of values, or further models in turn."
     (let ((signature (cons container model)))
       (sb-ext:with-locked-hash-table (nodes-in-context)
         (setf (gethash signature nodes-in-context) node)))))
+
+
+(defmethod initialize-instance :after ((node node) &key (container nil container-supplied-p))
+  (when container-supplied-p
+    (check-type container multiple-value-model)
+    (setf (container-of node) container)))
+
+
+(defmethod (setf container-of) :after ((container multiple-value-model) (node node))
+  (setf (node-in-context-of container ~node) node))

@@ -13,7 +13,7 @@
    (right :accessor right-of :initarg :right
           :initform nil)
 
-   (value :accessor value-of
+   (value :accessor value-of :initarg :value
           :initform ":VALUE needed."))
 
   (:metaclass mvc-class)
@@ -36,14 +36,6 @@ Doubly-linked list with support for dataflow and transactions."))
 )
 
 
-(defmethod initialize-instance :after ((dlist-node dlist-node) &key
-                                       (dlist nil dlist-supplied-p)
-                                       (value (error ":VALUE needed.")))
-  (setf (value-of dlist-node) (model-of value))
-  (when dlist-supplied-p
-    (setf (container-of dlist-node) dlist)))
-
-
 (defmethod print-object ((dlist-node dlist-node) stream)
   (print-unreadable-object (dlist-node stream :type t :identity t)
     (when (slot-boundp dlist-node 'value)
@@ -56,11 +48,6 @@ Doubly-linked list with support for dataflow and transactions."))
 
 (defmethod (setf deref) (new-value (dlist-node dlist-node))
   (setf (slot-value dlist-node 'value) new-value))
-
-
-(defmethod (setf container-of) :after ((dlist dlist) (dlist-node dlist-node))
-  (setf (node-in-context-of dlist (value-of dlist-node))
-        dlist-node))
 
 
 (defmethod list<- ((dlist dlist) &rest args)
@@ -92,15 +79,17 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
 
 (flet ((fill-dlist (dlist items)
          (when items
+           (dolist (item items)
+             (check-type item model))
            (let ((tail (setf (head-of dlist)
                              (make-instance 'dlist-node
-                                            :dlist dlist
+                                            :container dlist
                                             :value (first items)))))
              (dolist (item (rest items))
                (setf tail
                      (setf (right-of tail)
                            (make-instance 'dlist-node
-                                          :dlist dlist
+                                          :container dlist
                                           :left tail
                                           :value item))))
              (setf (tail-of dlist) tail)))))
@@ -180,7 +169,7 @@ container type events vs. TARGET."
 (defmethod container-insert ((event container-insert) (dlist dlist))
   (let ((relative-position (relative-position-of event))
         (relative-object (relative-object-of event)))
-    (dolist (dlist-node (mapcar (λ (object) (make-instance 'dlist-node :dlist dlist :value object))
+    (dolist (dlist-node (mapcar (λ (object) (make-instance 'dlist-node :container dlist :value object))
                                 (objects-of event))
                         (objects-of event))
       (ecase relative-position
