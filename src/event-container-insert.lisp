@@ -11,7 +11,8 @@
                       :initform nil)
 
    (relative-node :reader relative-node-of :initarg :relative-node
-                    :initform nil))
+                  :type (or null node)
+                  :initform nil))
 
   (:documentation "
 This represents the various ways of inserting an object (or a set of objects?)
@@ -54,20 +55,20 @@ suitable or natural position in IN."
              :objects object
              (cond
               (before-supplied-p
-               (check-type before (or model view-base))
+               (check-type before node)
                (check-objects)
-               (values :container before
+               (values :container (container-of before)
                        :relative-position :before
-                       :relative-node (model-of before)))
+                       :relative-node before))
 
               (after-supplied-p
-               (check-type after (or model view-base))
+               (check-type after node)
                (check-objects)
-               (values :container after
+               (values :container (container-of after)
                        :relative-position :after
-                       :relative-node (model-of after)))
+                       :relative-node after))
 
               (in-supplied-p
-               (check-type in (or model view-base))
+               (check-type in (or multiple-value-model view-base))
                (check-objects)
                (values :container in)))))))
