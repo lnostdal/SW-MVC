@@ -27,6 +27,10 @@ Common base class for all Models."))
   model)
 
 
+(defmethod ensure-model ((arg model))
+  arg)
+
+
 
 (defclass single-value-model (model)
   ()
@@ -46,6 +50,10 @@ This means that DEREF or ~ will most likely work as expected on this model."))
   (:documentation "
 This usually means this is or represents some sort of container.
 DEREF or ~ will most likely return a list of values, or further models in turn."))
+
+
+(defmethod ensure-container ((arg multiple-value-model))
+  arg)
 
 
 (defmethod node-in-context-of ((container multiple-value-model) (model model))

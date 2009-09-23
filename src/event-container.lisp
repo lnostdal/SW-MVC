@@ -26,13 +26,7 @@ A list of MODELs to which the event is applied or related to in some way.")))
   (assert (xor object-supplied-p objects-supplied-p) nil
           ":OBJECT or :OBJECTS needed.")
   (setf (slot-value event 'container)
-        (etypecase container
-          (multiple-value-model container)
-          (view-base (with (model-of container)
-                       (etypecase it
-                         (multiple-value-model it)
-                         (model (container-of it)))))
-          (model (container-of container))))
+        (ensure-container container))
   (setf (slot-value event 'objects)
         (with (cond
                (object-supplied-p
@@ -42,10 +36,7 @@ A list of MODELs to which the event is applied or related to in some way.")))
                 (if (atom objects)
                     (list objects)
                     objects)))
-              (map-into it (lambda (obj)
-                             (etypecase obj
-                               (view-base (model-of obj))
-                               (model obj)))
+              (map-into it (λ (obj) (ensure-model obj))
                         it))))
 
 

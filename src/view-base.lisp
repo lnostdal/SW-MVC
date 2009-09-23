@@ -47,6 +47,15 @@ object which is a sub-type of VIEW-BASE.")))
         (cell-mark-as-dead old-model-observer)))))
 
 
+(defmethod ensure-container ((arg view-base))
+  (with1 (model-of arg)
+    (assert (typep it 'multiple-value-model))))
+
+
+(defmethod ensure-model ((arg view-base))
+  (model-of arg))
+
+
 (defmethod deref ((view view-base))
   (model-of view))
 
