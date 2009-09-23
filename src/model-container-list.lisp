@@ -168,7 +168,7 @@ container type events vs. TARGET."
 
 (defmethod container-insert ((event container-insert) (dlist dlist))
   (let ((relative-position (relative-position-of event))
-        (relative-object (relative-object-of event)))
+        (relative-node (relative-node-of event)))
     (dolist (dlist-node (mapcar (λ (object) (make-instance 'dlist-node :container dlist :value object))
                                 (objects-of event))
                         (objects-of event))
@@ -176,24 +176,24 @@ container type events vs. TARGET."
         (:before
          (with-slots (head tail) dlist
            (with-slots (left right) dlist-node
-             (setf left (left-of relative-object)
-                   right relative-object)
-             (if (left-of relative-object)
-                 (setf (right-of (left-of relative-object)) dlist-node
-                       (left-of relative-object) dlist-node)
+             (setf left (left-of relative-node)
+                   right relative-node)
+             (if (left-of relative-node)
+                 (setf (right-of (left-of relative-node)) dlist-node
+                       (left-of relative-node) dlist-node)
                  (setf head dlist-node
-                       (left-of relative-object) dlist-node)))))
+                       (left-of relative-node) dlist-node)))))
 
         (:after
          (with-slots (head tail) dlist
            (with-slots (left right) dlist-node
-             (setf left relative-object
-                   right (right-of relative-object))
-             (if (right-of relative-object)
-                 (setf (left-of (right-of relative-object)) dlist-node
-                       (right-of relative-object) dlist-node)
+             (setf left relative-node
+                   right (right-of relative-node))
+             (if (right-of relative-node)
+                 (setf (left-of (right-of relative-node)) dlist-node
+                       (right-of relative-node) dlist-node)
                  (setf tail dlist-node
-                       (right-of relative-object) dlist-node)))))
+                       (right-of relative-node) dlist-node)))))
 
         ((nil)
          (with-slots (head tail) dlist
@@ -206,7 +206,7 @@ container type events vs. TARGET."
                        tail dlist-node))))))
 
       (setf relative-position :after
-            relative-object dlist-node))))
+            relative-node dlist-node))))
 
 
 (defmethod container-exchange ((event container-exchange) (dlist dlist))
