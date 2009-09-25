@@ -30,6 +30,10 @@ Function with lambda-list (CONTEXT-VIEW MODEL &REST ARGS). Must return an
 object which is a sub-type of VIEW-BASE.")))
 
 
+(defmethod initialize-instance :before ((view view-base) &key model)
+  (when model (setf (slot-value view 'model) model)))
+
+
 (defmethod initialize-instance :after ((view view-base) &key model)
   (when model (setf (model-of view) model)))
 
