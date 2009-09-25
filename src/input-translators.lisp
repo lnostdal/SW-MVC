@@ -3,12 +3,9 @@
 (in-package #:sw-mvc)
 
 
-(declaim (ftype (function (cell function &key
-                                (:feedback-cell t)
-                                (:equal-p-fn (or null function)))
-                          (values cell &optional))
-                mk-input-handler))
 (defun mk-input-handler (input-cell translator-fn &key feedback-cell equal-p-fn)
+  (declare (cell input-cell)
+           (function translator-fn))
   (when (eq t feedback-cell)
     (setf feedback-cell (feedback-event-of input-cell)))
   (letp1 ((cell λi(funcall translator-fn ~input-cell)))
@@ -16,9 +13,10 @@
       (setf (equal-p-fn-of cell) equal-p-fn))))
 
 
-(declaim (ftype (function (function cell &optional cell) (values cell &optional))
-                mk-validator))
 (defun mk-validator (test-fn input-cell &optional feedback-cell)
+  (declare (function test-fn)
+           (cell input-cell)
+           ((or null cell) feedback-cell))
   (mk-input-handler input-cell
                     (lambda (input)
                       (let ((result (funcall test-fn input)))
@@ -28,12 +26,11 @@
                     :feedback-cell feedback-cell))
 
 
-(declaim (ftype (function (cell &key (:feedback-cell t) (:max-input-length fixnum))
-                          (values cell &optional))
-                mk-integer-parser))
 (defun mk-integer-parser (input-cell &key (feedback-cell t) (max-input-length 50))
   "Returns a CELL that'll represent the result of sending the content of
 INPUT-CELL through AMX:PARSE-INTEGER."
+  (declare (cell input-cell)
+           (fixnum max-input-length))
   (mk-input-handler input-cell
                     (lambda (input)
                       (typecase input
@@ -47,12 +44,11 @@ INPUT-CELL through AMX:PARSE-INTEGER."
                     :feedback-cell feedback-cell))
 
 
-(declaim (ftype (function (cell &key (:feedback-cell t) (:max-input-length fixnum))
-                          (values cell &optional))
-                mk-number-parser))
 (defun mk-number-parser (input-cell &key (feedback-cell t) (max-input-length 50))
   "Returns a CELL that'll represent the result of sending the content of
 INPUT-CELL through AMX:PARSE-NUMBER."
+  (declare (cell input-cell)
+           (fixnum max-input-length))
   (mk-input-handler input-cell
                     (lambda (input)
                       (typecase input
@@ -64,3 +60,14 @@ INPUT-CELL through AMX:PARSE-NUMBER."
                         (t (error "MK-NUMBER-PARSER (lambda): Don't know what to do with input: ~S~%" input))))
                     :equal-p-fn #'=
                     :feedback-cell feedback-cell))
+
+
+(defun add-input-handler (view mk-input-handler-fn)
+  (declare (view-base view)
+           (function mk-input-handler-fn))
+  (dbg-prin1 view)
+  (let ((model (model-of view)))
+    (setf (model-of view)
+          (with1 #λ~model
+            (forward-cell (funcall mk-input-handler-fn it)
+                          model)))))

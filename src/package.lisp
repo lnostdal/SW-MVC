@@ -132,6 +132,7 @@
    #:mk-validator
    #:mk-integer-parser
    #:mk-number-parser
+   #:add-input-handler
 
    ;; util.lisp
    #:with-formula
