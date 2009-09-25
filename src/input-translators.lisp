@@ -63,9 +63,30 @@ INPUT-CELL through AMX:PARSE-NUMBER."
 
 
 (defun add-input-handler (view mk-input-handler-fn)
+  "It is important that this is called after the network of dependencies on \"the
+model end\" has already been setup.
+
+Before:
+
+  MODEL -> VIEW
+
+
+After:
+
+    ---------------------
+    |                   |
+    v                   |
+  MODEL -> IT -> INPUT-TRANSLATOR
+           ^
+           |
+           v
+          VIEW
+
+
+MODEL is extracted from VIEW via the MODEL-OF method, and IT is an internally
+constructed CELL instance."
   (declare (view-base view)
            (function mk-input-handler-fn))
-  (dbg-prin1 view)
   (let ((model (model-of view)))
     (setf (model-of view)
           (with1 #λ~model
