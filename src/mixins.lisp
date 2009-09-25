@@ -56,14 +56,19 @@ DEREF or ~ will most likely return a list of values, or further models in turn."
   arg)
 
 
-(defmethod node-in-context-of ((container multiple-value-model) (model model))
+(defun node-in-context-of (container model)
+  (declare (multiple-value-model container)
+           (model model))
   (with-slots (nodes-in-context) container
     (let ((signature (cons container model)))
       (sb-ext:with-locked-hash-table (nodes-in-context)
         (gethash signature nodes-in-context)))))
 
 
-(defmethod (setf node-in-context-of) ((node node) (container multiple-value-model) (model model))
+(defun (setf node-in-context-of) (node container model)
+  (declare (node node)
+           (multiple-value-model container)
+           (model model))
   (with-slots (nodes-in-context) container
     (let ((signature (cons container model)))
       (sb-ext:with-locked-hash-table (nodes-in-context)
