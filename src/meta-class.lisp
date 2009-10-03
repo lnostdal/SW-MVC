@@ -118,6 +118,6 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
                                          (typecase inner-value
                                            (cell inner-value) ;; "Formula".
                                            (t (mk-icell inner-value)))))
-                              (t (mk-icell new-value)))
+                              (t (mk-vcell new-value)))
                             class instance slotd)))
       (call-next-method)))

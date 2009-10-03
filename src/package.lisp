@@ -35,7 +35,7 @@
    #:equal-p-fn-of
    #:assign-condition #:skip-cell
    #:cell-eval-error #:condition-of
-   #:mk-icell #:mk-ocell #:mk-ccell
+   #:mk-icell #:mk-ocell #:mk-ccell #:mv-vcell
 
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class

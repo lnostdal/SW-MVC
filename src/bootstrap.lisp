@@ -5,6 +5,12 @@
 (declaim #.(optimizations))
 
 
+(defmacro mk-vcell (&body body)
+  "Creates a \"value CELL\". Basically just lazy-eval."
+  `λv,@body)
+(export 'mk-vcell)
+
+
 (defmacro mk-icell (&body body)
   "Creates an input-triggered CELL."
   `λi,@body)
