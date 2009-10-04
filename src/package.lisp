@@ -34,7 +34,8 @@
    #:cell-mark-as-dead
    #:equal-p-fn-of
    #:assign-condition #:skip-cell
-   #:cell-eval-error #:condition-of
+   #:cell-condition #:cell-eval-condition #:cell-equal-p-condition
+   #:condition-of
    #:mk-icell #:mk-ocell #:mk-ccell #:mv-vcell
 
    ;; meta-class.lisp
@@ -139,6 +140,10 @@
    #:forward-cell
    #:sync-cells
    #:sync-back
+
+   ;; conditions.lisp
+   #:mvc-signal #:condition-of
+   #:mvc-error
    ))
 
 

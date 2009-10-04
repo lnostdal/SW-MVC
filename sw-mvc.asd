@@ -17,6 +17,7 @@ has turned into a dataflow thing."
     :serial t
     :components
     ((:file "package")
+     (:file "conditions")
      (:file "config")
      (:file "read-macros")
      (:file "bootstrap")
