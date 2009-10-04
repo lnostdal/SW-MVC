@@ -33,7 +33,7 @@ This tends to mean CELL instances stored in CLOS slots of MVC-CLASS classes."
     `(let ((,result (let ((*get-cell-p* t)) ,arg)))
        (typecase ,result
          (cell ,result)
-         (cell-eval-error (slot-value ,result 'cell))
+         (mvc-condition (slot-value ,result 'cell))
          (otherwise
           (prog1 ,result
             (if (or ,warnp ,errorp)

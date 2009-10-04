@@ -27,6 +27,9 @@
    (value :accessor value-of
           :initform nil)
 
+   #|(type-check-fn :accessor type-check-fn-of :initarg :type-check-fn
+                  :initform (always t))|#
+
    (equal-p-fn :accessor equal-p-fn-of :initarg :equal-p-fn
                :type function
                :initform #'eq)
@@ -67,24 +70,13 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
     (cell-execute-formula cell)))
 
 
-(defmethod print-object ((cell cell) stream)
+#| TODO: This is currently a bad idea; it will currently cause debugging (stack-traces) to have side-effects wrt.
+STM. |#
+#|(defmethod print-object ((cell cell) stream)
   (print-unreadable-object (cell stream :type t :identity t)
     (if (slot-boundp cell 'value)
         (prin1 (value-of cell) stream)
-        (prin1 :not-bound stream))))
-
-
-#| TODO: Generalize to talk about Model. |#
-(eval-now
-  (define-condition cell-eval-error (error)
-    ((cell :initarg :cell) ;; NOTE: The CELL-OF macro has a CELL-EVAL-ERROR clause.
-     (condition :reader condition-of :initarg :condition))))
-
-
-(defmethod print-object ((obj cell-eval-error) stream)
-  (print-unreadable-object (obj stream :type t :identity t)
-    (when (slot-boundp obj 'condition)
-      (format stream " :CONDITION ~S" (slot-value obj 'condition)))))
+        (prin1 :not-bound stream))))|#
 
 
 (defn cell-execute-formula (t ((cell cell)))
@@ -94,29 +86,26 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
       #| NOTE: We track dependencies even though INPUT-EVALP is NIL. This will enable the user to set INPUT-EVALP
       to T later and have it update based on those dependencies from there on. |#
       (let ((*target-cell* cell #|(when (input-evalp-of cell) cell)|#))
-        #| TODO: This "RESTART-CASE + HANDLER-BIND with CONDITION bound" stuff seems like a candidate for a macro. |#
         (let* ((condition)
                (result
                 (restart-case
-                    (handler-bind
-                        ((error (lambda (c)
-                                  (setf condition
-                                        (if (typep c 'cell-eval-error)
-                                            c
-                                            (make-instance 'cell-eval-error :cell cell :condition c))))))
+                    (handler-bind ((error (lambda (c)
+                                            (setf condition
+                                                  (make-instance 'mvc-cell-error :cell cell :condition c)))))
                       (funcall (truly-the function (slot-value cell 'formula))))
-
                   (assign-condition ()
                     :report (lambda (stream)
-                              (format stream "SW-MVC: Assign ~S as a value for ~S." condition cell))
+                              (muffle-compiler-note
+                                (format stream "SW-MVC: Assign ~S as a value for ~S." condition cell)))
                     condition)
-
                   (skip-cell ()
                     :report (lambda (stream)
-                              (format stream "SW-MVC: Skip ~S (and any \"child CELLs\") and keep propagating." cell))
+                              (muffle-compiler-note
+                                (format stream "SW-MVC: Skip ~S (and any \"child CELLs\") and keep propagating."
+                                        cell)))
                     (return-from cell-execute-formula (value-of cell))))))
           (prog1 result
-            (setf ~cell result
+            (setf (cell-deref cell) result
                   (init-evalp-of cell) t))))))
 
 
@@ -175,20 +164,26 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
       (values (value-of cell) t)
       (let ((*source-cells* (cons cell *source-cells*)))
         (values new-value
-                (if (handler-case
-                        (funcall (the function (equal-p-fn-of cell))
-                                 (value-of cell)
-                                 new-value)
-                      (error (c)
-                        #| TODO: Maybe invoke debugger here? What about a restart with a default invokeer
-                        in server.lisp? |#
-                        (warn "SW-MVC: Condition when calling EQUAL-P-FN (~S with arguments ~S and ~S) of ~S: ~S"
-                              (equal-p-fn-of cell) (value-of cell) new-value cell c)
-                        nil))
-                    nil
+                (let ((assign-p t))
+                  (restart-case
+                      (handler-case (funcall (truly-the function (equal-p-fn-of cell))
+                                             (value-of cell) new-value)
+                        (error (c)
+                          (signal 'mvc-cell-assign-signal
+                                  :condition c
+                                  :new-value new-value
+                                  :format-control "SW-MVC: The EQUAL-P test for ~A failed."
+                                  :format-arguments (list cell))
+                          new-value))
+                    (continue ()
+                      :report "SW-MVC: (EQUAL-P test) Assign the new value.")
+                    (skip-cell ()
+                      :report  "SW-MVC: (EQUAL-P test) Do not assign the new value."
+                      (nilf assign-p)))
+                  (when assign-p
                     (prog1 t
                       (setf (value-of cell) new-value)
-                      (cell-notify-targets cell)))))))
+                      (cell-notify-targets cell))))))))
 
 
 ;; TODO: Inlining causes weird problems wrt. the WITH-CELLS macro.
