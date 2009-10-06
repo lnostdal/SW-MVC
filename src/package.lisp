@@ -38,6 +38,7 @@
    #:cell-condition #:cell-eval-condition #:cell-equal-p-condition
    #:condition-of
    #:mk-icell #:mk-ocell #:mk-ccell #:mv-vcell
+   #:accepts-conditions-p-of
 
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class

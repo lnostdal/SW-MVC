@@ -21,6 +21,12 @@
            :type (member t nil)
            :initform t)
 
+   (accepts-conditions-p :accessor accepts-conditions-p-of
+                         :type (member or nil)
+                         :initform nil
+                         :documentation "
+If T, the ASSIGN-CONDITION restart will automatically be invoked (NIL is default).")
+
    (formula :initarg :formula
             :type function
             :initform λλnil)
@@ -92,7 +98,9 @@ STM. |#
                 (restart-case
                     (handler-bind ((error (lambda (c)
                                             (setf condition
-                                                  (make-instance 'mvc-cell-error :cell cell :condition c)))))
+                                                  (make-instance 'mvc-cell-error :cell cell :condition c))
+                                            (when (accepts-conditions-p-of cell)
+                                              (invoke-restart 'assign-condition)))))
                       (funcall (truly-the function (slot-value cell 'formula))))
                   (assign-condition ()
                     :report (lambda (stream)
