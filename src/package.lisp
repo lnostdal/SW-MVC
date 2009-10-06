@@ -1,8 +1,9 @@
 ;;;; http://nostdal.org/ ;;;;
 
 
-(defpackage #:sw-mvc
+(defpackage sw-mvc
   (:use #:cl
+        #:named-readtables
         #:closer-mop
         #:aromyxo
         #:cl-utilities

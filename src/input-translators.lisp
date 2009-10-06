@@ -1,6 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
 (in-package #:sw-mvc)
+(in-readtable sw-mvc)
 
 
 (defun mk-input-handler (input-cell translator-fn &key equal-p-fn)

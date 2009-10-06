@@ -7,23 +7,32 @@
 
 (defmacro mk-vcell (&body body)
   "Creates a \"value CELL\". Basically just lazy-eval."
-  `λv,@body)
-(export 'mk-vcell)
+  `(make-instance 'cell
+                  :formula (lambda () ,@body)
+                  :input-evalp nil :output-evalp nil
+                  :init-evalp t))
 
 
 (defmacro mk-icell (&body body)
   "Creates an input-triggered CELL."
-  `λi,@body)
+  `(make-instance 'cell
+                  :formula (lambda () ,@body)
+                  :input-evalp t :output-evalp nil))
 
 
 (defmacro mk-ocell (&body body)
   "Creates an output-triggered CELL."
-  `λo,@body)
+  `(make-instance 'cell
+                  :formula (lambda () ,@body)
+                  :input-evalp nil :output-evalp t))
 
 
 (defmacro mk-ccell (&body body)
   "Creates an output-treggered cached CELL."
-  `λc,@body)
+  `(make-instance 'cell
+                  :formula (lambda () ,@body)
+                  :input-evalp nil
+                  :output-evalp :cached))
 
 
 (defmacro cell-of (arg &key warnp errorp)

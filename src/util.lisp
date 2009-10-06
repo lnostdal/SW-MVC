@@ -1,6 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
 (in-package #:sw-mvc)
+(in-readtable sw-mvc)
 
 
 (defmacro with-formula (lifetime &body body)

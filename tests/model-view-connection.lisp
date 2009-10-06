@@ -1,6 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
 (in-package #:sw-mvc)
+(in-readtable sw-mvc)
 
 (declaim (optimize (speed 0) (safety 2)))
 

@@ -1,7 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
 (in-package #:sw-mvc)
-
+(in-readtable sw-mvc)
 
 #|(let* ((input #~"0")
        (output (mk-validator #'evenp (mk-number-parser input)))

@@ -1,6 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
 (in-package #:sw-mvc)
+(in-readtable sw-mvc)
 
 
 (let* ((item λv42)

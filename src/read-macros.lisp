@@ -5,78 +5,56 @@
 (declaim #.(optimizations))
 
 
-;; Value.
-(eval-now
-  (set-dispatch-macro-character #\# #\~
-                                (lambda (stream char arg)
-                                  (declare (ignore char arg))
-                                  `(make-instance 'cell
-                                                  :formula λλ,(read stream)
-                                                  :input-evalp nil :output-evalp nil
-                                                  :init-evalp t))))
+(defreadtable sw-mvc
+  (:merge sw-stm)
+
+  ;; Value.
+  (:dispatch-macro-char #\# #\~
+                        #'(lambda (stream char arg)
+                            (declare (ignore char arg))
+                            `(mk-vcell ,(read stream))))
+
+  ;; Formula.
+  (:dispatch-macro-char #\# #\λ
+                        #'(lambda (stream char arg)
+                            (declare (ignore char arg))
+                            `(mk-icell ,(read stream))))
+
+  ;; Lambda or lazy-eval type semantics.
+  (:dispatch-macro-char #\# #\l
+                        #'(lambda (stream char arg)
+                            (declare (ignore char arg))
+                            `(mk-ocell ,(read stream))))
 
 
-;; Formula,
-(eval-now
-  (set-dispatch-macro-character #\# #\λ
-                                (lambda (stream char arg)
-                                  (declare (ignore char arg))
-                                  `(make-instance 'cell
-                                                  :formula λλ,(read stream)
-                                                  :input-evalp t :output-evalp nil))))
+  ;; Value.
+  (:dispatch-macro-char #\λ #\v
+                        #'(lambda (stream char arg)
+                            (declare (ignore char arg))
+                            `(mk-vcell ,(read stream))))
 
+  ;; Formula, depending on inputs.
+  (:dispatch-macro-char #\λ #\i
+                        #'(lambda (stream char arg)
+                            (declare (ignore char arg))
+                            `(mk-icell ,(read stream))))
 
-;; Lambda or lazy-eval type semantics.
-(eval-now
-  (set-dispatch-macro-character #\# #\l
-                                (lambda (stream char arg)
-                                  (declare (ignore char arg))
-                                  `(make-instance 'cell
-                                                  :formula λλ,(read stream)
-                                                  :input-evalp nil :output-evalp t))))
+  ;; Lambda or lazy-eval type semantics.
+  (:dispatch-macro-char #\λ #\o
+                        #'(lambda (stream char arg)
+                            (declare (ignore char arg))
+                            `(mk-ocell ,(read stream))))
 
+  ;; Lambda type semantics, but cached; only evaled once.
+  (:dispatch-macro-char #\λ #\c
+                        #'(lambda (stream char arg)
+                            (declare (ignore char arg))
+                            `(mk-ccell ,(read stream))))
 
-
-;; Value.
-(eval-now
-  (set-dispatch-macro-character #\λ #\v
-                                (lambda (stream char arg)
-                                  (declare (ignore char arg))
-                                  `#~,(read stream))))
-
-
-;; Formula, depending on inputs.
-(eval-now
-  (set-dispatch-macro-character #\λ #\i
-                                (lambda (stream char arg)
-                                  (declare (ignore char arg))
-                                  `#λ,(read stream))))
-
-
-;; Lambda or laze-eval type semantics.
-(eval-now
-  (set-dispatch-macro-character #\λ #\o
-                                (lambda (stream char arg)
-                                  (declare (ignore char arg))
-                                  `(make-instance 'cell
-                                                  :formula λλ,(read stream)
-                                                  :input-evalp nil :output-evalp t))))
-
-
-;; Lambda type semantics, but cached; only evaled once.
-(eval-now
-  (set-dispatch-macro-character #\λ #\c
-                                (lambda (stream char arg)
-                                  (declare (ignore char arg))
-                                  `(make-instance 'cell
-                                                  :formula λλ,(read stream)
-                                                  :input-evalp nil
-                                                  :output-evalp :cached))))
-
-
-;; Wraps an ICELL in a "pointer" for use when initializing a MVC-CLASS class' slots.
-(eval-now
-  (set-dispatch-macro-character #\λ #\f
-                                (lambda (stream char arg)
-                                  (declare (ignore char arg))
-                                  `#&(mk-icell ,(read stream)))))
+  ;; Wraps an ICELL in a "pointer" for use when initializing a MVC-CLASS class' slots.
+  (:dispatch-macro-char #\λ #\f
+                        #'(lambda (stream char arg)
+                            (declare (ignore char arg))
+                            `(mk-ptr (mk-icell ,(read stream)))))
+  )
+(export 'sw-mvc)
