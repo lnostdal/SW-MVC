@@ -19,7 +19,6 @@ This represents a single entity in some container structure."))
 (defclass model ()
   ()
 
-  (:metaclass mvc-class)
   (:documentation "
 Common base class for all Models."))
 
@@ -36,7 +35,6 @@ Common base class for all Models."))
 (defclass single-value-model (model)
   ()
 
-  (:metaclass mvc-class)
   (:documentation "
 A Model which is a subtype of this is a simpler kind of model in that it only
 represents or holds a \"single value\" in some way.
@@ -47,7 +45,6 @@ This means that DEREF or ~ will most likely work as expected on this model."))
 (defclass multiple-value-model (model)
   ((nodes-in-context :initform (make-hash-table :test #'equal :weakness :value)))
 
-  (:metaclass mvc-class)
   (:documentation "
 This usually means this is or represents some sort of container.
 DEREF or ~ will most likely return a list of values, or further models in turn."))

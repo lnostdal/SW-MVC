@@ -40,9 +40,9 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
   nil)
 
 
-#|(defmethod validate-superclass ((class stm-class) (superclass mvc-class))
+(defmethod validate-superclass ((class stm-class) (superclass mvc-class))
   #| I'm not sure what would happen here, so we disallow it for now. |#
-  nil)|#
+  nil)
 
 
 (flet ((body (instance)
