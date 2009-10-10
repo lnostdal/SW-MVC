@@ -1,7 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
-
+(in-package sw-mvc)
+(in-readtable sw-mvc)
 (declaim #.(optimizations))
 
 
@@ -40,84 +40,74 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
   nil)
 
 
-(defmethod value-supplied-p ((class stm-class) (superclass mvc-class))
+#|(defmethod validate-superclass ((class stm-class) (superclass mvc-class))
   #| I'm not sure what would happen here, so we disallow it for now. |#
-  nil)
+  nil)|#
 
 
+(flet ((body (instance)
+         #| Unbound slots should be CELLs also. This ensures thread safety when the user later wants to go from an
+         unbound state to a bound state. |#
+         (with-unbound-slots-in (instance slot-name)
+           (setf (cell-of (slot-value instance slot-name))
+                 (mk-vcell '%unbound)))))
+  (declare (inline body)
+           (optimize speed))
 
-(defclass direct-cell-slotd (standard-direct-slot-definition)
-  ((cellp :reader cellp-of :initarg :cellp
-          :initform t)))
+  (defmethod make-instance ((class mvc-class) &key)
+    (with1 (call-next-method)
+      (body it)))
 
-
-(defmethod direct-slot-definition-class ((class mvc-class) &key
-                                         (cellp t)
-                                         (type nil type-supplied-p)
-                                         &allow-other-keys)
-  (assert (not type-supplied-p) nil
-          "Type checking etc. not implemented for MVC-CLASS classes yet. Got:~%~S" type)
-  (if cellp
-      (find-class 'direct-cell-slotd)
-      (call-next-method)))
-
-
-(define-variable *direct-cell-slotd*
-    :value nil)
+  (defmethod make-instance ((class (eql 'mvc-class)) &key)
+    (with1 (call-next-method)
+      (body it))))
 
 
-(defclass effective-cell-slotd (standard-effective-slot-definition)
-  ((direct-slotd :initform *direct-cell-slotd* :reader direct-slotd-of)))
+(defmethod slot-value-using-class ((class mvc-class) instance slotd)
+  ;; This is done as the CELL might be "output triggered" and thus cause additional resources to be deref'ed.
+  (let* ((get-cell-p *get-cell-p*)
+         (*get-cell-p* nil))
+    (if get-cell-p
+        (call-next-method)
+        (with1 (cell-deref (call-next-method))
+          (when (eq it '%unbound)
+            (slot-unbound class instance (slot-definition-name slotd)))))))
 
 
-(defmethod cellp-of ((slotd effective-cell-slotd))
-  (cellp-of (direct-slotd-of slotd)))
+(defmethod (setf slot-value-using-class) (new-value (class mvc-class) instance slotd)
+  ;; This is done as the CELL might be "output triggered" and thus cause additional resources to be deref'ed.
+  (let ((get-cell-p *get-cell-p*)
+        (*get-cell-p* nil))
+    (if get-cell-p
+        (call-next-method)
+        (if (slot-boundp-using-class class instance slotd)
+            (with (cell-of (slot-value-using-class class instance slotd) :errorp t)
+              (setf (cell-deref it) new-value))
+            (call-next-method
+             (typecase new-value
+               (pointer (with (ptr-value new-value)
+                          (typecase it
+                            (cell it) ;; "Formula".
+                            (t (mk-vcell it))))) ;; A pointer-to-a-pointer is needed to really store a pointer.
+               (t (mk-vcell new-value)))
+             class instance slotd)))))
 
 
-(defmethod compute-effective-slot-definition ((class mvc-class) name direct-slot-definitions)
-  (declare (ignore name)
-           (list direct-slot-definitions))
-  (flet ((is-cell-slot (slot) (typep slot 'direct-cell-slotd)))
-    (declare (inline is-cell-slot))
-    (let ((*direct-cell-slotd* (find-if #'is-cell-slot direct-slot-definitions)))
-      (call-next-method))))
+(defmethod slot-boundp-using-class ((class mvc-class) instance slotd)
+  (and (call-next-method) ;; Called by our MAKE-INSTANCE, so need to give up early while constructing.
+       (not (eq '%unbound
+                ;; Extract CELL and deref here as the S-V-U-C would call SLOT-UNBOUND otherwise.
+                ~(cell-of (slot-value-using-class class instance slotd) :errorp t)))))
 
 
-(defmethod effective-slot-definition-class ((class mvc-class) &rest initargs)
-  (declare (ignore initargs))
-  (if *direct-cell-slotd*
-      (find-class 'effective-cell-slotd)
-      (call-next-method)))
+(defmethod slot-makunbound-using-class ((class mvc-class) instance slotd)
+  "Make the CELL used to represent SLOTD in INSTANCE unbound (SW-MVC-based unboundness).
 
-
-
-(defmethod slot-value-using-class ((class mvc-class) instance (slotd effective-cell-slotd))
-  (if (cellp-of slotd)
-      (let* ((get-cell-p *get-cell-p*)
-             (*get-cell-p* nil)
-             (value (call-next-method)))
-        (cond
-          ((and (typep value 'cell) (not get-cell-p))
-           (cell-deref value))
-
-          (t
-           value)))
-      (call-next-method)))
-
-
-(defmethod (setf slot-value-using-class) (new-value (class mvc-class) instance (slotd effective-cell-slotd))
-  (if (cellp-of slotd)
-      (let ((get-cell-p *get-cell-p*)
-            (*get-cell-p* nil))
-        (if-let ((cell (when (and (not get-cell-p) (slot-boundp-using-class class instance slotd))
-                         ;; Will not call CELL-DEREF, and thus will not cause new dependencies to be added.
-                         (cell-of (slot-value-using-class class instance slotd) :errorp t))))
-          (setf (cell-deref cell) new-value)
-          (call-next-method (typecase new-value
-                              (pointer (let ((inner-value (ptr-value new-value)))
-                                         (typecase inner-value
-                                           (cell inner-value) ;; "Formula".
-                                           (t (mk-icell inner-value)))))
-                              (t (mk-vcell new-value)))
-                            class instance slotd)))
-      (call-next-method)))
+If CELL-OF is used, instead make the slot used to hold the CELL unbound (CLOS-based unboundness). Note that this
+removes the thread safe properties wrt. this slot as going from unbound state back to bound state is now racy."
+  (let ((get-cell-p *get-cell-p*)
+        (*get-cell-p* nil))
+    (if get-cell-p
+        (call-next-method)
+        (setf (slot-value-using-class class instance slotd)
+              '%unbound))))
