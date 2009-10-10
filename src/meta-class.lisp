@@ -63,6 +63,18 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
       (body it))))
 
 
+(defmethod compute-slots ((class mvc-class))
+  (with1 (call-next-method)
+    (dolist (slot it)
+      (when-let ((type-check-fn (sb-pcl::slot-definition-type-check-function slot)))
+        (setf (sb-pcl::slot-definition-type-check-function slot)
+              (lambda (value)
+                ;; TODO: This isn't perfect, but it is better than no type-checking at all.
+                (typecase value
+                  (cell (funcall type-check-fn (cell-deref value)))
+                  (t (funcall type-check-fn value)))))))))
+
+
 (defmethod slot-value-using-class ((class mvc-class) instance slotd)
   ;; This is done as the CELL might be "output triggered" and thus cause additional resources to be deref'ed.
   (let* ((get-cell-p *get-cell-p*)
