@@ -36,9 +36,6 @@ If T, the ASSIGN-CONDITION restart will automatically be invoked (NIL is default
    (value :accessor value-of
           :initform nil)
 
-   #|(type-check-fn :accessor type-check-fn-of :initarg :type-check-fn
-                  :initform (always t))|#
-
    (equal-p-fn :accessor equal-p-fn-of :initarg :equal-p-fn
                :type function
                :initform #'eq)
