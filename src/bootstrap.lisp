@@ -37,7 +37,9 @@
 
 (defmacro cell-of (arg &key warnp errorp)
   "This is used to extract a CELL instance from \"something\".
-This tends to mean CELL instances stored in CLOS slots of MVC-CLASS classes."
+This tends to mean CELL instances stored in (used to represent) CLOS slots of MVC-CLASS classes.
+
+User code should probably not use this as it is considered \"dangerous\" wrt. thread safety."
   (with-gensyms (result)
     `(let ((,result (let ((*get-cell-p* t)) ,arg)))
        (typecase ,result

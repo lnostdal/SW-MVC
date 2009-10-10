@@ -7,6 +7,8 @@
 
 
 #| TODO:
+  * This thing has grown in size. Some simpler CELL super types should probably be added.
+
   * Consider constructing the hash-tables lazily to save some space.
 
   * Think about type declarations and the VALUE slot. It's probably possible to do something using
