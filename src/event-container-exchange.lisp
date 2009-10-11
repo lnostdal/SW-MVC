@@ -1,7 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
-
+(in-package sw-mvc)
+(in-readtable sw-mvc)
 (declaim #.(optimizations))
 
 
@@ -15,7 +15,7 @@
 
 
 (defmethod handle ((event container-exchange))
-  (let ((container (container-of (container-of event))))
+  (let ((container (container-of event)))
     (prog1 (container-exchange event container)
       ;; Notify stuff observing the container and the objects being exchanged.
       (dolist (observable (observables-of event))
@@ -25,9 +25,9 @@
 
 (defmethod exchange (object-1 object-2)
   (declare ((or model view-base) object-1 object-2))
-  (assert (eq (container-of (container-of object-1))
-              (container-of (container-of object-2)))
-          nil "SW-MVC:EXCHANGE between two different containers is not implemented.")
+  (assert (eq (container-of object-1)
+              (container-of object-2))
+          nil "SW-MVC:EXCHANGE of objects between two different containers is not implemented.")
   (handle (make-instance 'container-exchange
                          :container (container-of object-1)
                          :object object-1
