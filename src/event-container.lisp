@@ -30,15 +30,15 @@ A list of MODELs to which the event is applied or related to in some way.")))
         (ensure-container container))
   (setf (slot-value event 'objects)
         (with (cond
-               (object-supplied-p
-                (list object))
+                (object-supplied-p
+                 (list object))
 
-               (objects-supplied-p
-                (if (atom objects)
-                    (list objects)
-                    objects)))
-              (map-into it (λ (obj) (ensure-model obj))
-                        it))))
+                (objects-supplied-p
+                 (if (atom objects)
+                     (list objects)
+                     objects)))
+          (map-into it (λ (obj) (ensure-model obj))
+                    it))))
 
 
 (defmethod observables-of append ((event container-event))
