@@ -82,17 +82,6 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
                   (t (funcall type-check-fn value)))))))))
 
 
-(defmethod slot-value-using-class ((class mvc-class) instance slotd)
-  ;; This is done as the CELL might be "output triggered" and thus cause additional resources to be deref'ed.
-  (let* ((get-cell-p *get-cell-p*)
-         (*get-cell-p* nil))
-    (if get-cell-p
-        (call-next-method)
-        (with1 (cell-deref (call-next-method))
-          (when (eq it '%unbound)
-            (slot-unbound class instance (slot-definition-name slotd)))))))
-
-
 (defmethod (setf slot-value-using-class) (new-value (class mvc-class) instance slotd)
   ;; This is done as the CELL might be "output triggered" and thus cause additional resources to be deref'ed.
   (let ((get-cell-p *get-cell-p*)
@@ -110,6 +99,17 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
                             (t (mk-vcell it))))) ;; A pointer-to-a-pointer is needed to really store a pointer.
                (t (mk-vcell new-value)))
              class instance slotd)))))
+
+
+(defmethod slot-value-using-class ((class mvc-class) instance slotd)
+  ;; This is done as the CELL might be "output triggered" and thus cause additional resources to be deref'ed.
+  (let* ((get-cell-p *get-cell-p*)
+         (*get-cell-p* nil))
+    (if get-cell-p
+        (call-next-method)
+        (with1 (cell-deref (call-next-method))
+          (when (eq it '%unbound)
+            (slot-unbound class instance (slot-definition-name slotd)))))))
 
 
 (defmethod slot-boundp-using-class ((class mvc-class) instance slotd)
