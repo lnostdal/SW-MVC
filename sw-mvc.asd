@@ -9,7 +9,7 @@ has turned into a dataflow thing."
   :author "Lars Rune Nøstdal <larsnostdal@gmail.com> http://nostdal.org/"
   :licence "AGPLv3"
 
-  :depends-on (:aromyxo :sw-stm)
+  :depends-on (:aromyxo :sw-stm :moptilities)
 
   :serial t
   :components
