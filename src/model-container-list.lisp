@@ -106,53 +106,53 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
       (fill-dlist it items)))
 
 
-  #|(defmethod transform-into ((target dlist) (source list))
-    "Transform TARGET container to contain the values in SOURCE by initiating
-container type events vs. TARGET."
-    (let ((key (key-fn-of target))
-          (test (test-fn-of target))
-          (before (list<- target)) ;; DLIST-NODE instances.
-          (after nil)
-          (to-insert nil))
-      (declare (list before after to-insert)
-               (function key test))
+  (defmethod transform-into ((target dlist) (source list))
+    "Transform the TARGET container to match the values in SOURCE by initiating container events vs. TARGET."
+    (let ((before (mapcar (λ (node) (cons node ~node)) ~target)) ;; (DLIST-NODE . MODEL)* ← DLIST
+          (after nil) ;; (DLIST-NODE . MODEL)*
+          (to-insert nil)) ;; MODEL*
+      (declare (list before after to-insert))
 
       ;; TARGET is empty.
-      (unless before
+      #|(unless before
         (when source
           (fill-dlist target source))
-        ;; TODO: Hm. We're returning without triggering any "container type events".
-        (return-from transform-into))
+        ;; TODO: Hm. We're returning without triggering any events.
+        (return-from transform-into))|#
 
-      (dolist (value source (nreversef after))
-        (if-let (node (find value before :key key :test test))
-          (push node after)
-          (push (make-instance 'dlist-node :value value :dlist target)
-                to-insert)))
+      (dolist (source-model source (nreversef after))
+        (if-let (node.model (find source-model before :test #'eq :key #'cdr))
+          (push node.model after)
+          (push source-model to-insert)))
 
       ;; REMOVE.
-      (dolist (removed-element (set-difference before after :test #'eq))
+      (dolist (removed-element (set-difference before after :test #'eq :key #'cdr))
         (deletef before removed-element :test #'eq)
-        (remove removed-element target))
+        (remove (cdr removed-element) target))
 
       ;; EXCHANGE.
       (let ((already-swapped nil))
         (map nil (lambda (before-elt after-elt)
-                   (when (and (not (funcall test (deref before-elt) (deref after-elt)))
+                   (when (and (not (eq (cdr before-elt) (cdr after-elt)))
                               (not (find after-elt already-swapped :test #'eq)))
                      (push before-elt already-swapped)
-                     (exchange before-elt after-elt)))
+                     (exchange (car before-elt) (car after-elt))))
              before
              after))
 
       ;; INSERT.
       (if before
-          (let ((last-node (last1 before)))
-            (dolist (node to-insert)
-              (if-let ((right-val (cadr (member (funcall key node) source :test test))))
-                (insert node :before (node-in-context-of target right-val) #|(node-of right-val)|#)
-                (insert node :after last-node))))
-        (insert (nreversef to-insert) :in target))))|#)
+          (let ((last-node (car (last1 before))))
+            (dolist (model to-insert)
+              (if-let ((right-model (cadr (member model source :test #'eq))))
+                (insert model :before (node-in-context-of target right-model))
+                (insert model :after last-node))))
+          (when to-insert
+            (insert (nreversef to-insert) :in target)))))
+
+
+  (defmethod transform-into ((target dlist) (source dlist))
+    (transform-into target ~~source))) ;; MODEL* ← DLIST-NODE* ← DLIST
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
