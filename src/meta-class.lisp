@@ -87,9 +87,12 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
         (*get-cell-p* nil))
     (if get-cell-p
         (call-next-method)
-        (if (slot-boundp-using-class class instance slotd)
+        ;; TODO: This seems rather hackish; we do it to avoid reading from the CELL representing the slot.
+        (if (slot-boundp-using-class (find-class 'sb-pcl::std-class) instance slotd)
+            ;; Extract CELL and deref+set it here as S-V-U-C might call SLOT-UNBOUND otherwise.
             (with (cell-of (slot-value-using-class class instance slotd) :errorp t)
               (setf (cell-deref it) new-value))
+            ;; The slot is _really_ unbound; no CELL with an '%UNBOUND value or anything.
             (call-next-method
              (typecase new-value
                (pointer (with (ptr-value new-value)
@@ -114,8 +117,8 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
 (defmethod slot-boundp-using-class ((class mvc-class) instance slotd)
   (and (call-next-method) ;; Called by our MAKE-INSTANCE, so need to give up early while constructing.
        (not (eq '%unbound
-                ;; Extract CELL and deref here as the S-V-U-C would call SLOT-UNBOUND otherwise.
-                ~(cell-of (slot-value-using-class class instance slotd) :errorp t)))))
+                ;; Extract CELL and deref it here as S-V-U-C might call SLOT-UNBOUND otherwise.
+                (cell-deref (cell-of (slot-value-using-class class instance slotd) :errorp t))))))
 
 
 (defmethod slot-makunbound-using-class ((class mvc-class) instance slotd)
