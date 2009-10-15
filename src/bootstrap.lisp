@@ -58,7 +58,8 @@ User code should probably not use this as it is considered \"dangerous\" wrt. th
 
 ;; TODO: Think about what means (probably nothing) wrt. already existing dependencies etc.
 (defmacro setf-cell-of (place new-value)
-  `(cell-of (setf ,place ,new-value)))
+  (once-only (new-value)
+    `(cell-of (setf ,place ,new-value))))
 (defsetf cell-of setf-cell-of)
 
 
