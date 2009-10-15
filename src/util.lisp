@@ -1,6 +1,6 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
+(in-package sw-mvc)
 (in-readtable sw-mvc)
 
 
@@ -34,3 +34,16 @@ Y will update if X changes, unless the change to X was caused by a change to Y."
 Any change to BACK is forwarded to FRONT."
   (forward-cell middle back)
   (forward-cell back front))
+
+
+(defun add-slot-observers (instance fn)
+  "Observe all slots in INSTANCE.
+FN is a function accepting 3 arguments; INSTANCE, SLOT-NAME (symbol) and NEW-VALUE."
+  ;; TODO: I seem to be repeating this pattern a lot, e.g. in MAKE-INSTANCE for MVC-CLASS etc..
+  (assert (subtypep (class-of (class-of instance)) (find-class 'mvc-class)))
+  (dolist (class (moptilities:superclasses (class-of instance) :proper? nil))
+    (when (subtypep (class-of class) (find-class 'mvc-class))
+      (dolist (dslotd (class-direct-slots class))
+        (with (cell-of (slot-value instance (slot-definition-name dslotd)))
+          (with-formula instance
+            (funcall fn instance (slot-definition-name dslotd) (cell-deref it))))))))

@@ -143,6 +143,7 @@
    #:forward-cell
    #:sync-cells
    #:sync-back
+   #:add-slot-observers
 
    ;; conditions.lisp
    #:mvc-signal #:condition-of
