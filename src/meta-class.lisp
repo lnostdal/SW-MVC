@@ -70,12 +70,14 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
 
 
 (defmethod compute-slots ((class mvc-class))
+  "This'll ensure that the :TYPE slot option will (somewhat) work."
   (with1 (call-next-method)
     (dolist (slot it)
       (when-let ((type-check-fn (sb-pcl::slot-definition-type-check-function slot)))
         (setf (sb-pcl::slot-definition-type-check-function slot)
               (lambda (value)
-                ;; TODO: This isn't perfect, but it is better than no type-checking at all.
+                #| TODO: This isn't perfect, but it is better than no type-checking (or full failure wrt. :TYPE)
+                at all. |#
                 (typecase value
                   (cell (funcall type-check-fn (cell-deref value)))
                   (t (funcall type-check-fn value)))))))))

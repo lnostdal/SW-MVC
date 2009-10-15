@@ -37,7 +37,7 @@
    #:assign-condition #:skip-cell
    #:cell-condition #:cell-eval-condition #:cell-equal-p-condition
    #:condition-of
-   #:mk-icell #:mk-ocell #:mk-ccell #:mv-vcell
+   #:mk-icell #:mk-ocell #:mk-ccell #:mk-vcell
    #:accepts-conditions-p-of
 
    ;; meta-class.lisp
