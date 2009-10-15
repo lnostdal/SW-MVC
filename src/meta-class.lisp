@@ -4,6 +4,8 @@
 (in-readtable sw-mvc)
 (declaim #.(optimizations))
 
+#| TODO: It seems using a custom slot class might be a better idea after all? (document why or why not) |#
+
 
 (defclass mvc-class (standard-class)
   ()
@@ -51,6 +53,8 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
          (let ((mvc-class (find-class 'mvc-class)))
            (assert (subtypep (class-of (class-of instance)) mvc-class)
                    nil "SW-MVC: Trying to create an instance with a meta-class not a sub-type of MVC-CLASS.")
+           #| This mess makes sure we only check for unboundedness wrt. slots in MVC-CLASS classes (MVC-CLASS
+           classes can have superclasses with a STANDARD-CLASS metaclass). |#
            (loop :for class :in (moptilities:superclasses (class-of instance) :proper? nil)
               :when (subtypep (class-of class) mvc-class)
               :do (dolist (slot (class-direct-slots class))
@@ -94,8 +98,7 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
         ..fuck; it doesn't even _work_ .. which is possibly related to this bug(?);
         https://bugs.launchpad.net/sbcl/+bug/452230
         ..so we do this instead (perhaps it is a better idea anyway?): |#
-        (if (not (eq (standard-instance-access instance (slot-definition-location slotd))
-                     sb-pcl::+slot-unbound+))
+        (if (really-slot-boundp instance slotd)
             ;; Extract CELL and deref+set it here as S-V-U-C might call SLOT-UNBOUND otherwise.
             (with (cell-of (slot-value-using-class class instance slotd) :errorp t)
               (setf (cell-deref it) new-value))

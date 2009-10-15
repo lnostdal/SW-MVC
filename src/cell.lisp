@@ -90,7 +90,6 @@ STM. |#
     (with (standard-instance-access cell (slot-definition-location eslotd))
       (typecase it
         (cell (cell-deref it))))))
-(export 'touch)
 
 
 (defn cell-execute-formula (t ((cell cell)))

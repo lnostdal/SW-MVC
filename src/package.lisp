@@ -39,6 +39,7 @@
    #:condition-of
    #:mk-icell #:mk-ocell #:mk-ccell #:mk-vcell
    #:accepts-conditions-p-of
+   #:touch
 
    ;; meta-class.lisp
    #:mvc-class #:mvc-stm-class
