@@ -89,8 +89,13 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
         (*get-cell-p* nil))
     (if get-cell-p
         (call-next-method)
-        ;; TODO: This seems rather hackish; we do it to avoid reading from the CELL representing the slot.
-        (if (slot-boundp-using-class (find-class 'sb-pcl::std-class) instance slotd)
+        #| TODO: This seems rather hackish; we do it to dodge our custom S-B-U-C method.
+        (slot-boundp-using-class (find-class 'sb-pcl::std-class) instance slotd)
+        ..fuck; it doesn't even _work_ .. which is possibly related to this bug(?);
+        https://bugs.launchpad.net/sbcl/+bug/452230
+        ..so we do this instead (perhaps it is a better idea anyway?): |#
+        (if (not (eq (standard-instance-access instance (slot-definition-location slotd))
+                     sb-pcl::+slot-unbound+))
             ;; Extract CELL and deref+set it here as S-V-U-C might call SLOT-UNBOUND otherwise.
             (with (cell-of (slot-value-using-class class instance slotd) :errorp t)
               (setf (cell-deref it) new-value))
