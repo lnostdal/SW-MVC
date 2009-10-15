@@ -4,8 +4,6 @@
 (in-readtable sw-mvc)
 (declaim #.(optimizations))
 
-#| TODO: It seems using a custom slot class might be a better idea after all? (document why or why not) |#
-
 
 (defclass mvc-class (standard-class)
   ()
@@ -53,8 +51,8 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
          (let ((mvc-class (find-class 'mvc-class)))
            (assert (subtypep (class-of (class-of instance)) mvc-class)
                    nil "SW-MVC: Trying to create an instance with a meta-class not a sub-type of MVC-CLASS.")
-           #| This mess makes sure we only check for unboundedness wrt. slots in MVC-CLASS classes (MVC-CLASS
-           classes can have superclasses with a STANDARD-CLASS metaclass). |#
+           #| This mess makes sure we only check for unboundedness wrt. slots in _direct_ MVC-CLASS classes, this is
+           needed as MVC-CLASS classes can have superclasses with a STANDARD-CLASS metaclass. |#
            (loop :for class :in (moptilities:superclasses (class-of instance) :proper? nil)
               :when (subtypep (class-of class) mvc-class)
               :do (dolist (slot (class-direct-slots class))
@@ -142,3 +140,10 @@ removes the thread safe properties wrt. this slot as going from unbound state ba
         (call-next-method)
         (setf (slot-value-using-class class instance slotd)
               '%unbound))))
+
+
+(defmethod touch-using-class (instance (class mvc-class))
+  (dolist (eslotd (class-slots class))
+    (with (standard-instance-access instance (slot-definition-location eslotd))
+      (typecase it
+        (cell (touch it))))))
