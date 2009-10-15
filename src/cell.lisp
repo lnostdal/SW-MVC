@@ -85,6 +85,14 @@ STM. |#
         (prin1 :not-bound stream))))|#
 
 
+(defmethod touch ((cell cell))
+  (dolist (eslotd (class-slots (class-of cell)))
+    (with (standard-instance-access cell (slot-definition-location eslotd))
+      (typecase it
+        (cell (cell-deref it))))))
+(export 'touch)
+
+
 (defn cell-execute-formula (t ((cell cell)))
   (if (or (member cell *source-cells* :test #'eq)
           (eq *target-cell* cell))
