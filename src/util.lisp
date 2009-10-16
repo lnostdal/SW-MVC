@@ -41,9 +41,10 @@ Any change to BACK is forwarded to FRONT."
 FN is a function accepting 3 arguments; INSTANCE, SLOT-NAME (symbol) and NEW-VALUE."
   ;; TODO: I seem to be repeating this pattern a lot, e.g. in MAKE-INSTANCE for MVC-CLASS etc..
   (assert (subtypep (class-of (class-of instance)) (find-class 'mvc-class)))
-  (dolist (class (moptilities:superclasses (class-of instance) :proper? nil))
-    (when (subtypep (class-of class) (find-class 'mvc-class))
-      (dolist (dslotd (class-direct-slots class))
-        (with (cell-of (slot-value instance (slot-definition-name dslotd)))
-          (with-formula instance
-            (funcall fn instance (slot-definition-name dslotd) (cell-deref it))))))))
+  (collecting
+    (dolist (class (moptilities:superclasses (class-of instance) :proper? nil))
+      (when (subtypep (class-of class) (find-class 'mvc-class))
+        (dolist (dslotd (class-direct-slots class))
+          (with (cell-of (slot-value instance (slot-definition-name dslotd)))
+            (collect (with-formula instance
+                       (funcall fn instance (slot-definition-name dslotd) (cell-deref it))))))))))
