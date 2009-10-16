@@ -151,13 +151,12 @@ STM. |#
 (defn cell-notify-targets (null ((cell cell)))
   "Re-evaluate target-cells which depend on the value of CELL."
   (let ((target-cells (target-cells-of cell)))
-    (sb-ext:with-locked-hash-table (target-cells)
-      (maphash-values (lambda (target-cell)
-                        (if (alivep-of target-cell)
-                            (when (input-evalp-of target-cell)
-                              (cell-execute-formula target-cell))
-                            (remhash target-cell target-cells)))
-                      target-cells)))
+    (dolist (target-cell (sb-ext:with-locked-hash-table (target-cells)
+                           (hash-table-values target-cells)))
+      (if (alivep-of target-cell)
+          (when (input-evalp-of target-cell)
+            (cell-execute-formula target-cell))
+          (remhash target-cell target-cells))))
   (values))
 
 
