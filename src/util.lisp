@@ -38,13 +38,14 @@ Any change to BACK is forwarded to FRONT."
 
 (defun add-slot-observers (instance fn)
   "Observe all slots in INSTANCE.
-FN is a function accepting 3 arguments; INSTANCE, SLOT-NAME (symbol) and NEW-VALUE."
-  ;; TODO: I seem to be repeating this pattern a lot, e.g. in MAKE-INSTANCE for MVC-CLASS etc..
-  (assert (subtypep (class-of (class-of instance)) (find-class 'mvc-class)))
-  (collecting
-    (dolist (class (moptilities:superclasses (class-of instance) :proper? nil))
-      (when (subtypep (class-of class) (find-class 'mvc-class))
-        (dolist (dslotd (class-direct-slots class))
-          (with (cell-of (slot-value instance (slot-definition-name dslotd)))
+FN is a function accepting 3 arguments; INSTANCE, SLOT-NAME (symbol) and NEW-VALUE.
+A list of CELL instances is returned. Their lifetime (GC) is bound to INSTANCE. CELL-MARK-AS-DEAD can be used to
+stop observing."
+  (let ((class (class-of instance)))
+    (check-type class mvc-class)
+    (collecting
+      (dolist (eslotd (class-slots class))
+        (when (typep eslotd 'mvc-class-eslotd)
+          (with (cell-of (slot-value-using-class class instance eslotd))
             (collect (with-formula instance
-                       (funcall fn instance (slot-definition-name dslotd) (cell-deref it))))))))))
+                       (funcall fn instance eslotd (cell-deref it))))))))))

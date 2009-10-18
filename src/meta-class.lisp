@@ -33,103 +33,116 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
 (defmethod validate-superclass ((class mvc-class) (superclass standard-class))
   t)
 
-
 (defmethod validate-superclass ((class mvc-class) (superclass stm-class))
   #| Because doing this will cause access to slots in the superclass to change behavior when done "from" an instance
   of the subclass. |#
   nil)
-
 
 (defmethod validate-superclass ((class stm-class) (superclass mvc-class))
   #| I'm not sure what would happen here, so we disallow it for now. |#
   nil)
 
 
-(flet ((body (instance)
-         #| Unbound slots should be CELLs also. This ensures thread safety when the user later wants to go from an
-         unbound state to a bound state. |#
-         (let ((mvc-class (find-class 'mvc-class)))
-           (assert (subtypep (class-of (class-of instance)) mvc-class)
-                   nil "SW-MVC: Trying to create an instance with a meta-class not a sub-type of MVC-CLASS.")
-           #| This mess makes sure we only check for unboundedness wrt. slots in _direct_ MVC-CLASS classes, this is
-           needed as MVC-CLASS classes can have superclasses with a STANDARD-CLASS metaclass. |#
-           (loop :for class :in (moptilities:superclasses (class-of instance) :proper? nil)
-              :when (subtypep (class-of class) mvc-class)
-              :do (dolist (slot (class-direct-slots class))
-                    (unless (slot-boundp instance (slot-definition-name slot))
-                      (setf (cell-of (slot-value instance (slot-definition-name slot)))
-                            (mk-vcell '%unbound))))))))
-  (declare (inline body)
-           (optimize speed))
+(defclass mvc-class-dslotd (standard-direct-slot-definition)
+  ())
 
-  (defmethod make-instance ((class mvc-class) &key)
-    (with1 (call-next-method)
-      (body it)))
 
-  (defmethod make-instance ((class (eql 'mvc-class)) &key)
-    (with1 (call-next-method)
-      (body it))))
+(defclass mvc-class-eslotd (standard-effective-slot-definition)
+  ())
+
+
+(defmethod direct-slot-definition-class ((class mvc-class) &key)
+  (find-class 'mvc-class-dslotd))
+
+
+(defmethod compute-effective-slot-definition ((class mvc-class) name dslotds)
+  (if-let (dslotd (find-if (lambda (dslotd) (typep dslotd 'mvc-class-dslotd)) dslotds))
+    (apply #'make-instance 'mvc-class-eslotd
+           (sb-pcl::compute-effective-slot-definition-initargs class dslotds)) ;; TODO: closer-mop?
+    (call-next-method)))
+
+
+(defmethod make-instance :around ((class mvc-class) &key)
+  (with1 (call-next-method)
+    #| Unbound slots should be CELLs also. This ensures thread safety when the user later wants to go from an
+    unbound state to a bound state. |#
+    (let ((class (class-of it)))
+      (dolist (eslotd (class-slots class))
+        (when (typep eslotd 'mvc-class-eslotd)
+          (unless (really-slot-boundp it eslotd)
+            ;; We now know the slot is to be represented by a CELL; even in its unbound state.
+            (setf (standard-instance-access it (slot-definition-location eslotd))
+                  (mk-vcell '%unbound))))))))
 
 
 (defmethod compute-slots ((class mvc-class))
   "This'll ensure that the :TYPE slot option will (somewhat) work."
   (with1 (call-next-method)
-    (dolist (slot it)
-      (when-let ((type-check-fn (sb-pcl::slot-definition-type-check-function slot)))
-        (setf (sb-pcl::slot-definition-type-check-function slot)
-              (lambda (value)
-                #| TODO: This isn't perfect, but it is better than no type-checking (or full failure wrt. :TYPE)
-                at all. |#
-                (typecase value
-                  (cell (funcall type-check-fn (cell-deref value)))
-                  (t (funcall type-check-fn value)))))))))
+    (dolist (eslotd it)
+      (when (typep eslotd 'mvc-class-eslotd)
+        (when-let ((type-check-fn (sb-pcl::slot-definition-type-check-function eslotd)))
+          (setf (sb-pcl::slot-definition-type-check-function eslotd)
+                (lambda (value)
+                  #| TODO: This isn't perfect, but it is better than no type-checking (or full failure wrt. :TYPE)
+                  at all. |#
+                  (typecase value
+                    (cell (funcall type-check-fn (cell-deref value)))
+                    (t (funcall type-check-fn value))))))))))
 
 
-(defmethod (setf slot-value-using-class) (new-value (class mvc-class) instance slotd)
-  ;; This is done as the CELL might be "output triggered" and thus cause additional resources to be deref'ed.
+(defmethod (setf slot-value-using-class) :around (new-value (class mvc-class) instance (eslotd mvc-class-eslotd))
+  #| This is done as the CELL might be "output triggered" and thus cause additional CELL instances used to represent
+  slots to be extracted later in the call stack. |#
   (let ((get-cell-p *get-cell-p*)
         (*get-cell-p* nil))
     (if get-cell-p
-        (call-next-method)
-        #| TODO: This seems rather hackish; we do it to dodge our custom S-B-U-C method.
-        (slot-boundp-using-class (find-class 'sb-pcl::std-class) instance slotd)
-        ..fuck; it doesn't even _work_ .. which is possibly related to this bug(?);
-        https://bugs.launchpad.net/sbcl/+bug/452230
-        ..so we do this instead (perhaps it is a better idea anyway?): |#
-        (if (really-slot-boundp instance slotd)
-            ;; Extract CELL and deref+set it here as S-V-U-C might call SLOT-UNBOUND otherwise.
-            (with (cell-of (slot-value-using-class class instance slotd) :errorp t)
-              (setf (cell-deref it) new-value))
-            ;; The slot is _really_ unbound; no CELL with an '%UNBOUND value or anything.
-            (call-next-method
-             (typecase new-value
-               (pointer (with (ptr-value new-value)
-                          (typecase it
-                            (cell it) ;; "Formula".
-                            (t (mk-vcell it))))) ;; A pointer-to-a-pointer is needed to really store a pointer.
-               (t (mk-vcell new-value)))
-             class instance slotd)))))
+        (setf (standard-instance-access instance (slot-definition-location eslotd))
+              new-value)
+        (call-next-method))))
 
 
-(defmethod slot-value-using-class ((class mvc-class) instance slotd)
-  ;; This is done as the CELL might be "output triggered" and thus cause additional resources to be deref'ed.
+(defmethod (setf slot-value-using-class) (new-value (class mvc-class) instance (eslotd mvc-class-eslotd))
+  (if (really-slot-boundp instance eslotd)
+      ;; Extract CELL and deref+set it here as S-V-U-C might call SLOT-UNBOUND otherwise.
+      (with (cell-of (slot-value-using-class class instance eslotd) :errorp t)
+        (setf (cell-deref it) new-value))
+      ;; The slot is _really_ unbound; no CELL with an '%UNBOUND value or anything.
+      (call-next-method
+       (typecase new-value
+         ;; This implements the λF syntax commonly used in DEFCLASS forms for inline "formulas" there.
+         (pointer (with (ptr-value new-value)
+                    (typecase it
+                      (cell it) ;; "Formula".
+                      (t (mk-vcell it))))) ;; A pointer-to-a-pointer is needed to really store a pointer.
+         ;; ..any old value.
+         (t (mk-vcell new-value)))
+       class instance eslotd)))
+
+
+(defmethod slot-value-using-class :around ((class mvc-class) instance (eslotd mvc-class-eslotd))
+  #| This is done as the CELL might be "output triggered" and thus cause additional CELL instances used to represent
+  slots to be extracted later in the call stack. |#
   (let* ((get-cell-p *get-cell-p*)
          (*get-cell-p* nil))
     (if get-cell-p
-        (call-next-method)
-        (with1 (cell-deref (call-next-method))
-          (when (eq it '%unbound)
-            (slot-unbound class instance (slot-definition-name slotd)))))))
+        (standard-instance-access instance (slot-definition-location eslotd))
+        (call-next-method))))
 
 
-(defmethod slot-boundp-using-class ((class mvc-class) instance slotd)
+(defmethod slot-value-using-class ((class mvc-class) instance (eslotd mvc-class-eslotd))
+  (with1 (cell-deref (call-next-method))
+    (when (eq it '%unbound)
+      (slot-unbound class instance (slot-definition-name eslotd)))))
+
+
+(defmethod slot-boundp-using-class ((class mvc-class) instance (eslotd mvc-class-eslotd))
   (and (call-next-method) ;; Called by our MAKE-INSTANCE, so need to give up early while constructing.
        (not (eq '%unbound
                 ;; Extract CELL and deref it here as S-V-U-C might call SLOT-UNBOUND otherwise.
-                (cell-deref (cell-of (slot-value-using-class class instance slotd) :errorp t))))))
+                (cell-deref (cell-of (slot-value-using-class class instance eslotd) :errorp t))))))
 
 
-(defmethod slot-makunbound-using-class ((class mvc-class) instance slotd)
+(defmethod slot-makunbound-using-class ((class mvc-class) instance (eslotd mvc-class-eslotd))
   "Make the CELL used to represent SLOTD in INSTANCE unbound (SW-MVC-based unboundness).
 
 If CELL-OF is used, instead make the slot used to hold the CELL unbound (CLOS-based unboundness). Note that this
@@ -138,12 +151,13 @@ removes the thread safe properties wrt. this slot as going from unbound state ba
         (*get-cell-p* nil))
     (if get-cell-p
         (call-next-method)
-        (setf (slot-value-using-class class instance slotd)
+        (setf (slot-value-using-class class instance eslotd)
               '%unbound))))
 
 
 (defmethod touch-using-class (instance (class mvc-class))
   (dolist (eslotd (class-slots class))
-    (with (standard-instance-access instance (slot-definition-location eslotd))
-      (typecase it
-        (cell (touch it))))))
+    (when (typep eslotd 'mvc-class-eslotd)
+      (with (standard-instance-access instance (slot-definition-location eslotd))
+        (typecase it
+          (cell (touch it)))))))

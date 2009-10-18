@@ -55,6 +55,7 @@
    #:remove-slot-callback
    #:cell-of
    #:as-value
+   #:mvc-class-dslotd #:mvc-class-eslotd
 
    ;; mixins.lisp
    #:model
