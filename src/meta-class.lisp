@@ -61,18 +61,14 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
            (sb-pcl::compute-effective-slot-definition-initargs class dslotds)) ;; TODO: closer-mop?
     (call-next-method)))
 
-
-(defmethod make-instance :around ((class mvc-class) &key)
+(defmethod allocate-instance ((class mvc-class) &key)
   (with1 (call-next-method)
-    #| Unbound slots should be CELLs also. This ensures thread safety when the user later wants to go from an
-    unbound state to a bound state. |#
-    (let ((class (class-of it)))
-      (dolist (eslotd (class-slots class))
-        (when (typep eslotd 'mvc-class-eslotd)
-          (unless (really-slot-boundp it eslotd)
-            ;; We now know the slot is to be represented by a CELL; even in its unbound state.
-            (setf (standard-instance-access it (slot-definition-location eslotd))
-                  (mk-vcell '%unbound))))))))
+    (dolist (eslotd (class-slots class))
+      (when (typep eslotd 'mvc-class-eslotd)
+        (unless (really-slot-boundp it eslotd)
+          ;; We now know the slot is to be represented by a CELL; even in its unbound state.
+          (setf (standard-instance-access it (slot-definition-location eslotd))
+                (mk-vcell '%unbound)))))))
 
 
 (defmethod compute-slots ((class mvc-class))
@@ -102,21 +98,20 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
 
 
 (defmethod (setf slot-value-using-class) (new-value (class mvc-class) instance (eslotd mvc-class-eslotd))
-  (if (really-slot-boundp instance eslotd)
-      ;; Extract CELL and deref+set it here as S-V-U-C might call SLOT-UNBOUND otherwise.
-      (with (cell-of (slot-value-using-class class instance eslotd) :errorp t)
-        (setf (cell-deref it) new-value))
-      ;; The slot is _really_ unbound; no CELL with an '%UNBOUND value or anything.
-      (call-next-method
-       (typecase new-value
-         ;; This implements the λF syntax commonly used in DEFCLASS forms for inline "formulas" there.
-         (pointer (with (ptr-value new-value)
-                    (typecase it
-                      (cell it) ;; "Formula".
-                      (t (mk-vcell it))))) ;; A pointer-to-a-pointer is needed to really store a pointer.
-         ;; ..any old value.
-         (t (mk-vcell new-value)))
-       class instance eslotd)))
+  (flet ((doit ()
+           ;; Extract CELL and deref+set it here as S-V-U-C might call SLOT-UNBOUND otherwise.
+           (with (cell-of (slot-value-using-class class instance eslotd))
+             (setf (cell-deref it) new-value))))
+    (declare (inline doit))
+    (typecase new-value
+      ;; This implements the λF syntax commonly used in DEFCLASS forms for inline "formulas" there.
+      (cons (if (eq '%formula (car new-value))
+                (progn
+                  (check-type (cdr new-value) cell)
+                  (setf (cell-of (slot-value-using-class class instance eslotd))
+                        (cdr new-value)))
+                (doit)))
+      (t (doit)))))
 
 
 (defmethod slot-value-using-class :around ((class mvc-class) instance (eslotd mvc-class-eslotd))

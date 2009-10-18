@@ -32,7 +32,7 @@
 
 (with-object (make-instance 'clos-simple-test-2)
   (setf ¤x 2)
-  (setf (cell-of ¤square) λI(* ¤x ¤x))
+  (setf ¤square λF(* ¤x ¤x))
   (assert (equalp (list 2 4) (list ¤x ¤square)))
   (incf ¤x)
   (assert (equalp (list 3 9) (list ¤x ¤square))))

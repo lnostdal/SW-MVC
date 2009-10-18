@@ -55,6 +55,6 @@
   (:dispatch-macro-char #\λ #\f
                         #'(lambda (stream char arg)
                             (declare (ignore char arg))
-                            `(mk-ptr (mk-icell ,(read stream)))))
+                            `(cons '%formula (mk-icell ,(read stream)))))
   )
 (export 'sw-mvc)
