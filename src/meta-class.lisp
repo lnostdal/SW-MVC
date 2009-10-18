@@ -61,6 +61,7 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
            (sb-pcl::compute-effective-slot-definition-initargs class dslotds)) ;; TODO: closer-mop?
     (call-next-method)))
 
+
 (defmethod allocate-instance ((class mvc-class) &key)
   (with1 (call-next-method)
     (dolist (eslotd (class-slots class))

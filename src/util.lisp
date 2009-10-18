@@ -36,16 +36,16 @@ Any change to BACK is forwarded to FRONT."
   (forward-cell back front))
 
 
-(defun add-slot-observers (instance fn)
+(defun add-slot-observers (instance fn &optional (eslotd-type 'mvc-class-eslotd))
   "Observe all slots in INSTANCE.
-FN is a function accepting 3 arguments; INSTANCE, SLOT-NAME (symbol) and NEW-VALUE.
+FN is a function accepting 3 arguments; INSTANCE, ESLOTD and NEW-VALUE.
 A list of CELL instances is returned. Their lifetime (GC) is bound to INSTANCE. CELL-MARK-AS-DEAD can be used to
 stop observing."
   (let ((class (class-of instance)))
     (check-type class mvc-class)
     (collecting
       (dolist (eslotd (class-slots class))
-        (when (typep eslotd 'mvc-class-eslotd)
+        (when (typep eslotd eslotd-type)
           (with (cell-of (slot-value-using-class class instance eslotd))
             (collect (with-formula instance
                        (funcall fn instance eslotd (cell-deref it))))))))))
