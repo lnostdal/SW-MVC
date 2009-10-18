@@ -35,6 +35,10 @@
                   :output-evalp :cached))
 
 
+#| TODO: Perhaps this macro should be generalized/renamed to something else and simply expand to the following:
+
+  (standard-instance-access instance (slot-definition-location eslotd))
+|#
 (defmacro cell-of (arg &key warnp errorp)
   "This is used to extract a CELL instance from \"something\".
 This tends to mean CELL instances stored in (used to represent) CLOS slots of MVC-CLASS classes.
