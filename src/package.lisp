@@ -149,7 +149,14 @@
    ;; conditions.lisp
    #:mvc-signal #:condition-of
    #:mvc-error
+
+   ;; event-slot.lisp
+   #:slot-event
+   #:context #:context-of
+   #:object #:object-of
+   #:slot-name #:slot-name-of
+   #:slot-set
    ))
 
 
-(in-package #:sw-mvc)
+(in-package sw-mvc)

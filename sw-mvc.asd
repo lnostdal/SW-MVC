@@ -36,6 +36,7 @@ has turned into a dataflow thing."
      (:file "model-container")
 
      (:file "event")
+     (:file "event-slot")
      (:file "event-container")
      (:file "event-container-remove")
      (:file "event-container-insert")

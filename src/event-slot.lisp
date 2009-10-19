@@ -1,0 +1,36 @@
+;;;; http://nostdal.org/ ;;;;
+
+(in-package sw-mvc)
+(in-readtable sw-mvc)
+(declaim #.(optimizations))
+
+
+(defclass slot-event (event)
+  ((context :reader context-of :initarg :context
+            :initform (error ":CONTEXT needed."))
+
+   (object :reader object-of)
+
+   (slot-name :reader slot-name-of :initarg :slot-name
+              :type symbol
+              :initform (error ":SLOT-NAME needed.")))
+
+  (:documentation "
+This works in collaboration with ADD-SLOT-OBSERVERS (util.lisp)."))
+
+
+(defmethod initialize-instance :after ((event slot-event) &key
+                                       (object nil object-supplied-p))
+  (assert object-supplied-p nil ":OBJECT needed.")
+  (setf (slot-value event 'object)
+        (ensure-model object)))
+
+
+(defmethod observables-of append ((event slot-event))
+  (list (context-of event)))
+
+
+(defun slot-set (instance slot-name context)
+  (handle (make-instance 'slot-event
+                         :object instance :slot-name slot-name
+                         :context context)))
