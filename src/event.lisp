@@ -9,9 +9,11 @@
   ())
 
 
-(defgeneric handle (event)
-  (:documentation "
-This \"handles\" or \"executes\" the EVENT."))
+(defclass event-router ()
+  ((event :reader event-of
+          :initform nil))
+
+  (:metaclass mvc-class))
 
 
 (defgeneric observables-of (event)
@@ -22,16 +24,10 @@ about the event."))
 
 
 (defmethod handle ((event event))
+  "This \"handles\" or \"executes\" the EVENT."
   (dolist (observable (observables-of event))
     (when (typep observable 'event-router)
       (event-router-notify observable event))))
-
-
-(defclass event-router ()
-  ((event :reader event-of
-          :initform nil))
-
-  (:metaclass mvc-class))
 
 
 (defmethod event-router-notify ((event-router event-router) (event event))
