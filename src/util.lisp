@@ -46,6 +46,5 @@ stop observing."
     (collecting
       (dolist (eslotd (class-slots class))
         (when (typep eslotd eslotd-type)
-          (with (cell-of (slot-value-using-class class instance eslotd))
-            (collect (with-formula instance
-                       (funcall fn instance eslotd (cell-deref it))))))))))
+          (collect (with-formula instance
+                     (funcall fn instance (slot-definition-name eslotd)))))))))

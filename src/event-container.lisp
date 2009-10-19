@@ -1,8 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
+(in-package sw-mvc)
 (in-readtable sw-mvc)
-
 (declaim #.(optimizations))
 
 
@@ -42,13 +41,13 @@ A list of MODELs to which the event is applied or related to in some way.")))
 
 
 (defmethod observables-of append ((event container-event))
-  (cons (model-of (container-of event))
-        (mapcar #'model-of (objects-of event))))
+  (cons (container-of event)
+        (objects-of event)))
 
 
 (defmethod object-of ((event container-event))
   (let ((objects (objects-of event)))
-    (assert (= 1 (length objects)) nil "
+    (assert (sequence-of-length-p objects 1) nil "
 The use of OBJECT-OF expects that the event in question (~A) will or must
 contain only one element." event)
     (first objects)))
