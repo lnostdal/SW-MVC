@@ -156,7 +156,7 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
-  (dolist (object (objects-of event) (length (objects-of event)))
+  (dolist (object (objects-of event))
     (let* ((node (node-in-context-of (container-of event) object))
            (left (left-of node))
            (right (right-of node)))
@@ -175,8 +175,7 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
   (let ((relative-position (relative-position-of event))
         (relative-node (relative-node-of event)))
     (dolist (dlist-node (mapcar (λ (object) (make-instance 'dlist-node :container dlist :value object))
-                                (objects-of event))
-                        (objects-of event))
+                                (objects-of event)))
       (ecase relative-position
         (:before
          (with-slots (head tail) dlist
@@ -219,5 +218,4 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
          (object-b (object-of event))
          (a-value (value-of object-a)))
     (setf (value-of object-a) (value-of object-b)
-          (value-of object-b) a-value)
-    (list object-a object-b)))
+          (value-of object-b) a-value)))

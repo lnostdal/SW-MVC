@@ -21,6 +21,11 @@ This returns a list of objects which can have observers interested in knowing
 about the event."))
 
 
+(defmethod handle ((event event))
+  (dolist (observable (observables-of event))
+    (when (typep observable 'event-router)
+      (event-router-notify observable event))))
+
 
 (defclass event-router ()
   ((event :reader event-of

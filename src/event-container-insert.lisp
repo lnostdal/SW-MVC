@@ -19,12 +19,8 @@ This represents the various ways of inserting an object (or a set of objects?)
 into some location(s?) in a container."))
 
 
-(defmethod handle ((event container-insert))
-  (prog1 (container-insert event (container-of event))
-    (dolist (observable (observables-of event))
-      ;; Notify stuff observing the container and the objects being inserted.
-      (when (typep observable 'event-router)
-        (event-router-notify observable event)))))
+(defmethod handle :before ((event container-insert))
+  (container-insert event (container-of event)))
 
 
 (defun insert (object &rest args &key
