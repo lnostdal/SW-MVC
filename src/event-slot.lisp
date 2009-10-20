@@ -21,6 +21,7 @@ This works in collaboration with ADD-SLOT-OBSERVERS (util.lisp)."))
 
 (defmethod initialize-instance :after ((event slot-event) &key
                                        (object nil object-supplied-p))
+  (check-type (slot-value event 'context) event-router)
   (assert object-supplied-p nil ":OBJECT needed.")
   (setf (slot-value event 'object)
         (ensure-model object)))

@@ -155,5 +155,5 @@ removes the thread safe properties wrt. this slot as going from unbound state ba
   (dolist (eslotd (class-slots class))
     (when (typep eslotd 'mvc-class-eslotd)
       (with (standard-instance-access instance (slot-definition-location eslotd))
-        (typecase it
-          (cell (touch it)))))))
+        (check-type it cell)
+        (touch it)))))
