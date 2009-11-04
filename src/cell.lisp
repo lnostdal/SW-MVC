@@ -207,17 +207,9 @@ STM. |#
 (declaim (notinline cell-deref))
 
 
-(defmethod deref ((cell cell))
-  (declare (inline cell-deref))
-  (cell-deref cell))
-
-
-(defmethod (setf deref) (new-value (cell cell))
-  (setf (cell-deref cell) new-value))
-
-
-(defmethod deref-expand ((arg symbol) (type (eql 'cell)))
-  `(cell-deref (truly-the cell ,arg)))
+(add-deref-type 'cell
+                :get-expansion (λ (arg-sym) `(cell-deref ,arg-sym))
+                :set-expansion t)
 
 
 (defmacro with-cells ((&rest cells) &body body)

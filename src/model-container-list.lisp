@@ -47,12 +47,9 @@ Doubly-linked list with support for dataflow and transactions."))
       (prin1 (value-of dlist-node) stream))))
 
 
-(defmethod deref ((dlist-node dlist-node))
-  (slot-value dlist-node 'value))
-
-
-(defmethod (setf deref) (new-value (dlist-node dlist-node))
-  (setf (slot-value dlist-node 'value) new-value))
+(add-deref-type 'dlist-node
+                :get-expansion (λ (arg-sym) `(slot-value ,arg-sym 'value))
+                :set-expansion t)
 
 
 (defmethod list<- ((dlist dlist) &rest args)
@@ -74,12 +71,8 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
   (apply #'dlist list))
 
 
-(defmethod deref ((dlist dlist))
-  (list<- dlist))
-
-
-(defmethod (setf deref) ((new-values list) (dlist dlist))
-  (error "TODO: (SETF DEREF .. DLIST). Or, does this even make sense?"))
+(add-deref-type 'dlist
+                :get-expansion (λ (arg-sym) `(list<- ,arg-sym)))
 
 
 (flet ((fill-dlist (dlist items)

@@ -1,8 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
+(in-package sw-mvc)
 (in-readtable sw-mvc)
-
 (declaim #.(optimizations))
 
 
@@ -18,12 +17,9 @@
 Boolean state thingy with \"memory\" of T state value."))
 
 
-(defmethod deref ((boolean-model boolean-model))
-  (value-of boolean-model))
-
-
-(defmethod (setf deref) (new-state (boolean-model boolean-model))
-  (setf (value-of boolean-model) new-state))
+(add-deref-type 'boolean-model
+                :get-expansion (λ (arg-sym) `(value-of ,arg-sym))
+                :set-expansion t)
 
 
 (defmethod (setf value-of) :before ((new-value (eql nil)) (boolean-model boolean-model))

@@ -60,12 +60,9 @@ object which is a sub-type of VIEW-BASE.")))
   (model-of arg))
 
 
-(defmethod deref ((view view-base))
-  (model-of view))
-
-
-(defmethod (setf deref) (new-model (view view-base))
-  (setf (model-of view) new-model))
+(add-deref-type 'view-base
+                :get-expansion (λ (arg-sym) `(model-of ,arg-sym))
+                :set-expansion t)
 
 
 (defmethod view-constructor ((context-view view-base) model)

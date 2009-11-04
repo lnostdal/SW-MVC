@@ -17,6 +17,11 @@
 (export '(pair left left-of right right-of))
 
 
+(add-deref-type 'pair
+                :get-expansion (λ (arg-sym) `(cons (left-of ,arg-sym)
+                                                   (right-of ,arg-sym))))
+
+
 (defmethod initialize-instance :after ((pair pair) &key left right)
   (setf (left-of pair) left)
   (setf (right-of pair) right))
@@ -33,10 +38,6 @@
 (defmethod print-object ((pair pair) stream)
   (print-unreadable-object (pair stream :type t :identity t)
     (format stream ":LEFT ~S :RIGHT ~S" (left-of pair) (right-of pair))))
-
-
-(defmethod deref ((pair pair))
-  (cons (left-of pair) (right-of pair)))
 
 
 (defun mk-pair (&optional left right)
