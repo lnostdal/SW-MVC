@@ -1,11 +1,11 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
+(in-package sw-mvc)
 (in-readtable sw-mvc)
 
 
-(let* ((x #λ0)
-       (calc #λ(incf ~x)))        ;; 0 -> 1
+(let* ((x λV0)
+       (calc λI(incf ~x)))        ;; 0 -> 1
 
   (assert (equalp (list ~x ~calc)
                   (list 1 1)))

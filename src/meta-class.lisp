@@ -147,6 +147,7 @@ removes the thread safe properties wrt. this slot as going from unbound state ba
         (*get-cell-p* nil))
     (if get-cell-p
         (call-next-method)
+        ;; Go via our SVUC for thread-safety (STM).
         (setf (slot-value-using-class class instance eslotd)
               '%unbound))))
 

@@ -1,12 +1,12 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
+(in-package sw-mvc)
 (in-readtable sw-mvc)
 
 
-(let* ((x λv0)
-       (y λi(+ ~x 1))
-       (z λi(+ ~y 1)))
+(let* ((x λV0)
+       (y λI(+ ~x 1))
+       (z λI(+ ~y 1)))
   (assert (equalp (list ~x ~y ~z)
                   (list 0 1 2)))
   (incf ~x)
