@@ -1,25 +1,9 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package cl)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (unless (find-package :sw-mvc)
-    (make-package :sw-mvc
-                  :use (list))))
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (do-external-symbols (sym (find-package :amx))
-    (shadowing-import sym (find-package :sw-mvc)))
-
-  ;; Handle Common Lisp pitfall; (import 'nil) or (export 'nil) will not work!
-  (shadowing-import '(cl:nil) (find-package :sw-mvc)))
-
+(amx:define-package :sw-mvc
+    :use (:amx :sw-stm))
 (in-package sw-mvc)
-
-
-(do-external-symbols (sym (find-package :sw-stm))
-  (shadowing-import sym))
-
 
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
