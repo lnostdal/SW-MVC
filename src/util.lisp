@@ -2,6 +2,7 @@
 
 (in-package sw-mvc)
 (in-readtable sw-mvc)
+(declaim #.(optimizations))
 
 
 (defmacro with-formula (lifetime &body body)

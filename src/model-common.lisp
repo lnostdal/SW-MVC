@@ -2,8 +2,6 @@
 
 (in-package sw-mvc)
 (in-readtable sw-mvc)
-
-
 (declaim #.(optimizations))
 
 

@@ -1,6 +1,5 @@
 ;;;; http://nostdal.org/ ;;;;
 
-
 (amx:define-package :sw-mvc
     :use (:amx :sw-stm))
 (in-package sw-mvc)

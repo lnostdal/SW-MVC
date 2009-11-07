@@ -1,6 +1,6 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
+(in-package sw-mvc)
 
 (define-condition mvc-condition ()
   ((condition :reader condition-of :initarg :condition

@@ -1,6 +1,5 @@
 ;;;; http://nostdal.org/ ;;;;
 
-
 (defsystem sw-mvc
   :description "
 This was originally intended to be a Model View Controller (MVC) framework, but
