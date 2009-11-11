@@ -5,7 +5,7 @@
 (declaim #.(optimizations))
 
 
-(defclass mvc-class (standard-class)
+(defclass mvc-class (standard-class locked-object)
   ()
 
   (:documentation "
