@@ -18,7 +18,7 @@
 
    ;; [SIGNATURE (context-view . model) -> VIEW]
    (views-in-context :type hash-table
-                     :initform (make-hash-table :test #'equal :weakness :value))
+                     :initform (make-hash-table :test #'equal :weakness :value :synchronized t))
 
    (view-constructor-fn :accessor view-constructor-fn-of :initarg :view-constructor-fn
                         :type function
@@ -110,9 +110,8 @@ or constructed."
   (declare (view-base view context-view)
            (model model))
   (with-slots (views-in-context) context-view
-    (sb-ext:with-locked-hash-table (views-in-context)
-      (let ((signature (cons context-view model)))
-        (setf (gethash signature views-in-context) view)))))
+    (let ((signature (cons context-view model)))
+      (setf (gethash signature views-in-context) view))))
 
 
 (defmethod print-object ((view-base view-base) stream)

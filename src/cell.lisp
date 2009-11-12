@@ -60,7 +60,7 @@ CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
    ;; STM-CLASS doesn't cover the hash-table here, but I think that's ok.
    (target-cells :reader target-cells-of
                  :type hash-table
-                 :initform (make-hash-table :test #'eq :weakness :value)
+                 :initform (make-hash-table :test #'eq :weakness :value :synchronized t)
                  :documentation "
 This contains CELLs that will be notified when our value changes.
 
@@ -141,16 +141,13 @@ STM. |#
 
 
 (defn cell-observedp ((member t nil) ((cell cell)))
-  (let ((target-cells (target-cells-of cell)))
-    (sb-ext:with-locked-hash-table (target-cells)
-      (plusp (hash-table-count target-cells)))))
+  (plusp (hash-table-count (target-cells-of cell))))
 
 
 (defn cell-add-target-cell (null ((cell cell) (target-cell cell)))
   "When CELL changes, TARGET-CELL wants to know about it."
-  (let ((target-cells (target-cells-of cell)))
-    (sb-ext:with-locked-hash-table (target-cells)
-      (setf (gethash target-cell (target-cells-of cell)) target-cell)))
+  (setf (gethash target-cell (target-cells-of cell))
+        target-cell)
   (values))
 
 
