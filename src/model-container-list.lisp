@@ -24,6 +24,10 @@
 Doubly-linked list node with support for dataflow and transactions."))
 
 
+(defmethod touch ((dlist-node dlist-node))
+  (container-of dlist-node))
+
+
 
 (defclass dlist (container event-router)
   ((head :accessor head-of :initarg :head

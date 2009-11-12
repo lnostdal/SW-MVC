@@ -110,7 +110,14 @@ STM. |#
                               (muffle-compiler-note
                                 (format stream "SW-MVC: Skip ~S (and any \"child CELLs\") and keep propagating."
                                         cell)))
-                    (return-from cell-execute-formula (value-of cell))))))
+                    (return-from cell-execute-formula (value-of cell)))
+                  (mark-as-dead ()
+                    :report (lambda (stream)
+                              (muffle-compiler-note
+                                (format stream "SW-MVC: Mark ~S as \"dead\" and keep propagating."
+                                        cell)))
+                    (cell-mark-as-dead cell)
+                    (return-from cell-execute-formula nil)))))
           (prog1 result
             (setf (cell-deref cell) result
                   (init-evalp-of cell) t))))))
