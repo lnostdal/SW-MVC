@@ -9,7 +9,7 @@
   "Creates a new formula (CELL) that'll stick around for at least as long as the
 LIFETIME object exists."
   (with-gensyms (formula-res)
-    `(letp1 ((,formula-res #λ,@body))
+    `(letp1 ((,formula-res (mk-icell ,@body)))
        (with-lifetime ,lifetime ,formula-res))))
 
 
@@ -18,7 +18,8 @@ LIFETIME object exists."
   "Forward changes done to SOURCE to TARGET, unless the change to SOURCE was
 caused by a change to TARGET."
   (with-formula target
-    (setf ~target ~source)))
+    (setf (cell-deref target)
+          (cell-deref source))))
 
 
 (defun sync-cells (x y)
@@ -32,7 +33,7 @@ Y will update if X changes, unless the change to X was caused by a change to Y."
 
 (defun sync-back (back middle front)
   "Any change to MIDDLE is forwarded to BACK, which will in turn forward its change to FRONT.
-Any change to BACK is forwarded to FRONT."
+Any (direct) change to BACK is forwarded to FRONT."
   (forward-cell middle back)
   (forward-cell back front))
 
