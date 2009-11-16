@@ -14,8 +14,13 @@
 (export
  '(abort-mvc-event
 
+   ;; bootstrap.lisp
+   mk-vcell mk-icell mk-ocell mk-ccell
+   as-formula
+   cell-of
+
    ;; cell.lisp
-   cell mk-cell
+   cell
    with-cells
    cell-force-update
    cell-mark-as-dead
@@ -23,7 +28,6 @@
    assign-condition skip-cell
    cell-condition cell-eval-condition cell-equal-p-condition
    condition-of
-   mk-icell mk-ocell mk-ccell mk-vcell
    accepts-conditions-p-of
    touch
 
@@ -39,7 +43,6 @@
    add-slot-callback
    add-simple-slot-callback
    remove-slot-callback
-   cell-of
    as-value
    mvc-class-dslotd mvc-class-eslotd
 

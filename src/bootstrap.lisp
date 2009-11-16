@@ -34,6 +34,11 @@
                   :output-evalp :cached))
 
 
+(declaim (inline as-formula))
+(defun as-formula (cell)
+  (cons '%formula cell))
+
+
 #| TODO: Perhaps this macro should be generalized/renamed to something else and simply expand to the following:
 
   (standard-instance-access instance (slot-definition-location eslotd))
