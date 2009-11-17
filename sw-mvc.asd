@@ -25,7 +25,7 @@ has turned into a dataflow thing."
      (:file "specials")
      (:file "symbol-macros")
      (:file "model-common")
-     (:file "meta-class")
+     (:file "mvc-class")
      (:file "mixins")
      (:file "cell")
 
