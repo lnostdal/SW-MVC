@@ -85,7 +85,7 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
                   #| TODO: This isn't perfect, but it is better than no type-checking (or full failure wrt. :TYPE)
                   at all. |#
                   (typecase value
-                    (cell (funcall type-check-fn (cell-deref value)))
+                    (cell (funcall type-check-fn (value-of value)))
                     (t (funcall type-check-fn value))))))))))
 
 
