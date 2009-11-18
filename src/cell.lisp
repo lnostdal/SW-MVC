@@ -99,6 +99,9 @@ STM. |#
                                                   (make-instance 'mvc-cell-error :cell cell :condition c))
                                             (when (accepts-conditions-p-of cell)
                                               (invoke-restart 'assign-condition)))))
+                      #| TODO: This seems less than ideal; it is almost as if we have two "paths" to this situation
+                      where the other "path" is the other binding we do vs. *SOURCE-CELLS* in (SETF CELL-DEREF).
+                      Think about this... |#
                       (let ((*source-cells* (cons cell *source-cells*)))
                         (funcall (truly-the function (slot-value cell 'formula)))))
                   (assign-condition ()
