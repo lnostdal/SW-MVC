@@ -85,8 +85,8 @@ STM. |#
 
 
 (defn cell-execute-formula (t ((cell cell)))
-  (if (or (member cell *source-cells* :test #'eq)
-          (eq *target-cell* cell))
+  (if (or (eq *target-cell* cell)
+          (member cell *source-cells* :test #'eq))
       (value-of cell)
       #| NOTE: We track dependencies even though INPUT-EVALP is NIL. This will enable the user to set INPUT-EVALP
       to T later and have it update based on those dependencies from there on. |#
