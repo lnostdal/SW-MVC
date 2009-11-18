@@ -99,7 +99,8 @@ STM. |#
                                                   (make-instance 'mvc-cell-error :cell cell :condition c))
                                             (when (accepts-conditions-p-of cell)
                                               (invoke-restart 'assign-condition)))))
-                      (funcall (truly-the function (slot-value cell 'formula))))
+                      (let ((*source-cells* (cons cell *source-cells*)))
+                        (funcall (truly-the function (slot-value cell 'formula)))))
                   (assign-condition ()
                     :report (lambda (stream)
                               (muffle-compiler-note
