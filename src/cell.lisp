@@ -147,6 +147,7 @@ STM. |#
 
 (defn cell-add-target-cell (null ((cell cell) (target-cell cell)))
   "When CELL changes, TARGET-CELL wants to know about it."
+  #+:sw-mvc-debug (assert (not (eq cell target-cell)))
   (setf (gethash target-cell (target-cells-of cell))
         target-cell)
   (values))
@@ -157,6 +158,7 @@ STM. |#
   (let ((target-cells (target-cells-of cell)))
     (dolist (target-cell (sb-ext:with-locked-hash-table (target-cells)
                            (hash-table-values target-cells)))
+      #+:sw-mvc-debug (assert (not (eq target-cell cell)))
       (if (alivep-of target-cell)
           (when (input-evalp-of target-cell)
             (cell-execute-formula target-cell))

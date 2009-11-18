@@ -8,15 +8,15 @@
 (eval-now
 (defclass dlist-node (node single-value-model)
   ((left :accessor left-of :initarg :left
-         ;;:type (or null dlist-node)
+         :type (or null dlist-node)
          :initform nil)
 
    (right :accessor right-of :initarg :right
-          ;;:type (or null dlist-node)
+          :type (or null dlist-node)
           :initform nil)
 
    (value :accessor value-of :initarg :value
-          ;;:type model
+          :type model
           :initform ":VALUE needed."))
 
   (:metaclass mvc-class)
@@ -31,11 +31,11 @@ Doubly-linked list node with support for dataflow and transactions."))
 
 (defclass dlist (container event-router)
   ((head :accessor head-of :initarg :head
-         ;;:type (or null dlist-node)
+         :type (or null dlist-node)
          :initform nil)
 
    (tail :accessor tail-of
-         ;;:type (or null dlist-node)
+         :type (or null dlist-node)
          :initform nil))
 
   (:default-initargs :key-fn (λ (obj) (value-of obj)))
@@ -98,7 +98,6 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
 
 
   (defun dlist (&rest items)
-    (declare (dynamic-extent items))
     (with1 (make-instance 'dlist)
       (fill-dlist it items)))
 

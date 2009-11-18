@@ -57,8 +57,10 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
 
 (defmethod compute-effective-slot-definition ((class mvc-class) name dslotds)
   (if-let (dslotd (find-if (lambda (dslotd) (typep dslotd 'mvc-class-dslotd)) dslotds))
-    (apply #'make-instance 'mvc-class-eslotd
-           (sb-pcl::compute-effective-slot-definition-initargs class dslotds)) ;; TODO: closer-mop?
+    (progn
+      #+sw-mvc-debug (assert (every (lambda (dslotd) (typep dslotd 'mvc-class-dslotd)) dslotds))
+      (apply #'make-instance 'mvc-class-eslotd
+             (sb-pcl::compute-effective-slot-definition-initargs class dslotds))) ;; TODO: closer-mop?
     (call-next-method)))
 
 

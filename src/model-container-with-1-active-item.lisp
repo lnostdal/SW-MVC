@@ -1,11 +1,13 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
+(in-package sw-mvc)
+(in-readtable sw-mvc)
+(declaim #.(optimizations))
 
 
 (defclass container-with-1-active-item (dlist)
   ((active-item :reader active-item-of
-                ;;:type (or null 1-active-item)
+                :type (or null node)
                 :initform nil))
 
   (:metaclass mvc-class))
@@ -37,7 +39,7 @@
 
 
 (defmethod (setf active-item-of) ((item model) (container container-with-1-active-item))
-  #|(assert (eq (container-of (node-of item)) container) nil
+  #|(assert (eq (container-of (node-in-context-of container item)) container) nil
           "Trying to set ~S as active item of ~S,~%but that item is not a member of the container."
           item container)|#
   (setf (slot-value container 'active-item) item))
