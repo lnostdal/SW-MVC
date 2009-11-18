@@ -33,9 +33,10 @@
   (defmethod initialize-instance :after ((container container-with-1-active-item) &key)
     (with-formula container
       (when-let (event (event-of container))
-        (typecase event
-          (container-insert (%insert container event))
-          (container-remove (%remove container event)))))))
+        (when (eq container (container-of event))
+          (typecase event
+            (container-insert (%insert container event))
+            (container-remove (%remove container event))))))))
 
 
 (defmethod (setf active-item-of) ((item model) (container container-with-1-active-item))
