@@ -21,14 +21,14 @@
 
   (:metaclass mvc-class)
   (:documentation "
-Doubly-linked list node with support for dataflow and transactions."))
+Doubly-linked list node with support for dataflow and transactions.")))
 
 
 (defmethod touch ((dlist-node dlist-node))
   (container-of dlist-node))
 
 
-
+(eval-now
 (defclass dlist (container event-router)
   ((head :accessor head-of :initarg :head
          :type (or null dlist-node)
@@ -41,8 +41,7 @@ Doubly-linked list node with support for dataflow and transactions."))
   (:default-initargs :key-fn (λ (obj) (value-of obj)))
   (:metaclass mvc-class)
   (:documentation "
-Doubly-linked list with support for dataflow and transactions."))
-)
+Doubly-linked list with support for dataflow and transactions.")))
 
 
 (defmethod print-object ((dlist-node dlist-node) stream)

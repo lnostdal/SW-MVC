@@ -1,14 +1,13 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
+(in-package sw-mvc)
 (in-readtable sw-mvc)
-
 (declaim (optimize (speed 0) (safety 2)))
 
 
 (defclass test-model ()
   ((x :initarg :x
-      :initform λf0))
+      :initform λF0))
 
   (:metaclass mvc-class))
 
@@ -18,8 +17,8 @@
    (x :initform ↑(lambda (data) (incf ¤confirm data)))))
 
 
-(defmethod (setf model-of) ((model test-model) (view test-view))
-  (list #λ(funcall (slot-value view  'x)
+(defmethod set-model nconc ((view test-view) (model test-model))
+  (list λI(funcall (slot-value view  'x)
                    (slot-value model 'x))))
 
 
@@ -43,8 +42,8 @@
 
 
 
-(remove-method #'(setf model-of)
-               (find-method #'(setf model-of) nil (mapcar #'find-class '(test-model test-view))))
+#|(remove-method #'(setf model-of)
+               (find-method #'(setf model-of) nil (mapcar #'find-class '(test-model test-view))))|#
 (setf (find-class 'test-model) nil
       (find-class 'test-view) nil)
 (unintern 'test-model)

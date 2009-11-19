@@ -50,6 +50,7 @@
    model
    single-value-model
    multiple-value-model
+   node-in-context-of
 
    ;; boolean-model.lisp
    boolean-model
@@ -97,7 +98,7 @@
 
    ;; view-base.lisp
    view-base
-   model model-of
+   model model-of set-model
    view-constructor
    view-constructor-fn view-constructor-fn-of
    add-formulas
