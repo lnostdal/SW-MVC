@@ -7,7 +7,7 @@
 
 (defclass container-with-1-active-item (dlist)
   ((active-item :reader active-item-of
-                :type (or null node)
+                :type (or null model)
                 :initform nil))
 
   (:metaclass mvc-class))
@@ -18,15 +18,12 @@
          (dolist (object (objects-of event))
            (unless (or (eq object container)
                        (active-item-of container))
-             (setf (active-item-of container)
-                   (node-in-context-of container object)))))
-
+             (setf (active-item-of container) object))))
 
        (%remove (container event)
          (dolist (object (objects-of event))
            (when (and (not (eq object container))
-                      (eq (node-in-context-of container object)
-                          (active-item-of container)))
+                      (eq object (active-item-of container)))
              (setf (active-item-of container) :closest)))))
 
 
@@ -51,70 +48,25 @@
 
 
 (defmethod (setf active-item-of) ((val (eql :closest)) (container container-with-1-active-item))
-  (let ((current-object (active-item-of container)))
+  (let ((current-node (node-in-context-of container (active-item-of container))))
+    (check-type current-node node)
     (setf (slot-value container 'active-item)
-          (or (right-of current-object)
-              (left-of current-object)))))
+          (or ~(right-of current-node)
+              ~(left-of current-node)))))
 
 
 
 
 ;;(terpri) (terpri)
 #|(with (make-instance 'container-with-1-active-item)
-  (let ((x #λ2) (y #λ4))
-    (dbg-prin1 (active-item-of it))
+  (let ((x λV2) (y λV4))
+    (dbg-prin1 ~(active-item-of it))
     (insert (list x y) :in it)
-    (dbg-prin1 (active-item-of it))
+    (dbg-prin1 ~(active-item-of it))
     (remove x it)
-    (dbg-prin1 (active-item-of it))
+    (dbg-prin1 ~(active-item-of it))
     (remove y it)
-    ;;(setf (active-item-of it) x)
-    #|(insert y :in it)|#
-    #|(setf (active-item-of it) y)|#
-    (dbg-prin1 (active-item-of it))
+    (dbg-prin1 ~(active-item-of it))
+    (insert λV42 :in it)
+    (dbg-prin1 ~(active-item-of it))
     ))|#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-;; TODO: This stuff might not make all that much sense now.
-#|(defclass 1-active-item ()
-  ((container :accessor container-of :initarg :container
-              :type (or null container-with-1-active-item)
-              :initform nil)
-
-   (active-p :reader active-p-of :initarg :active-p
-             :type (member t nil)
-             :initform nil))
-
-  (:metaclass mvc-class))|#
-
-
-#|(defmethod (setf active-p-of) (new-state (item 1-active-item))
-  )|#
