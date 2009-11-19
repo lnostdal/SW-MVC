@@ -79,21 +79,21 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
                 :get-expansion (λ (arg-sym) `(list<- ,arg-sym)))
 
 
+(defmethod node-constructor ((container dlist) (model model))
+  (make-instance 'dlist-node :container container :value model))
+
+
 (flet ((fill-dlist (dlist items)
          (when items
            (dolist (item items)
              (check-type item model))
            (let ((tail (setf (head-of dlist)
-                             (make-instance 'dlist-node
-                                            :container dlist
-                                            :value (first items)))))
+                             (node-in-context-of dlist (first items) t))))
              (dolist (item (rest items))
                (setf tail
                      (setf (right-of tail)
-                           (make-instance 'dlist-node
-                                          :container dlist
-                                          :left tail
-                                          :value item))))
+                           (with1 (node-in-context-of dlist item t)
+                             (setf (left-of it) tail)))))
              (setf (tail-of dlist) tail)))))
 
 
@@ -170,7 +170,7 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
 (defmethod container-insert ((event container-insert) (dlist dlist))
   (let ((relative-position (relative-position-of event))
         (relative-node (relative-node-of event)))
-    (dolist (dlist-node (mapcar (λ (object) (make-instance 'dlist-node :container dlist :value object))
+    (dolist (dlist-node (mapcar (λ (object) (node-in-context-of dlist object t))
                                 (objects-of event)))
       (ecase relative-position
         (:before

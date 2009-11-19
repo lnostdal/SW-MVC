@@ -53,13 +53,20 @@ DEREF or ~ will most likely return a list of values, or further models in turn."
   arg)
 
 
-(defun node-in-context-of (container model)
+(defun node-in-context-of (container model &optional create-if-not-found-p)
   (declare (multiple-value-model container)
-           (model model))
+           (model model)
+           ((member t nil) create-if-not-found-p))
   (with-slots (nodes-in-context) container
     (let ((signature (cons container model)))
       (sb-ext:with-locked-hash-table (nodes-in-context)
-        (gethash signature nodes-in-context)))))
+        (multiple-value-bind (node found-p)
+            (gethash signature nodes-in-context)
+          (if found-p
+              (values node t)
+              (if create-if-not-found-p
+                  (values (node-constructor container model) :created)
+                  (values nil nil))))))))
 
 
 (defun (setf node-in-context-of) (node container model)
