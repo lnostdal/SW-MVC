@@ -1,14 +1,13 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package #:sw-mvc)
+(in-package sw-mvc)
 (in-readtable sw-mvc)
-
 (declaim #.(optimizations))
 
 
 (defclass view-base ()
   ((model :reader model-of
-          :initform λvnil)
+          :initform λVnil)
 
    ;; Dataflow: MODEL -> MODEL-OBSERVERS => VIEW-BASE (some widget in SW).
    ;; This slot is set by the :AROUND (SETF MODEL-OF) method.
@@ -39,11 +38,16 @@ object which is a sub-type of VIEW-BASE.")))
   (when model (setf (model-of view) model)))
 
 
-(defmethod (setf model-of) :around (new-model (view view-base))
-  (let ((old-model-observers (model-observers-of view)))
-    (prog1 new-model
+(defgeneric set-model (view-base model)
+  (:method-combination nconc :most-specific-last)
+  (:documentation "Assign MODEL as Model for VIEW-BASE."))
+
+
+(defmethod (setf model-of) (new-model (view view-base))
+  (prog1 new-model
+    (let ((old-model-observers (model-observers-of view)))
       (with-object view
-        (setf ¤model-observers (with1 (ensure-list (call-next-method))
+        (setf ¤model-observers (with1 (set-model view new-model)
                                  (dolist (model-observer it)
                                    (check-type model-observer cell)))
               ¤model new-model))
@@ -111,7 +115,8 @@ or constructed."
            (model model))
   (with-slots (views-in-context) context-view
     (let ((signature (cons context-view model)))
-      (setf (gethash signature views-in-context) view))))
+      (sb-ext:with-locked-hash-table (views-in-context)
+        (setf (gethash signature views-in-context) view)))))
 
 
 (defmethod print-object ((view-base view-base) stream)
