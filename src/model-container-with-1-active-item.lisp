@@ -6,7 +6,7 @@
 
 
 (defclass container-with-1-active-item (dlist)
-  ((active-item :reader active-item-of
+  ((active-item :accessor active-item-of
                 :type (or null model)
                 :initform nil))
 
@@ -34,17 +34,6 @@
           (typecase event
             (container-insert (%insert container event))
             (container-remove (%remove container event))))))))
-
-
-(defmethod (setf active-item-of) ((item model) (container container-with-1-active-item))
-  #|(assert (eq (container-of (node-in-context-of container item)) container) nil
-          "Trying to set ~S as active item of ~S,~%but that item is not a member of the container."
-          item container)|#
-  (setf (slot-value container 'active-item) item))
-
-
-(defmethod (setf active-item-of) ((val (eql nil)) (container container-with-1-active-item))
-  (nilf (slot-value container 'active-item)))
 
 
 (defmethod (setf active-item-of) ((val (eql :closest)) (container container-with-1-active-item))
