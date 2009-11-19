@@ -42,7 +42,7 @@ This means that DEREF or ~ will most likely work as expected on this model."))
 
 
 (defclass multiple-value-model (model)
-  ((nodes-in-context :initform (make-hash-table :test #'equal :weakness :value)))
+  ((nodes-in-context :initform (make-hash-table :test #'equal :weakness :value :synchronized t)))
 
   (:documentation "
 This usually means this is or represents some sort of container.
