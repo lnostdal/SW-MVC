@@ -131,6 +131,7 @@
 
    ;; util.lisp
    with-formula
+   without-dataflow
    forward-cell
    sync-cells
    sync-back

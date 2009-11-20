@@ -13,6 +13,12 @@ LIFETIME object exists."
        (with-lifetime ,lifetime ,formula-res))))
 
 
+(defmacro without-dataflow (&body body)
+  "\Cancel out\" any further dataflow wrt. the closest (dynamic scope) \"formula\" (WITH-FORMULA)."
+  `(let ((*target-cell* nil))
+     ,@body))
+
+
 (defun forward-cell (source target)
   (declare (cell source target))
   "Forward changes done to SOURCE to TARGET, unless the change to SOURCE was
