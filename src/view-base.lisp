@@ -6,7 +6,7 @@
 
 
 (defclass view-base ()
-  ((model :reader model-of
+  ((model :reader model-of :initarg :model
           :initform λVnil)
 
    ;; Dataflow: MODEL -> MODEL-OBSERVERS => VIEW-BASE (some widget in SW).
@@ -19,12 +19,8 @@
                      :initform (make-hash-table :test #'equal :weakness :value :synchronized t))))
 
 
-(defmethod initialize-instance :before ((view view-base) &key model)
-  (when model (setf (slot-value view 'model) model)))
-
-
-(defmethod initialize-instance :after ((view view-base) &key model)
-  (when model (setf (model-of view) model)))
+(defmethod initialize-instance :after ((view view-base) &key)
+  (setf (model-of view) (model-of view)))
 
 
 (defgeneric set-model (view-base model)
