@@ -35,9 +35,8 @@ Common base class for all Models."))
   ()
 
   (:documentation "
-A Model which is a subtype of this is a simpler kind of model in that it only
-represents or holds a \"single value\" in some way.
-This means that DEREF or ~ will most likely work as expected on this model."))
+A Model which is a subtype of this is a simpler kind of model in that it only represents or holds a \"single value\"
+in some way. This means that DEREF or ~ will most likely work as expected on this model."))
 
 
 
@@ -45,8 +44,8 @@ This means that DEREF or ~ will most likely work as expected on this model."))
   ((nodes-in-context :initform (make-hash-table :test #'equal :weakness :value :synchronized t)))
 
   (:documentation "
-This usually means this is or represents some sort of container.
-DEREF or ~ will most likely return a list of values, or further models in turn."))
+This usually means this is or represents some sort of container. DEREF or ~ will most likely return a list of Nodes,
+each of which contain some Model (\"value\")."))
 
 
 (defmethod ensure-container ((arg multiple-value-model))
