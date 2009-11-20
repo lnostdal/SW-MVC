@@ -28,6 +28,10 @@
   (:documentation "Assign MODEL as Model for VIEW-BASE."))
 
 
+(defmethod set-model nconc ((view-base view-base) (model model))
+  )
+
+
 (defmethod (setf model-of) (new-model (view view-base))
   (prog1 new-model
     (let ((old-model-observers (model-observers-of view)))
