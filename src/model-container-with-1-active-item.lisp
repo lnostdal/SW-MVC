@@ -45,7 +45,7 @@
 
 (defmethod (setf active-item-of) ((val (eql :closest)) (container container-with-1-active-item))
   (let ((current-node (node-in-context-of container (active-item-of container))))
-    (check-type current-node node)
+    (check-type current-node dlist-node)
     (setf (slot-value container 'active-item)
           (or ~(right-of current-node)
               ~(left-of current-node)))))
