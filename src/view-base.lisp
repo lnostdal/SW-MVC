@@ -9,7 +9,7 @@
   ((model :reader model-of :initarg :model
           :initform λVnil)
 
-   ;; Dataflow: MODEL -> MODEL-OBSERVERS => VIEW-BASE (some widget in SW).
+   ;; Dataflow: MODEL => MODEL-OBSERVERS -> VIEW-BASE (some widget in SW).
    (model-observers :reader model-observers-of
                     :type list
                     :initform nil)

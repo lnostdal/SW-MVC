@@ -13,7 +13,7 @@ This metaclass enables slot access to have CELL-like features.
 
 Initialization of unbound slots has one special property; if initialized with a
 pointer (MK-PTR or #&) pointing to a CELL, that CELL will be used to represent
-the slot value. The λf reader macro can be used to construct a CELL wrapped in
+the slot value. The λF reader macro can be used to construct a CELL wrapped in
 a pointer easily.
 
 If a pointer is to be stored as a value, just wrap it in another pointer.

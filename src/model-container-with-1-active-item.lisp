@@ -15,7 +15,7 @@
                   :initform nil))
 
   (:metaclass mvc-class))
-(export '(container-with-1-active-item active-item-of))
+(export '(container-with-1-active-item active-item-of fallback-item-of))
 
 
 (flet ((%insert (container event)
