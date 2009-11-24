@@ -8,7 +8,11 @@
 (defclass container-with-1-active-item (dlist)
   ((active-item :accessor active-item-of
                 :type (or null model)
-                :initform nil))
+                :initform nil)
+
+   (fallback-item :accessor fallback-item-of
+                  :type (or null model)
+                  :initform nil))
 
   (:metaclass mvc-class))
 (export '(container-with-1-active-item active-item-of))
@@ -24,7 +28,10 @@
          (dolist (object (objects-of event))
            (when (and (not (eq object container))
                       (eq object (active-item-of container)))
-             (setf (active-item-of container) :closest)))))
+             (setf (active-item-of container)
+                   (if-let (fallback-item (fallback-item-of container))
+                     fallback-item
+                     :closest))))))
 
 
   (defmethod initialize-instance :after ((container container-with-1-active-item) &key)
