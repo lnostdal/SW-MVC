@@ -136,6 +136,7 @@
    sync-cells
    sync-back
    add-slot-observers
+   +null-model+
 
    ;; conditions.lisp
    mvc-signal condition-of

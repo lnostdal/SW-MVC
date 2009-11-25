@@ -5,6 +5,10 @@
 (declaim #.(optimizations))
 
 
+(define-variable +null-model+
+    :value λV"+NULL-MODEL+")
+
+
 (defmacro with-formula (lifetime &body body)
   "Creates a new formula (CELL) that'll stick around for at least as long as the
 LIFETIME object exists."
