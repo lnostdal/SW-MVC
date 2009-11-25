@@ -74,7 +74,7 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
                 (mk-vcell '%unbound)))))))
 
 
-(defmethod compute-slots ((class mvc-class))
+#|(defmethod compute-slots ((class mvc-class))
   "This'll ensure that the :TYPE slot option will (somewhat) work."
   (with1 (call-next-method)
     (dolist (eslotd it)
@@ -86,7 +86,7 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
                   at all. |#
                   (typecase value
                     (cell (funcall type-check-fn (value-of value)))
-                    (t (funcall type-check-fn value))))))))))
+                    (t (funcall type-check-fn value))))))))))|#
 
 
 (defmethod (setf slot-value-using-class) :around (new-value (class mvc-class) instance (eslotd mvc-class-eslotd))
