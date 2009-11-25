@@ -12,7 +12,11 @@
 
    (fallback-item :accessor fallback-item-of
                   :type (or null model)
-                  :initform nil))
+                  :initform nil
+                  :documentation "
+The item assigned to this slot will be the new ACTIVE-ITEM if the current ACTIVE-ITEM is the one being REMOVEd.
+If no item is assigned to this slot (NIL), then the :CLOSEST (see the (SETF ACTIVE-ITEM-OF method)) item will be
+selected as the new ACTIVE-ITEM."))
 
   (:metaclass mvc-class))
 (export '(container-with-1-active-item active-item-of fallback-item-of))
