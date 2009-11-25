@@ -38,7 +38,6 @@ Doubly-linked list node with support for dataflow and transactions.")))
          :type (or null dlist-node)
          :initform nil))
 
-  (:default-initargs :key-fn (λ (obj) (value-of obj)))
   (:metaclass mvc-class)
   (:documentation "
 Doubly-linked list with support for dataflow and transactions.")))
