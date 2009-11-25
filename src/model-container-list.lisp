@@ -101,8 +101,12 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
       (fill-dlist it items)))
 
 
-  (defmethod transform-into ((target dlist) (source list))
-    "Transform the TARGET container to match the values in SOURCE by initiating container events vs. TARGET."
+  (defmethod transform-into ((target dlist) (source list) &key
+                             really-remove-fn really-exchange-fn)
+    "Transform the TARGET container to match the values in SOURCE by initiating container events vs. TARGET.
+REALLY-REMOVE-FN is passed a single argument; the Model to (maybe) remove. If one return T from this function the
+Model will be removed, and if NIL is returned the remove operation will be skipped for that Model."
+    (declare ((or function null) really-remove-fn really-exchange-fn))
     (let ((before (mapcar (λ (node) (cons node ~node)) ~target)) ;; (DLIST-NODE . MODEL)* ← DLIST
           (after nil) ;; (DLIST-NODE . MODEL)*
           (to-insert nil)) ;; MODEL*
@@ -122,13 +126,18 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
 
       ;; REMOVE.
       (dolist (removed-element (set-difference before after :test #'eq :key #'cdr))
-        (deletef before removed-element :test #'eq)
-        (remove (cdr removed-element) target))
+        (when (or (not really-remove-fn)
+                  (funcall really-remove-fn (cdr removed-element)))
+          (deletef before removed-element :test #'eq)
+          (remove (cdr removed-element) target)))
 
       ;; EXCHANGE.
       (let ((already-swapped nil))
         (map nil (lambda (before-elt after-elt)
-                   (when (and (not (eq (cdr before-elt) (cdr after-elt)))
+                   (when (and (or (not really-exchange-fn)
+                                  (and (funcall really-exchange-fn (cdr before-elt))
+                                       (funcall really-exchange-fn (cdr after-elt))))
+                              (not (eq (cdr before-elt) (cdr after-elt)))
                               (not (find after-elt already-swapped :test #'eq)))
                      (push before-elt already-swapped)
                      (exchange (car before-elt) (car after-elt))))
@@ -146,8 +155,8 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
             (insert (nreversef to-insert) :in target)))))
 
 
-  (defmethod transform-into ((target dlist) (source dlist))
-    (transform-into target ~~source))) ;; MODEL* ← DLIST-NODE* ← DLIST
+  (defmethod transform-into ((target dlist) (source dlist) &rest args)
+    (apply #'transform-into target ~~source args))) ;; MODEL* ← DLIST-NODE* ← DLIST
 
 
 (defmethod container-remove ((event container-remove) (dlist dlist))
