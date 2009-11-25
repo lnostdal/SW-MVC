@@ -55,6 +55,14 @@ selected as the new ACTIVE-ITEM."))
               ~(left-of current-node)))))
 
 
+(defmethod (setf fallback-item-of) :before ((item model) (container container-with-1-active-item))
+  (assert (with (node-in-context-of container item)
+            (and it (eq container (container-of it))))
+          nil
+          "~A must already be a member of the container ~A for it to be assigned as a FALLBACK-ITEM."
+          item container))
+
+
 
 
 ;;(terpri) (terpri)
