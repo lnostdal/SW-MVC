@@ -5,62 +5,10 @@
 (declaim #.(optimizations))
 
 
-#| TODO: Stuff needs to be moved out of this thing and into a superclass (OBSERVER or something). E.g., stuff like
-CONTAINER-WITH-1-ACTIVE-ITEM uses this, and it's not really a View/Widget and has no need for the VIEWS-IN-CONTEXT-
-OF slot (I think..). |#
-
-
-(defclass view-base ()
-  ((model :reader model-of :initarg :model
-          :initform λVnil)
-
-   ;; Dataflow: MODEL => MODEL-OBSERVERS -> VIEW-BASE (some widget in SW).
-   (model-observers :reader model-observers-of
-                    :type list
-                    :initform nil)
-
-   ;; [SIGNATURE (context-view . model) -> VIEW]
+(defclass view-base (mvc-class-observer)
+  (;; [SIGNATURE (context-view . model) -> VIEW]
    (views-in-context :type hash-table
                      :initform (make-hash-table :test #'equal :weakness :value :synchronized t))))
-
-
-(defmethod initialize-instance :after ((view view-base) &key)
-  (setf (model-of view) (model-of view)))
-
-
-(defgeneric set-model (view-base model)
-  (:method-combination nconc :most-specific-last)
-  (:documentation "Assign MODEL as Model for VIEW-BASE."))
-
-
-(defmethod set-model nconc ((view-base view-base) (model model))
-  )
-
-
-(defmethod (setf model-of) (new-model (view view-base))
-  (prog1 new-model
-    (let ((old-model-observers (model-observers-of view)))
-      (with-object view
-        (setf ¤model-observers (with1 (set-model view new-model)
-                                 (dolist (model-observer it)
-                                   (check-type model-observer cell)))
-              ¤model new-model))
-      (dolist (old-model-observer old-model-observers)
-        (cell-mark-as-dead old-model-observer)))))
-
-
-(defmethod ensure-container ((arg view-base))
-  (with1 (model-of arg)
-    (assert (typep it 'multiple-value-model))))
-
-
-(defmethod ensure-model ((arg view-base))
-  (model-of arg))
-
-
-(add-deref-type 'view-base
-                :get-expansion (λ (arg-sym) `(model-of ,arg-sym))
-                :set-expansion t)
 
 
 (defun view-in-context-of (context-view model &optional create-if-not-found-p)
@@ -101,15 +49,3 @@ or constructed."
     (let ((signature (cons context-view model)))
       (sb-ext:with-locked-hash-table (views-in-context)
         (setf (gethash signature views-in-context) view)))))
-
-
-(defmethod print-object ((view-base view-base) stream)
-  #| NOTE: We're not printing identity here because it is assumed that any sub-class of VIEW-BASE will have its own
-  ID slot or mechanism and print this. |#
-  (print-unreadable-object (view-base stream :type t :identity nil)
-    (print-slots view-base stream)))
-
-
-(defmethod print-slots progn ((view-base view-base) stream)
-  (when (slot-boundp view-base 'model)
-    (format stream " :MODEL ~S" (slot-value view-base 'model))))
