@@ -23,10 +23,12 @@ This returns a list of objects which can have observers interested in knowing ab
 
 
 (defmethod handle ((event event))
-  "This \"handles\" or \"executes\" the EVENT."
-  (dolist (observable (observables-of event))
-    (when (typep observable 'event-router)
-      (event-router-notify observable event))))
+ "This method notifies any observers of (OBSERVABLES-OF ..) the EVENT.
+Methods with :BEFORE and :AFTER qualifiers tend to be the ones actually \"executing\" the event \"locally\".
+I.e., it is useful to signal observers about stuff about to be removed :BEFORE it actually is removed."
+ (dolist (observable (observables-of event))
+   (when (typep observable 'event-router)
+     (event-router-notify observable event))))
 
 
 (defmethod event-router-notify ((event-router event-router) (event event))
