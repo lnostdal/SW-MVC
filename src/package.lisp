@@ -61,6 +61,9 @@
    ;; model-container.lisp
    container
 
+   ;; model-container-null.lisp
+   null-container
+
    ;; model-container-list.lisp
    dlist-node dlist-of parent-of left-of right-of value-of
    dlist head-of tail-of
