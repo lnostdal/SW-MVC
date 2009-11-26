@@ -31,6 +31,17 @@ Common base class for all Models."))
 
 
 
+(defclass proxied-container ()
+  ())
+
+
+(defmethod ensure-container ((proxy proxied-container))
+  "We'd like for both the proxy and the proxied containers to be treated as targets wrt. container
+operations/events."
+  (list proxy (container-of proxy)))
+
+
+
 (defclass single-value-model (model)
   ()
 
