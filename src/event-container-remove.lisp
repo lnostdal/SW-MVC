@@ -35,12 +35,18 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
                            :objects objects))))
 
 
-;; TODO: It'd be nicer to have a separate event for this.
+
+(defclass container-remove-all (container-event)
+  ()
+  (:default-initargs :object +null-model+))
+
+
+(defmethod handle :after ((event container-remove-all))
+  (container-remove-all event (container-of event)))
+
+
 (defun remove-all (container)
   (declare ((or multiple-value-model view-base) container))
-  (let ((objects (with1 ~(model-of container)  ;; [VIEW-BASE ->] CONTAINER -> NODES
-                   (map-into it #'deref it)))) ;; NODES -> OBJECTS
-    (when objects
-      (handle (make-instance 'container-remove
-                             :container container
-                             :objects objects)))))
+  (unless (empty-p-of container)
+    (handle (make-instance 'container-remove-all
+                           :container container))))

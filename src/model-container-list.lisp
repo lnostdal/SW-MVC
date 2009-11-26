@@ -158,20 +158,29 @@ Model will be removed, and if NIL is returned the remove operation will be skipp
     (apply #'transform-into target ~~source args))) ;; MODEL* ← DLIST-NODE* ← DLIST
 
 
-(defmethod container-remove ((event container-remove) (dlist dlist))
-  (dolist (object (objects-of event))
-    (let* ((node (node-in-context-of (container-of event) object))
-           (left (left-of node))
-           (right (right-of node)))
-      (nilf (container-of node)
-            (left-of node)
-            (right-of node))
-      (if left
-          (setf (right-of left) right)
-          (setf (head-of dlist) right))
-      (if right
-          (setf (left-of right) left)
-          (setf (tail-of dlist) left)))))
+(flet ((remove-node (node dlist)
+         (let ((left (left-of node))
+               (right (right-of node)))
+           (nilf (container-of node)
+                 (left-of node)
+                 (right-of node))
+           (if left
+               (setf (right-of left) right)
+               (setf (head-of dlist) right))
+           (if right
+               (setf (left-of right) left)
+               (setf (tail-of dlist) left)))))
+
+
+  (defmethod container-remove ((event container-remove) (dlist dlist))
+    (dolist (object (objects-of event))
+      (remove-node (node-in-context-of (container-of event) object)
+                   dlist)))
+
+
+  (defmethod container-remove-all ((event container-remove-all) (dlist dlist))
+    (dolist (node (list<- dlist))
+      (remove-node node dlist))))
 
 
 (defmethod container-insert ((event container-insert) (dlist dlist))
