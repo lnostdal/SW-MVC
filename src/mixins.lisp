@@ -35,10 +35,9 @@ Common base class for all Models."))
   ())
 
 
-(defmethod ensure-container ((proxy proxied-container))
-  "We'd like for both the proxy and the proxied containers to be treated as targets wrt. container
-operations/events."
-  (list proxy (container-of proxy)))
+(defmethod ensure-container :around ((proxy proxied-container))
+  "We'd like for both the PROXY and the proxied container to be treated as targets wrt. container operations/events."
+  (list proxy (call-next-method)))
 
 
 

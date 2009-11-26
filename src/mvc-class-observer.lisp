@@ -45,8 +45,10 @@
 
 
 (defmethod ensure-container ((observer mvc-class-observer))
-  (with1 (model-of observer)
-    (assert (typep it 'multiple-value-model))))
+  (with (model-of observer)
+    (check-type it container)
+    ;; If it's a proxy we'd like to ensure that we get hold of the proxied container, also.
+    (ensure-container it)))
 
 
 (defmethod ensure-model ((observer mvc-class-observer))
