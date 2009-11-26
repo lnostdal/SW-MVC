@@ -5,6 +5,11 @@
 (declaim #.(optimizations))
 
 
+#| TODO: Stuff needs to be moved out of this thing and into a superclass (OBSERVER or something). E.g., stuff like
+CONTAINER-WITH-1-ACTIVE-ITEM uses this, and it's not really a View/Widget and has no need for the VIEWS-IN-CONTEXT-
+OF slot (I think..). |#
+
+
 (defclass view-base ()
   ((model :reader model-of :initarg :model
           :initform λVnil)

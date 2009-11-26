@@ -19,8 +19,7 @@
 (defgeneric observables-of (event)
   (:method-combination append)
   (:documentation "
-This returns a list of objects which can have observers interested in knowing
-about the event."))
+This returns a list of objects which can have observers interested in knowing about the event."))
 
 
 (defmethod handle ((event event))

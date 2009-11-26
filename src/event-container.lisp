@@ -48,6 +48,5 @@ A list of MODELs to which the event is applied or related to in some way.")))
 (defmethod object-of ((event container-event))
   (let ((objects (objects-of event)))
     (assert (sequence-of-length-p objects 1) nil "
-The use of OBJECT-OF expects that the event in question (~A) will or must
-contain only one element." event)
+The use of OBJECT-OF expects that the event in question (~A) will or must contain only one element." event)
     (first objects)))

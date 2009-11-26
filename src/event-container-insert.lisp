@@ -27,8 +27,8 @@ into some location(s?) in a container."))
                (before nil before-supplied-p)
                (after nil after-supplied-p)
                (in nil in-supplied-p))
-  "If :IN is given OBJECT will be inserted at what is determined to be the most
-suitable or natural position in IN."
+  "If :IN is given OBJECT will be inserted at what is determined to be the most suitable or natural position in the
+container IN."
   (declare (optimize speed))
   (assert (xor before-supplied-p after-supplied-p in-supplied-p) nil
           ":BEFORE, :AFTER or :IN is needed (only one of them). Got: ~S" args)
