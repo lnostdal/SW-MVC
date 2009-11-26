@@ -60,6 +60,7 @@
 
    ;; model-container.lisp
    container
+   empty-p-of
 
    ;; model-container-null.lisp
    null-container
@@ -86,7 +87,7 @@
 
    ;; event-container-remove.lisp
    remove remove-from remove-all
-   container-remove
+   container-remove container-remove-all
 
    ;; event-container-insert.lisp
    insert
