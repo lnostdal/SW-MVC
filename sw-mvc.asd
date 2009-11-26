@@ -41,8 +41,10 @@ has turned into a dataflow thing."
      (:file "event-container-insert")
      (:file "event-container-exchange")
 
+     (:file "model-container-null")
      (:file "model-container-list")
      (:file "model-container-pair")
+     (:file "mvc-class-observer")
      (:file "model-container-with-1-active-item")
      (:file "view-base")
      ))
