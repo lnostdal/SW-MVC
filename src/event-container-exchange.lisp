@@ -15,8 +15,7 @@
 
 
 (defmethod handle :before ((event container-exchange))
-  (dolist (container (containers-of event))
-    (container-exchange event container)))
+  (container-exchange event (container-of event)))
 
 
 (defmethod exchange (object-1 object-2)
