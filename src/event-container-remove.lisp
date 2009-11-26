@@ -13,7 +13,8 @@ This represent various ways of removing an OBJECT from a CONTAINER."))
 
 
 (defmethod handle :after ((event container-remove))
-  (container-remove event (container-of event)))
+  (dolist (container (containers-of event))
+    (container-remove event container)))
 
 
 (defun remove (object container)

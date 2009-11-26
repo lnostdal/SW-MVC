@@ -20,7 +20,8 @@ into some location(s?) in a container."))
 
 
 (defmethod handle :before ((event container-insert))
-  (container-insert event (container-of event)))
+  (dolist (container (containers-of event))
+    (container-insert event container)))
 
 
 (defun insert (object &rest args &key
