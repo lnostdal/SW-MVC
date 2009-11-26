@@ -19,6 +19,10 @@
   (setf (model-of observer) (slot-value observer 'model)))
 
 
+(defmethod empty-p-of ((observer mvc-class-observer))
+  (empty-p-of (model-of observer)))
+
+
 (defgeneric set-model (observer model)
   (:method-combination nconc :most-specific-last)
   (:documentation "Assign MODEL as Model for OBSERVER."))

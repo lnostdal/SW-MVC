@@ -54,6 +54,10 @@ Doubly-linked list with support for dataflow and transactions.")))
                 :set-expansion t)
 
 
+(defmethod empty-p-of ((dlist dlist))
+  (null (head-of dlist)))
+
+
 (defmethod list<- ((dlist dlist) &rest args)
   "Return a snapshot view of DLIST in form of a CONS-based Lisp list.
 If this is done while in a WITH-SYNC context it'll basically mean exclusive

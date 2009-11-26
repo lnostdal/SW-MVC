@@ -9,3 +9,6 @@
   ()
 
   (:metaclass mvc-class))
+
+
+(defgeneric empty-p-of (container))
