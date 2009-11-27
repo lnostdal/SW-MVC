@@ -38,7 +38,7 @@
       (with-object observer
         (setf ¤model-observers (with1 (nconc (set-model observer new-model)
                                              (typecase new-model
-                                               (proxied-container
+                                               (container-proxy
                                                 ;; Combine (NCONC) this SET-MODEL call and the one above.
                                                 (set-model observer (model-of new-model)))
                                                (t nil)))
@@ -47,13 +47,6 @@
               ¤model new-model))
       (dolist (old-model-observer old-model-observers)
         (cell-mark-as-dead old-model-observer)))))
-
-
-(defmethod ensure-container ((observer mvc-class-observer))
-  (with (model-of observer)
-    (check-type it container)
-    ;; If it's a proxy we'd like to ensure that we get hold of the proxied container, also.
-    (ensure-container it)))
 
 
 (defmethod ensure-model ((observer mvc-class-observer))

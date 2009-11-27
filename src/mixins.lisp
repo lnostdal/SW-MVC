@@ -31,13 +31,8 @@ Common base class for all Models."))
 
 
 
-(defclass proxied-container ()
+(defclass container-proxy ()
   ())
-
-
-(defmethod ensure-container :around ((proxy proxied-container))
-  "We'd like for both the PROXY and the proxied container to be treated as targets wrt. container operations/events."
-  (list proxy (call-next-method)))
 
 
 
@@ -56,10 +51,6 @@ in some way. This means that DEREF or ~ will most likely work as expected on thi
   (:documentation "
 This usually means this is or represents some sort of container. DEREF or ~ will most likely return a list of Nodes,
 each of which contain some Model (\"value\")."))
-
-
-(defmethod ensure-container ((arg multiple-value-model))
-  arg)
 
 
 (defun node-in-context-of (container model &optional create-if-not-found-p)

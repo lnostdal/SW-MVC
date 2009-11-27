@@ -5,7 +5,7 @@
 (declaim #.(optimizations))
 
 
-(defclass container-with-1-active-item (proxied-container mvc-class-observer null-container event-router)
+(defclass container-with-1-active-item (container-proxy mvc-class-observer null-container event-router)
   ((active-item :accessor active-item-of
                 :type (or null model)
                 :initform nil)
@@ -23,9 +23,8 @@ selected as the new ACTIVE-ITEM."))
 This works as a proxy for a back-end container Model instance and is used to keep track of which item is \"active\"
 in that container. There may be multiple instances of this class all assigned with the same back-end container Model
 instance. This means that a container may have multiple \"one active items\" given different contexts, e.g., Views.
-This is particularly useful when implementing the \"remove item → FALLBACK-ITEM support\" for a combo-box (SW:COMBO-
-BOX) or list-box widget or similar where you might want different FALLBACK-ITEM behavior for each View (user)
-instance."))
+This is particularly useful when implementing the \"remove item → FALLBACK-ITEM support\" for a SW:COMBO-BOX or
+list-box widget or similar where you might want different FALLBACK-ITEM behavior for each View (user) instance."))
 (export '(container-with-1-active-item active-item-of fallback-item-of))
 
 
@@ -44,7 +43,7 @@ instance."))
          (dolist (object (objects-of event))
            (when (eq object (active-item-of proxy)) ;; Removing currently active object.
              (setf (active-item-of proxy)
-                   (if-let (fallback-item (and (not (eq proxy (proxied-container-of event)))
+                   (if-let (fallback-item (and (not (eq proxy (container-proxy-of event)))
                                                (fallback-item-of proxy)))
                      (progn
                        (assert (not (eq object fallback-item)) nil

@@ -6,13 +6,17 @@
 
 
 (defclass container-event (event)
-  ;; TODO: I don't think this slot belongs here; it is too specific.
-  ((containers :reader containers-of
-               :type list
-               :documentation "
-The CONTAINER instances in question which has an event.")
+  ((container :reader container-of
+              :type container
+              :documentation "
+The CONTAINER instance in question which has an event.")
 
-   ;; TODO: I don't think this slot belongs here; it is too specific.
+   (container-proxy :reader container-proxy-of
+                    :type (or null container-proxy)
+                    :initform nil
+                    :documentation "
+If non-NIL this holds a CONTAINER-PROXY, which in turn points to or holds the same container as the CONTAINER slot.")
+
    (objects :reader objects-of
             :type list
             :documentation "
@@ -21,14 +25,24 @@ A list of MODELs to which the event is applied or related to in some way.")))
 
 (defmethod initialize-instance :after ((event container-event) &key
                                        (container (error ":CONTAINER needed."))
-                                       ;; TODO: (containers ..)
                                        (object nil object-supplied-p)
                                        (objects nil objects-supplied-p))
   (assert (xor object-supplied-p objects-supplied-p) nil
           ":OBJECT or :OBJECTS needed.")
 
-  (setf (slot-value event 'containers)
-        (ensure-list (ensure-container container)))
+  (labels ((assign-containers (container)
+             (etypecase container
+               (container-proxy
+                (setf (slot-value event 'container) (model-of container)
+                      (slot-value event 'container-proxy) container))
+
+               (mvc-class-observer
+                (assign-containers (model-of container)))
+
+               (container
+                (setf (slot-value event 'container) container)))))
+    (assign-containers container))
+
   (setf (slot-value event 'objects)
         (with (cond
                 (object-supplied-p
@@ -42,22 +56,11 @@ A list of MODELs to which the event is applied or related to in some way.")))
                     it))))
 
 
-#| TODO: The two following methods are stupid and fragile. At the moment I cannot think of a better way to do this.
-I cannot make a copy of the EVENT instance and change the CONTAINER slot in the copy and "forward" it by sending it
-to the HANDLE method etc.. |#
-(defmethod container-of ((event container-event))
-  (find-if (lambda (c) (not (typep c 'proxied-container)))
-           (containers-of event)))
-
-
-(defmethod proxied-container-of ((event container-event))
-  (find-if (lambda (c) (typep c 'proxied-container))
-           (containers-of event)))
-
-
 (defmethod observables-of append ((event container-event))
-  (append (containers-of event)
-          (objects-of event)))
+  (with (cons (container-of event) (objects-of event))
+    (if-let (proxy (container-proxy-of event))
+      (cons proxy it)
+      it)))
 
 
 (defmethod object-of ((event container-event))
