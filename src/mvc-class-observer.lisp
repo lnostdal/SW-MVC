@@ -36,7 +36,12 @@
   (prog1 new-model
     (let ((old-model-observers (model-observers-of observer)))
       (with-object observer
-        (setf ¤model-observers (with1 (set-model observer new-model)
+        (setf ¤model-observers (with1 (nconc (set-model observer new-model)
+                                             (typecase new-model
+                                               (proxied-container
+                                                ;; Combine (NCONC) this SET-MODEL call and the one above.
+                                                (set-model observer (model-of new-model)))
+                                               (t nil)))
                                  (dolist (model-observer it)
                                    (check-type model-observer cell)))
               ¤model new-model))
