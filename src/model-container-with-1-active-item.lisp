@@ -12,7 +12,7 @@
 
    (fallback-item :accessor fallback-item-of
                   :type (or null model)
-                  :initform +null-model+ ;; TODO: But this item might not be a part of the container!
+                  :initform nil
                   :documentation "
 The item assigned to this slot will be the new ACTIVE-ITEM if the current ACTIVE-ITEM is the one being REMOVEd.
 If no item is assigned to this slot (NIL), then the :CLOSEST (see the (SETF ACTIVE-ITEM-OF method)) item will be
@@ -96,8 +96,8 @@ instance."))
     ))|#
 
 
-#|
-(with (dlist λV0 λV1)
+
+#|(with (dlist λV0 λV1)
   (let ((p1 (make-instance 'container-with-1-active-item :model it))
         (p2 (make-instance 'container-with-1-active-item :model it)))
     (setf (active-item-of p1) (first ~~it)
@@ -106,5 +106,4 @@ instance."))
     (dbg-prin1 ~(active-item-of p2))
     (remove (active-item-of p1) p2)
     (dbg-prin1 ~(active-item-of p1))
-    (dbg-prin1 ~(active-item-of p2))))
-|#
+    (dbg-prin1 ~(active-item-of p2))))|#
