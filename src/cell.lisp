@@ -202,18 +202,16 @@ STM. |#
                       (cell-notify-targets cell))))))))
 
 
-;; TODO: Inlining causes weird problems wrt. the WITH-CELLS macro.
-#|(eval-now (proclaim '(inline cell-deref)))|#
-(declaim (inline cell-deref))
+(eval-now (proclaim '(inline cell-deref)))
 (defn cell-deref (t ((cell cell)))
   (when *target-cell*
+    ;; When CELL changes, *TARGET-CELL* wants to know about it.
     (cell-add-target-cell cell *target-cell*))
   (if (init-evalp-of cell)
       (ecase (output-evalp-of cell)
         ((or :cached nil) (value-of cell))
         ((t) (cell-execute-formula cell)))
       (cell-execute-formula cell)))
-(declaim (notinline cell-deref))
 
 
 (add-deref-type 'cell
