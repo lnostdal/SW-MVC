@@ -23,7 +23,7 @@
            :initform t)
 
    (accepts-conditions-p :accessor accepts-conditions-p-of
-                         :type (member or nil)
+                         :type (member t nil)
                          :initform nil
                          :documentation "
 If T, the ASSIGN-CONDITION restart will automatically be invoked (NIL is default).")
