@@ -19,6 +19,8 @@ If no item is assigned to this slot (NIL), then the :CLOSEST (see the (SETF ACTI
 selected as the new ACTIVE-ITEM."))
 
   (:metaclass mvc-class)
+  (:default-initargs
+   :model (make-instance 'dlist))
   (:documentation "
 This works as a proxy for a back-end container Model instance and is used to keep track of which item is \"active\"
 in that container. There may be multiple instances of this class all assigned with the same back-end container Model
