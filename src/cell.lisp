@@ -16,8 +16,10 @@
   * Consider inlining functions so stack traces look better.
 |#
 
+(eval-now (defclass single-value-model () ()))
+(eval-now (defclass cell () () (:metaclass stm-class)))
 
-(defclass cell (single-value-model) ;; TODO: EVENT-ROUTER? .. hm ..
+(defclass cell (single-value-model)
   ((alivep :reader alivep-of
            :type (member t nil)
            :initform t)

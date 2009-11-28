@@ -5,15 +5,18 @@
 (declaim #.(optimizations))
 
 
-(defclass event ()
-  ())
+(eval-now
+  (defclass event ()
+    ()))
 
 
-(defclass event-router ()
-  ((event :reader event-of
-          :initform nil))
+(eval-now
+  (defclass event-router ()
+    ((event :reader event-of
+            :type (or event null)
+            :initform nil))
 
-  (:metaclass mvc-class))
+    (:metaclass mvc-class)))
 
 
 (defgeneric observables-of (event)

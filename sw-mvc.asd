@@ -20,17 +20,19 @@ has turned into a dataflow thing."
      (:file "config")
      (:file "read-macros")
      (:file "bootstrap")
-     (:file "bootstrap-classes")
 
      (:file "specials")
      (:file "symbol-macros")
-     (:file "model-common")
-     (:file "mvc-class")
-     (:file "mixins")
      (:file "cell")
+     (:file "mvc-class")
+     (:file "bootstrap-classes")
+     (:file "mixins")
+     (:file "model-common")
+
 
      (:file "input-translators")
      (:file "util")
+     (:file "mvc-class-observer")
      (:file "model-boolean")
      (:file "model-container")
 
@@ -44,7 +46,6 @@ has turned into a dataflow thing."
      (:file "model-container-null")
      (:file "model-container-list")
      (:file "model-container-pair")
-     (:file "mvc-class-observer")
      (:file "model-container-with-1-active-item")
      (:file "view-base")
      ))

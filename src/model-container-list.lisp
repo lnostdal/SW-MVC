@@ -5,7 +5,8 @@
 (declaim #.(optimizations))
 
 
-(eval-now
+(eval-now (defclass dlist-node () () (:metaclass mvc-class)))
+
 (defclass dlist-node (node single-value-model)
   ((left :accessor left-of :initarg :left
          :type (or null dlist-node)
@@ -21,14 +22,13 @@
 
   (:metaclass mvc-class)
   (:documentation "
-Doubly-linked list node with support for dataflow and transactions.")))
+Doubly-linked list node with support for dataflow and transactions."))
 
 
 (defmethod touch ((dlist-node dlist-node))
   (container-of dlist-node))
 
 
-(eval-now
 (defclass dlist (container event-router)
   ((head :accessor head-of :initarg :head
          :type (or null dlist-node)
@@ -40,7 +40,7 @@ Doubly-linked list node with support for dataflow and transactions.")))
 
   (:metaclass mvc-class)
   (:documentation "
-Doubly-linked list with support for dataflow and transactions.")))
+Doubly-linked list with support for dataflow and transactions."))
 
 
 (defmethod print-object ((dlist-node dlist-node) stream)
@@ -175,8 +175,13 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
 
 
   (defun dlist (&rest items)
+    "Create an MODEL-CONTAINER-LIST instance (container data structure). If any item in ITEMS is not a sub-type of
+MODEL it will be automatically wrapped in a CELL with \"value semantics\" (MK-VCELL)."
     (with1 (make-instance 'dlist)
-      (fill-dlist it items)))
+      (fill-dlist it (mapcar (λ (i) (typecase i
+                                      (model i)
+                                      (t λVi)))
+                             items))))
 
 
   (defmethod transform-into ((target dlist) (source list) &key

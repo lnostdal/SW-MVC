@@ -82,3 +82,12 @@ This tends to mean FORMULA instances stored in CLOS slots of MVC-CLASS classes."
 (defmacro setf-formula-of (place new-value)
   `(cell-set-formula (cell-of ,place) ,new-value))
 (defsetf formula-of setf-formula-of)
+
+
+(defmacro pulse (place &optional (value nil value-supplied-p))
+  "Sets PLACE to T (or VALUE if supplied), then NIL.
+Used for dataflow \"event pulses\"."
+  `(prog1 ,(if value-supplied-p
+               `(setf ,place ,value)
+               `(tf ,place))
+          (nilf ,place)))

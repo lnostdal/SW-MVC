@@ -43,12 +43,14 @@ This will also work for accessor methods (i.e., not just SLOT-VALUE)."))
   nil)
 
 
-(defclass mvc-class-dslotd (standard-direct-slot-definition)
-  ())
+(eval-now
+  (defclass mvc-class-dslotd (standard-direct-slot-definition)
+    ()))
 
 
-(defclass mvc-class-eslotd (standard-effective-slot-definition)
-  ())
+(eval-now
+  (defclass mvc-class-eslotd (standard-effective-slot-definition)
+    ()))
 
 
 (defmethod direct-slot-definition-class ((class mvc-class) &key)

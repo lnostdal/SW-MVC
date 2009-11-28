@@ -53,6 +53,7 @@ Any (direct) change to BACK is forwarded to FRONT."
 FN is a function accepting 3 arguments; INSTANCE, ESLOTD and NEW-VALUE.
 A list of CELL instances is returned. Their lifetime (GC) is bound to INSTANCE. CELL-MARK-AS-DEAD can be used to
 stop observing."
+  (declare (function fn))
   (let ((class (class-of instance)))
     (check-type class mvc-class)
     (collecting
