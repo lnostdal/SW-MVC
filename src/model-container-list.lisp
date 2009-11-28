@@ -85,6 +85,81 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
   (make-instance 'dlist-node :container container :value model))
 
 
+(flet ((remove-node (node dlist)
+         (let ((left (left-of node))
+               (right (right-of node)))
+           (nilf (container-of node)
+                 (left-of node)
+                 (right-of node))
+           (if left
+               (setf (right-of left) right)
+               (setf (head-of dlist) right))
+           (if right
+               (setf (left-of right) left)
+               (setf (tail-of dlist) left)))))
+
+
+  (defmethod container-remove ((event container-remove) (dlist dlist))
+    (dolist (object (objects-of event))
+      (remove-node (node-in-context-of (container-of event) object)
+                   dlist)))
+
+
+  (defmethod container-remove-all ((event container-remove-all) (dlist dlist))
+    (dolist (node (list<- dlist))
+      (remove-node node dlist))))
+
+
+(defmethod container-insert ((event container-insert) (dlist dlist))
+  (let ((relative-position (relative-position-of event))
+        (relative-node (relative-node-of event)))
+    (dolist (dlist-node (mapcar (λ (object) (node-in-context-of dlist object t))
+                                (objects-of event)))
+      (ecase relative-position
+        (:before
+         (with-slots (head tail) dlist
+           (with-slots (left right) dlist-node
+             (setf left (left-of relative-node)
+                   right relative-node)
+             (if (left-of relative-node)
+                 (setf (right-of (left-of relative-node)) dlist-node
+                       (left-of relative-node) dlist-node)
+                 (setf head dlist-node
+                       (left-of relative-node) dlist-node)))))
+
+        (:after
+         (with-slots (head tail) dlist
+           (with-slots (left right) dlist-node
+             (setf left relative-node
+                   right (right-of relative-node))
+             (if (right-of relative-node)
+                 (setf (left-of (right-of relative-node)) dlist-node
+                       (right-of relative-node) dlist-node)
+                 (setf tail dlist-node
+                       (right-of relative-node) dlist-node)))))
+
+        ((nil)
+         (with-slots (head tail) dlist
+           (with-slots (left) dlist-node
+             (if tail
+                 (setf left tail
+                       (right-of tail) dlist-node
+                       tail dlist-node)
+                 (setf head dlist-node
+                       tail dlist-node))))))
+
+      (setf relative-position :after
+            relative-node dlist-node))))
+
+
+(defmethod container-exchange ((event container-exchange) (dlist dlist))
+  (let* ((object-a (target-position-of event))
+         (object-b (object-of event))
+         (a-value (value-of object-a)))
+    (setf (value-of object-a) (value-of object-b)
+          (value-of object-b) a-value)))
+
+
 (flet ((fill-dlist (dlist items)
          (when items
            (dolist (item items)
@@ -160,78 +235,3 @@ Model will be removed, and if NIL is returned the remove operation will be skipp
 
   (defmethod transform-into ((target dlist) (source dlist) &rest args)
     (apply #'transform-into target ~~source args))) ;; MODEL* ← DLIST-NODE* ← DLIST
-
-
-(flet ((remove-node (node dlist)
-         (let ((left (left-of node))
-               (right (right-of node)))
-           (nilf (container-of node)
-                 (left-of node)
-                 (right-of node))
-           (if left
-               (setf (right-of left) right)
-               (setf (head-of dlist) right))
-           (if right
-               (setf (left-of right) left)
-               (setf (tail-of dlist) left)))))
-
-
-  (defmethod container-remove ((event container-remove) (dlist dlist))
-    (dolist (object (objects-of event))
-      (remove-node (node-in-context-of (container-of event) object)
-                   dlist)))
-
-
-  (defmethod container-remove-all ((event container-remove-all) (dlist dlist))
-    (dolist (node (list<- dlist))
-      (remove-node node dlist))))
-
-
-(defmethod container-insert ((event container-insert) (dlist dlist))
-  (let ((relative-position (relative-position-of event))
-        (relative-node (relative-node-of event)))
-    (dolist (dlist-node (mapcar (λ (object) (node-in-context-of dlist object t))
-                                (objects-of event)))
-      (ecase relative-position
-        (:before
-         (with-slots (head tail) dlist
-           (with-slots (left right) dlist-node
-             (setf left (left-of relative-node)
-                   right relative-node)
-             (if (left-of relative-node)
-                 (setf (right-of (left-of relative-node)) dlist-node
-                       (left-of relative-node) dlist-node)
-                 (setf head dlist-node
-                       (left-of relative-node) dlist-node)))))
-
-        (:after
-         (with-slots (head tail) dlist
-           (with-slots (left right) dlist-node
-             (setf left relative-node
-                   right (right-of relative-node))
-             (if (right-of relative-node)
-                 (setf (left-of (right-of relative-node)) dlist-node
-                       (right-of relative-node) dlist-node)
-                 (setf tail dlist-node
-                       (right-of relative-node) dlist-node)))))
-
-        ((nil)
-         (with-slots (head tail) dlist
-           (with-slots (left) dlist-node
-             (if tail
-                 (setf left tail
-                       (right-of tail) dlist-node
-                       tail dlist-node)
-                 (setf head dlist-node
-                       tail dlist-node))))))
-
-      (setf relative-position :after
-            relative-node dlist-node))))
-
-
-(defmethod container-exchange ((event container-exchange) (dlist dlist))
-  (let* ((object-a (target-position-of event))
-         (object-b (object-of event))
-         (a-value (value-of object-a)))
-    (setf (value-of object-a) (value-of object-b)
-          (value-of object-b) a-value)))
