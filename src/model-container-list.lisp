@@ -225,7 +225,7 @@ Model will be removed, and if NIL is returned the remove operation will be skipp
                               (not (eq (cdr before-elt) (cdr after-elt)))
                               (not (find after-elt already-swapped :test #'eq)))
                      (push before-elt already-swapped)
-                     (exchange (car before-elt) (car after-elt))))
+                     (exchange (cdr before-elt) (cdr after-elt))))
              before
              after))
 
