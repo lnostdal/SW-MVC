@@ -53,10 +53,10 @@ This usually means this is or represents some sort of container. DEREF or ~ will
 each of which contain some Model (\"value\")."))
 
 
-(defun node-in-context-of (container model &optional create-if-not-found-p)
+(defun node-in-context-of (container model &optional create-if-not-found-p must-find-node-p)
   (declare (multiple-value-model container)
            (model model)
-           ((member t nil) create-if-not-found-p))
+           ((member t nil) create-if-not-found-p must-find-node-p))
   (with-slots (nodes-in-context) container
     (let ((signature (cons container model)))
       (sb-ext:with-locked-hash-table (nodes-in-context)
@@ -66,7 +66,9 @@ each of which contain some Model (\"value\")."))
               (values node t)
               (if create-if-not-found-p
                   (values (node-constructor container model) :created)
-                  (values nil nil))))))))
+                  (if must-find-node-p
+                      (error "No NODE found for ~S in ~S." model container)
+                      (values nil nil)))))))))
 
 
 (defun (setf node-in-context-of) (node container model)
