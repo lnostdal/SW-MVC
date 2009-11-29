@@ -28,9 +28,6 @@
   (:documentation "Assign MODEL as Model for OBSERVER."))
 
 
-(defmethod set-model nconc ((observer mvc-class-observer) (model model))
-  )
-
 
 (defmethod (setf model-of) (new-model (observer mvc-class-observer))
   (prog1 new-model
