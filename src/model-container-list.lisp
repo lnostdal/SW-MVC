@@ -96,7 +96,8 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
                (setf (head-of dlist) right))
            (if right
                (setf (left-of right) left)
-               (setf (tail-of dlist) left)))))
+               (setf (tail-of dlist) left)))
+         (values)))
 
 
   (defmethod container-remove ((event container-remove) (dlist dlist))
