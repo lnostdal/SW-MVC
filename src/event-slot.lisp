@@ -27,6 +27,10 @@ This works in collaboration with ADD-SLOT-OBSERVERS (util.lisp)."))
         (ensure-model object)))
 
 
+(defmethod objects-of ((event slot-event))
+  (ensure-list (object-of event)))
+
+
 (defmethod observables-of append ((event slot-event))
   (list (context-of event)))
 
