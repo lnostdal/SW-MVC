@@ -187,12 +187,20 @@ MODEL it will be automatically wrapped in a CELL with \"value semantics\" (MK-VC
 
 
   (defmethod transform-into ((target dlist) (source list) &key
+                             only-consider-fn
                              really-remove-fn really-exchange-fn)
     "Transform the TARGET container to match the values in SOURCE by initiating container events vs. TARGET.
 REALLY-REMOVE-FN is passed a single argument; the Model to (maybe) remove. If one return T from this function the
 Model will be removed, and if NIL is returned the remove operation will be skipped for that Model."
-    (declare ((or function null) really-remove-fn really-exchange-fn))
-    (let ((before (mapcar (λ (node) (cons node ~node)) ~target)) ;; (DLIST-NODE . MODEL)* ← DLIST
+    (declare ((or function null) only-consider-fn really-remove-fn really-exchange-fn))
+    (let (;; (DLIST-NODE . MODEL)* ← DLIST
+          (before (mapcan (lambda (node)
+                            (let ((model (value-of node)))
+                              (if only-consider-fn
+                                  (when (funcall only-consider-fn model)
+                                    (list (cons node model)))
+                                  (list (cons node model)))))
+                          ~target))
           (after nil) ;; (DLIST-NODE . MODEL)*
           (to-insert nil)) ;; MODEL*
       (declare (list before after to-insert))
