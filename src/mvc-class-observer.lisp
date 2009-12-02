@@ -28,7 +28,6 @@
   (:documentation "Assign MODEL as Model for OBSERVER."))
 
 
-
 (defmethod (setf model-of) (new-model (observer mvc-class-observer))
   (prog1 new-model
     (let ((old-model-observers (model-observers-of observer)))

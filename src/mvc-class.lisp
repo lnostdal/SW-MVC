@@ -5,6 +5,9 @@
 (declaim #.(optimizations))
 
 
+;; TODO: It'd be great if partially constructed instances of classes of MVC-CLASS would have all their "slot CELLs" marked as dead. A careful exception here is probably slots represented by externally-passed-to-us (AS-FORMULA or λF) CELL instances.
+
+
 (defclass mvc-class (standard-class locked-object)
   ()
 

@@ -5,3 +5,6 @@
 
 
   Add automatic parallelism support.
+
+
+  It's becoming clear that a WITH-FORMULA + WITHOUT-DATAFLOW combo usually with a LET in between is becoming sort of a repeated pattern. Though, this might just be a sign of having slots being backed by CELLs by default is too broad or aggressive; things fire in unpredictable ways and directions.
