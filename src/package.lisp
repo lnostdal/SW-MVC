@@ -7,6 +7,6 @@
 
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (unintern 'insert)
-  (unintern 'remove)
-  (unintern 'exchange))
+  (shadow 'insert)
+  (shadow 'remove)
+  (shadow 'exchange))
