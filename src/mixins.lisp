@@ -62,7 +62,12 @@ each of which contain some Model (\"value\")."))
       (sb-ext:with-locked-hash-table (nodes-in-context)
         (multiple-value-bind (node found-p)
             (gethash signature nodes-in-context)
-          (if found-p
+          (if (and found-p
+                   #| We do this back-flip since there's no way to deterministically remove a NODE from the
+                   hash-table. |#
+                   (container-of node) (not (assert (eq container (container-of node)) nil
+                                                    "Ouch. ~S found to be a NODE for ~S in in ~S is (was?) really part of ~S"
+                                                    node model container (container-of node))))
               (values node t)
               (if create-if-not-found-p
                   (values (node-constructor container model) :created)
