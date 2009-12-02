@@ -48,6 +48,8 @@ has turned into a dataflow thing."
      (:file "model-container-pair")
      (:file "model-container-with-1-active-item")
      (:file "view-base")
+
+     (:file "package-export")
      ))
 
 
