@@ -56,4 +56,3 @@
                             (declare (ignore char arg))
                             `(cons '%formula (mk-icell ,(read stream)))))
   )
-(export 'sw-mvc)

@@ -14,7 +14,6 @@
           :initform nil))
 
   (:metaclass mvc-class))
-(export '(pair left left-of right right-of))
 
 
 (add-deref-type 'pair
@@ -42,4 +41,3 @@
 
 (defun mk-pair (&optional left right)
   (make-instance 'pair :left left :right right))
-(export 'mk-pair)
