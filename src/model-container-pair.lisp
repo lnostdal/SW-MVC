@@ -1,7 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package sw-mvc)
-(in-readtable sw-mvc)
+(in-package :sw-mvc)
+=common-headers=
 
 
 (defclass pair (container event-router)

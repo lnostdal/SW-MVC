@@ -16,10 +16,12 @@ has turned into a dataflow thing."
     :serial t
     :components
     ((:file "package")
-     (:file "conditions")
      (:file "config")
-     (:file "read-macros")
      (:file "bootstrap")
+     (:file "read-macros")
+
+     (:file "conditions")
+     (:file "bootstrap-macros")
 
      (:file "specials")
      (:file "symbol-macros")

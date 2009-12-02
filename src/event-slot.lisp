@@ -1,8 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package sw-mvc)
-(in-readtable sw-mvc)
-(declaim #.(optimizations))
+(in-package :sw-mvc)
+=common-headers=
 
 
 (defclass slot-event (event)

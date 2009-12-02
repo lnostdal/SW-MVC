@@ -1,7 +1,6 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package sw-mvc)
-(declaim #.(optimizations))
+(in-package :sw-mvc)
 
 
 (defreadtable sw-mvc

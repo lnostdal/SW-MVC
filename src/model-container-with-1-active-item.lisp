@@ -1,8 +1,7 @@
 ;;;; http://nostdal.org/ ;;;;
 
-(in-package sw-mvc)
-(in-readtable sw-mvc)
-(declaim #.(optimizations))
+(in-package :sw-mvc)
+=common-headers=
 
 
 (defclass container-with-1-active-item (container-proxy mvc-class-observer null-container event-router)
