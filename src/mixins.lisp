@@ -6,8 +6,9 @@
 
 
 (defclass node ()
-  ((container :accessor container-of
-              :initform nil))
+  ((container :accessor container-of :initarg :container
+              :type (or container null)
+              :initform (error ":CONTAINER needed.")))
 
   (:metaclass mvc-class)
   (:documentation "

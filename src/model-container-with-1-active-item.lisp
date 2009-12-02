@@ -72,8 +72,7 @@ list-box widget or similar where you might want different FALLBACK-ITEM behavior
 
 (defmethod (setf fallback-item-of) (item (proxy container-with-1-active-item))
   (when item
-    (assert (with (node-in-context-of ~proxy item)
-              (check-type it node)
+    (assert (with (node-in-context-of ~proxy item nil t)
               (eq ~proxy (container-of it)))
             nil
             "~A must already be a member of the container ~A for it to be assigned as a FALLBACK-ITEM."
