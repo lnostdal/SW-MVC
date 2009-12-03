@@ -60,3 +60,29 @@ stop observing."
         (when (typep eslotd eslotd-type)
           (collect (with-formula instance
                      (funcall fn instance (slot-definition-name eslotd)))))))))
+
+
+(defmacro with-observer (binding-event &body handler)
+"Lifetime of HANDLER will be based on the object mentioned in BINDING-EVENT.
+
+Syntax:
+
+  (with-observer (on-click-of some-button)
+    ..)
+
+  (with-observer ((value (on-enterpress-of some-text-input)))
+    ..)"
+  (with-gensyms (instance)
+    (let ((binding) (event))
+      (if (listp (car binding-event))
+          (progn
+            (setf binding (caar binding-event))
+            (setf event (cadar binding-event)))
+          (progn
+            (setf binding (gensym "EVENT-ARGS"))
+            (setf event binding-event)))
+      `(let ((,instance ,(second event)))
+         (with-formula ,instance
+           (when-let ((,binding (,(first event) ,instance))) ;; This is a bit paranoid, but ok.
+             (without-dataflow
+               ,@handler)))))))
