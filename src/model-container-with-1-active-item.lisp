@@ -26,7 +26,6 @@ in that container. There may be multiple instances of this class all assigned wi
 instance. This means that a container may have multiple \"one active items\" given different contexts, e.g., Views.
 This is particularly useful when implementing the \"remove item → FALLBACK-ITEM support\" for a SW:COMBO-BOX or
 list-box widget or similar where you might want different FALLBACK-ITEM behavior for each View (user) instance."))
-(export '(container-with-1-active-item active-item-of fallback-item-of))
 
 
 (defmethod container-of ((proxy container-with-1-active-item))
@@ -62,8 +61,7 @@ list-box widget or similar where you might want different FALLBACK-ITEM behavior
 
 
 (defmethod (setf active-item-of) ((val (eql :closest)) (proxy container-with-1-active-item))
-  (let ((current-node (node-in-context-of ~proxy (active-item-of proxy))))
-    (check-type current-node node)
+  (let ((current-node (node-in-context-of ~proxy (active-item-of proxy) nil t)))
     (setf (active-item-of proxy)
           (or ~(right-of current-node)
               ~(left-of current-node)))))
