@@ -83,6 +83,6 @@ Syntax:
             (setf event binding-event)))
       `(let ((,instance ,(second event)))
          (with-formula ,instance
-           (when-let ((,binding (,(first event) ,instance))) ;; This is a bit paranoid, but ok.
+           (let ((,binding (,(first event) ,instance))) ;; This is a bit paranoid, but ok.
              (without-dataflow
                ,@handler)))))))
