@@ -110,6 +110,6 @@ constructed CELL instance."
            (function mk-input-handler-fn))
   (let ((model (model-of view)))
     (setf (model-of view)
-          (with1 #λ~model
+          (with1 λI~model
             (forward-cell (funcall mk-input-handler-fn it)
                           model)))))
