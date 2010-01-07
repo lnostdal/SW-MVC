@@ -77,13 +77,19 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
     (cell-execute-formula cell)))
 
 
-#| TODO: This is currently a bad idea; it will currently cause debugging (stack-traces) to have side-effects wrt.
-STM. |#
-#|(defmethod print-object ((cell cell) stream)
-  (print-unreadable-object (cell stream :type t :identity t)
-    (if (slot-boundp cell 'value)
-        (prin1 (value-of cell) stream)
-        (prin1 :not-bound stream))))|#
+(defmethod print-object ((cell cell) stream)
+  (let ((value-eslotd (find 'value (class-slots (class-of cell))
+                            :key #'slot-definition-name)))
+    (print-unreadable-object (cell stream :type t :identity t)
+      (format stream ":VALUE ~S"
+              ;; TODO: See the TODO for (PRINT-OBJECT REF T) in sw-stm/src/ref.lisp.
+              (if *current-transaction*
+                  (multiple-value-bind (value found-p)
+                      (gethash (cons cell value-eslotd) (tr-equal-object-data *current-transaction*))
+                    (if found-p
+                        (car value)
+                        (standard-instance-access cell (slot-definition-location value-eslotd))))
+                  (standard-instance-access cell (slot-definition-location value-eslotd)))))))
 
 
 (defn cell-execute-formula (t ((cell cell)))
