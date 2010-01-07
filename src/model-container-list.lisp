@@ -105,7 +105,6 @@ access to the entire DLIST for the duration of the WITH-SYNC form."
                    dlist)))
 
 
-
   (defmethod container-remove-all ((event container-remove-all) (dlist dlist))
     (dolist (node (list<- dlist))
       (remove-node node dlist))))
