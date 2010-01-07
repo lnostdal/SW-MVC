@@ -5,7 +5,7 @@
 (declaim (optimize (speed 0) (safety 2)))
 
 
-(defclass test-model ()
+(defclass test-model (model)
   ((x :initarg :x
       :initform λF0))
 
@@ -18,7 +18,7 @@
 
 
 (defmethod set-model nconc ((view test-view) (model test-model))
-  (list λI(funcall (slot-value view  'x)
+  (list λI(funcall (slot-value view 'x)
                    (slot-value model 'x))))
 
 
