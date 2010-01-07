@@ -49,15 +49,8 @@
 
 
 (add-deref-type 'mvc-class-observer
-                :get-expansion (λ (arg-sym) `(model-of ,arg-sym))
+                :get-expansion (lambda (arg-sym) `(model-of ,arg-sym))
                 :set-expansion t)
-
-
-(defmethod print-object ((observer mvc-class-observer) stream)
-  #| NOTE: We're not printing identity here because it is assumed that any sub-class of VIEW-BASE will have its own
-  ID slot or mechanism and print this. |#
-  (print-unreadable-object (observer stream :type t :identity nil)
-    (print-slots observer stream)))
 
 
 (defmethod print-slots progn ((observer mvc-class-observer) stream)
