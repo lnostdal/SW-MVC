@@ -196,7 +196,6 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
   (if (member cell *source-cells*)
       (values (value-of cell) t)
       (let ((*source-cells* (cons cell *source-cells*)))
-(eval-now (proclaim '(inline cell-deref)))
         (let-spec (*after-event-pulse-fns* nil)
           (values new-value
                   (let ((assign-p t))
@@ -225,6 +224,7 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
                             (funcall after-event-pulse-fn)))))))))))
 
 
+(eval-now (proclaim '(inline cell-deref)))
 (defn cell-deref (t ((cell cell)))
   (when *target-cell*
     ;; When CELL changes, *TARGET-CELL* wants to know about it.
