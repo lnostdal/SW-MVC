@@ -1,0 +1,18 @@
+(in-package :sw-mvc)
+(in-readtable sw-mvc)
+
+
+(defun pulse-callback-coordination ()
+  (let* ((x λV2)
+         (square λI(prog1 (* ~x ~x)
+                     (pprint "square: now")
+                     (add-after-event-pulse-fn (lambda () (pprint "square: after")) )))
+         (square-square λI(prog1 (* ~square ~square)
+                            (pprint "square-square: now")
+                            (add-after-event-pulse-fn (lambda () (pprint "square-square: after"))))))
+    (terpri)
+    (pprint (list ~x ~square ~square-square))
+    (terpri)
+    (incf ~x)
+    (terpri)
+    (pprint (list ~x ~square ~square-square))))

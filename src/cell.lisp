@@ -4,12 +4,6 @@
 =common-headers=
 
 
-(define-variable *after-event-pulse-fns*
-    :doc "Functions to be executed after an entire \"event pulse\" has been completed.
-The functions are executed in the order in which they where added.")
-
-
-
 #| TODO:
   * This thing has grown in size. Some simpler CELL super types should probably be added.
 
@@ -20,6 +14,17 @@ The functions are executed in the order in which they where added.")
 
   * Consider inlining functions so stack traces look better.
 |#
+
+
+(define-variable *after-event-pulse-fns*
+    :doc "Functions to be executed after an entire \"event pulse\" has been completed.
+The functions are executed in the order in which they where added.")
+
+
+(defun add-after-event-pulse-fn (fn)
+  (push fn *after-event-pulse-fns*))
+
+
 
 (eval-now (defclass single-value-model () ()))
 (eval-now (defclass cell () () (:metaclass stm-class)))
