@@ -4,6 +4,11 @@
 =common-headers=
 
 
+(define-variable *after-event-pulse-fns*
+    :doc "Functions to be executed after an entire \"event pulse\" has been completed.
+The functions are executed in the order in which they where added.")
+
+
 
 #| TODO:
   * This thing has grown in size. Some simpler CELL super types should probably be added.
@@ -74,7 +79,8 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 
 (defmethod initialize-instance :after ((cell cell) &key)
   (when (or (input-evalp-of cell) (init-evalp-of cell))
-    (cell-execute-formula cell)))
+    (let ((*after-event-pulse-fns* nil)) ;; Throw away.
+      (cell-execute-formula cell))))
 
 
 (defmethod print-object ((cell cell) stream)
@@ -187,30 +193,35 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
   (if (member cell *source-cells*)
       (values (value-of cell) t)
       (let ((*source-cells* (cons cell *source-cells*)))
-        (values new-value
-                (let ((assign-p t))
-                  (restart-case
-                      (handler-case (funcall (truly-the function (equal-p-fn-of cell))
-                                             (value-of cell) new-value)
-                        (error (c)
-                          (signal 'mvc-cell-assign-signal
-                                  :condition c
-                                  :new-value new-value
-                                  :format-control "SW-MVC: The EQUAL-P test for ~A failed."
-                                  :format-arguments (list cell))
-                          new-value))
-                    (continue ()
-                      :report "SW-MVC: (EQUAL-P test) Assign the new value.")
-                    (skip-cell ()
-                      :report  "SW-MVC: (EQUAL-P test) Do not assign the new value."
-                      (nilf assign-p)))
-                  (when assign-p
-                    (prog1 t
-                      (setf (value-of cell) new-value)
-                      (cell-notify-targets cell))))))))
-
-
 (eval-now (proclaim '(inline cell-deref)))
+        (let-spec (*after-event-pulse-fns* nil)
+          (values new-value
+                  (let ((assign-p t))
+                    (restart-case
+                        (handler-case (funcall (truly-the function (equal-p-fn-of cell))
+                                               (value-of cell)
+                                               new-value)
+                          (error (c)
+                            (signal 'mvc-cell-assign-signal
+                                    :condition c
+                                    :new-value new-value
+                                    :format-control "SW-MVC: The EQUAL-P test for ~A failed."
+                                    :format-arguments (list cell))
+                            new-value))
+                      (continue ()
+                        :report "SW-MVC: (EQUAL-P test) Assign the new value.")
+                      (skip-cell ()
+                        :report  "SW-MVC: (EQUAL-P test) Do not assign the new value."
+                        (nilf assign-p)))
+                    (when assign-p
+                      (prog1 t
+                        (setf (value-of cell) new-value)
+                        (cell-notify-targets cell)
+                        (when (= (length *source-cells*) 2)
+                          (dolist (after-event-pulse-fn (reverse *after-event-pulse-fns*))
+                            (funcall after-event-pulse-fn)))))))))))
+
+
 (defn cell-deref (t ((cell cell)))
   (when *target-cell*
     ;; When CELL changes, *TARGET-CELL* wants to know about it.
