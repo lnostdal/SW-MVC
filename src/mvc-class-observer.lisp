@@ -6,6 +6,7 @@
 
 (defclass mvc-class-observer ()
   ((model :reader model-of :initarg :model
+          :type model
           :initform λVnil)
 
    ;; Dataflow: MODEL => MODEL-OBSERVERS -> VIEW-BASE (some widget in SW).
@@ -28,6 +29,9 @@
 
 
 (defmethod (setf model-of) (new-model (observer mvc-class-observer))
+  (funcall (slot-definition-type-check-function (moptilities:get-slot-definition (class-of observer)
+                                                                                 'model))
+           new-model)
   (prog1 new-model
     (let ((old-model-observers (model-observers-of observer)))
       (with-object observer
