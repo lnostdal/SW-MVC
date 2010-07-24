@@ -84,5 +84,6 @@ Syntax:
       `(let ((,instance ,(second event)))
          (with-formula ,instance
            (let ((,binding (,(first event) ,instance))) ;; This is a bit paranoid, but ok.
+             (declare (ignorable ,binding))
              (without-dataflow
                ,@handler)))))))

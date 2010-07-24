@@ -34,5 +34,5 @@
   (:dispatch-macro-char #\λ #\F
                         #'(lambda (stream char arg)
                             (declare (ignore char arg))
-                            `(cons '%formula (mk-icell ,(read stream)))))
+                            `(as-formula (mk-icell ,(read stream)))))
   )
