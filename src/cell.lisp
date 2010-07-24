@@ -172,7 +172,10 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 
 (defn cell-notify-targets (null ((cell cell)))
   "Re-evaluate target-cells which depend on the value of CELL."
-  (let ((target-cells (target-cells-of cell)))
+  (let ((target-cells (handler-case (target-cells-of cell)
+                        (unbound-slot ()
+                          (cell-mark-as-dead cell)
+                          (return-from cell-notify-targets)))))
     (dolist (target-cell (sb-ext:with-locked-hash-table (target-cells)
                            (hash-table-values target-cells)))
       #+:sw-mvc-debug (assert (not (eq target-cell cell)))
