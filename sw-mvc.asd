@@ -69,5 +69,6 @@ has turned into a dataflow thing."
      (:file "model-view-connection")
      (:file "dlist-test")
      (:file "container-of")
+     (:file "cell-equal-p-fn-test")
      ))
    ))

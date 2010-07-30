@@ -205,9 +205,10 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
           (values new-value
                   (let ((assign-p t))
                     (restart-case
-                        (handler-case (funcall (truly-the function (equal-p-fn-of cell))
-                                               (value-of cell)
-                                               new-value)
+                        (handler-case (setf assign-p
+                                            (not (funcall (truly-the function (equal-p-fn-of cell))
+                                                          (value-of cell)
+                                                          new-value)))
                           (error (c)
                             (signal 'mvc-cell-assign-signal
                                     :condition c
