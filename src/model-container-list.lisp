@@ -53,6 +53,10 @@ Doubly-linked list with support for dataflow and transactions."))
                 :set-expansion t)
 
 
+(defmethod mderef ((dlist-node dlist-node))
+  (slot-value dlist-node 'value))
+
+
 (defmethod empty-p-of ((dlist dlist))
   (null (head-of dlist)))
 

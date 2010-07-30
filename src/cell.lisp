@@ -230,7 +230,7 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
                             (funcall after-event-pulse-fn)))))))))))
 
 
-(eval-now (proclaim '(inline cell-deref)))
+#|(eval-now (proclaim '(inline cell-deref)))|#
 (defn cell-deref (t ((cell cell)))
   (when *target-cell*
     ;; When CELL changes, *TARGET-CELL* wants to know about it.
