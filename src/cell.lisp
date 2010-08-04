@@ -69,23 +69,82 @@ CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
 Note that setting this slot might not have any immediate effect; use
 CELL-FORCE-UPDATE, possibly wrapped in SW-STM:WITH-DISABLED-COMMIT-BODIES.")
 
-   ;; STM-CLASS doesn't cover the hash-table here, but I think that's ok.
+   (source-cells :reader source-cells-of
+                 :type hash-table
+                 :initform (make-hash-table :test #'eq :weakness :value)
+                 :documentation "
+This refers to CELLs that are known to notify our/this CELL of changes.")
+
    (target-cells :reader target-cells-of
                  :type hash-table
-                 :initform (make-hash-table :test #'eq :weakness :value :synchronized t)
+                 :initform (make-hash-table :test #'eq :weakness :value)
                  :documentation "
 This contains CELLs that will be notified when our value changes.
 
 NOTE: Weak links; the target CELL will be removed if it would otherwise be
-garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
+garbage. See AMX:WITH-LIFETIME or WITH-FORMULA.")
+
+   (on-cell-added-as-source-fn :accessor on-cell-added-as-source-fn-of
+                               :initarg :on-cell-added-as-source-fn
+                               :initform (lambda (target-cell) (declare (ignore target-cell))))
+
+   (on-cell-added-as-target-fn :accessor on-cell-added-as-target-fn-of
+                               :initarg :on-cell-added-as-target-fn
+                               :initform (lambda (source-cell) (declare (ignore source-cell))))
+
+   ;; The indirection used here is needed for TG:FINALIZE, below.
+   (on-cell-removed-as-source-fn :initform λP(lambda (source-cells target-cells)
+                                               (declare (ignore source-cells target-cells))))
+
+   ;; The indirection used here is needed for TG:FINALIZE, below.
+   (on-cell-removed-as-target-fn :initform λP(lambda (source-cells target-cells)
+                                               (declare (ignore source-cells target-cells)))))
 
   (:metaclass stm-class))
 
 
 (defmethod initialize-instance :after ((cell cell) &key)
+  (let ((source-cells (slot-value cell 'source-cells))
+        (target-cells (slot-value cell 'target-cells))
+        (on-cell-removed-as-source-fn (slot-value cell 'on-cell-removed-as-source-fn))
+        (on-cell-removed-as-target-fn (slot-value cell 'on-cell-removed-as-target-fn)))
+    (tg:finalize cell
+                 (lambda ()
+                   (with-sync ()
+                     (funcall (ptr-value on-cell-removed-as-source-fn)
+                              source-cells
+                              target-cells)
+                     (funcall (ptr-value on-cell-removed-as-target-fn)
+                              source-cells
+                              target-cells)
+
+                     (dolist (source-cell (hash-table-values source-cells))
+                       (funcall (on-cell-removed-as-source-fn-of source-cell)
+                                (source-cells-of source-cell)
+                                (target-cells-of source-cell)))
+                     ))))
+
   (when (or (input-evalp-of cell) (init-evalp-of cell))
     (let ((*after-event-pulse-fns* nil)) ;; Throw away.
       (cell-execute-formula cell))))
+
+
+(defmethod (setf on-cell-removed-as-source-fn-of) (new-value (cell cell))
+  (setf (ptr-value (slot-value cell 'on-cell-removed-as-source-fn))
+        new-value))
+
+
+(defmethod on-cell-removed-as-source-fn-of ((cell cell))
+  (ptr-value (slot-value cell 'on-cell-removed-as-source-fn)))
+
+
+(defmethod (setf on-cell-removed-as-target-fn-of) (new-value (cell cell))
+  (setf (ptr-value (slot-value cell 'on-cell-removed-as-target-fn))
+        new-value))
+
+
+(defmethod on-cell-removed-as-target-fn ((cell cell))
+  (ptr-value (slot-value cell 'on-cell-removed-as-target-fn)))
 
 
 (defmethod print-object ((cell cell) stream)
@@ -151,9 +210,10 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
   (cell-execute-formula cell))
 
 
-#| This will mark a CELL as dead and it'll lazily be removed from other CELL's TARGET-CELLS hash-table. |#
 (defn cell-mark-as-dead (null ((cell cell)))
   (nilf (slot-value cell 'alivep))
+  (dolist (source-cell (hash-table-values (source-cells-of cell)))
+    (remhash cell (target-cells-of source-cell)))
   (values))
 
 
@@ -168,26 +228,27 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA."))
 
 
 (defn cell-add-target-cell (null ((cell cell) (target-cell cell)))
-  "When CELL changes, TARGET-CELL wants to know about it."
+  "When CELL changes, TARGET-CELL wants to know about it. This also updates (SOURCE-CELLS-OF TARGET-CELL)."
   #+:sw-mvc-debug (assert (not (eq cell target-cell)))
-  (setf (gethash target-cell (target-cells-of cell))
-        target-cell)
+  (assert (alivep-of cell))
+  (assert (alivep-of target-cell))
+  (unless (gethash target-cell (target-cells-of cell))
+    (setf (gethash target-cell (target-cells-of cell))
+          target-cell
+          (gethash cell (source-cells-of target-cell))
+          cell)
+    (funcall (on-cell-added-as-target-fn-of target-cell) cell)
+    (funcall (on-cell-added-as-source-fn-of cell) target-cell))
   (values))
 
 
 (defn cell-notify-targets (null ((cell cell)))
   "Re-evaluate target-cells which depend on the value of CELL."
-  (let ((target-cells (handler-case (target-cells-of cell)
-                        (unbound-slot ()
-                          (cell-mark-as-dead cell)
-                          (return-from cell-notify-targets)))))
-    (dolist (target-cell (sb-ext:with-locked-hash-table (target-cells)
-                           (hash-table-values target-cells)))
-      #+:sw-mvc-debug (assert (not (eq target-cell cell)))
-      (if (alivep-of target-cell)
-          (when (input-evalp-of target-cell)
-            (cell-execute-formula target-cell))
-          (remhash target-cell target-cells))))
+  (dolist (target-cell (hash-table-values (target-cells-of cell)))
+    #+:sw-mvc-debug (assert (not (eq target-cell cell)))
+    (when (and (alivep-of target-cell)
+               (input-evalp-of target-cell))
+      (cell-execute-formula target-cell)))
   (values))
 
 
