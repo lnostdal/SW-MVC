@@ -117,7 +117,7 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA.")
                        (funcall it source-cells target-cells))
 
                      (maphash-values (lambda (source-cell)
-                                       (withp (ref-value-of (on-cell-removed-as-source-fn-of source-cell))
+                                       (withp (on-cell-removed-as-source-fn-of source-cell)
                                          (funcall it (source-cells-of source-cell) (target-cells-of source-cell))))
                                      source-cells)))))
 
