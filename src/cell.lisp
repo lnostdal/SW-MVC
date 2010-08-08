@@ -209,8 +209,12 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA.")
 
 (defn cell-mark-as-dead (null ((cell cell)))
   (nilf (slot-value cell 'alivep))
+  (withp (on-cell-removed-as-target-fn-of cell)
+    (funcall it (source-cells-of cell) (target-cells-of cell)))
   (dolist (source-cell (hash-table-values (source-cells-of cell)))
-    (remhash cell (target-cells-of source-cell)))
+    (remhash cell (target-cells-of source-cell))
+    (withp (on-cell-removed-as-source-fn-of source-cell)
+      (funcall it (source-cells-of source-cell) (target-cells-of source-cell))))
   (values))
 
 
