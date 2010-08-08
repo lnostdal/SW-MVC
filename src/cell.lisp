@@ -86,19 +86,19 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA.")
 
    (on-cell-added-as-source-fn :accessor on-cell-added-as-source-fn-of
                                :initarg :on-cell-added-as-source-fn
-                               :initform (lambda (target-cell) (declare (ignore target-cell))))
+                               :initform nil)
 
    (on-cell-added-as-target-fn :accessor on-cell-added-as-target-fn-of
                                :initarg :on-cell-added-as-target-fn
-                               :initform (lambda (source-cell) (declare (ignore source-cell))))
+                               :initform nil)
 
    ;; The indirection used here is needed for TG:FINALIZE, below.
-   (on-cell-removed-as-source-fn :initform λP(lambda (source-cells target-cells)
-                                               (declare (ignore source-cells target-cells))))
+   (on-cell-removed-as-source-fn :initform λRnil)
+
 
    ;; The indirection used here is needed for TG:FINALIZE, below.
-   (on-cell-removed-as-target-fn :initform λP(lambda (source-cells target-cells)
-                                               (declare (ignore source-cells target-cells)))))
+   (on-cell-removed-as-target-fn :initform λRnil))
+
 
   (:metaclass stm-class))
 
@@ -111,18 +111,15 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA.")
     (tg:finalize cell
                  (lambda ()
                    (with-sync ()
-                     (funcall (ptr-value on-cell-removed-as-source-fn)
-                              source-cells
-                              target-cells)
-                     (funcall (ptr-value on-cell-removed-as-target-fn)
-                              source-cells
-                              target-cells)
+                     (withp (ref-value-of on-cell-removed-as-source-fn)
+                       (funcall it source-cells target-cells))
+                     (withp (ref-value-of on-cell-removed-as-target-fn)
+                       (funcall it source-cells target-cells))
 
                      (dolist (source-cell (hash-table-values source-cells))
                        (funcall (on-cell-removed-as-source-fn-of source-cell)
                                 (source-cells-of source-cell)
-                                (target-cells-of source-cell)))
-                     ))))
+                                (target-cells-of source-cell)))))))
 
   (when (or (input-evalp-of cell) (init-evalp-of cell))
     (let ((*after-event-pulse-fns* nil)) ;; Throw away.
@@ -130,21 +127,21 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA.")
 
 
 (defmethod (setf on-cell-removed-as-source-fn-of) (new-value (cell cell))
-  (setf (ptr-value (slot-value cell 'on-cell-removed-as-source-fn))
+  (setf (ref-value-of (slot-value cell 'on-cell-removed-as-source-fn))
         new-value))
 
 
 (defmethod on-cell-removed-as-source-fn-of ((cell cell))
-  (ptr-value (slot-value cell 'on-cell-removed-as-source-fn)))
+  (ref-value-of (slot-value cell 'on-cell-removed-as-source-fn)))
 
 
 (defmethod (setf on-cell-removed-as-target-fn-of) (new-value (cell cell))
-  (setf (ptr-value (slot-value cell 'on-cell-removed-as-target-fn))
+  (setf (ref-value-of (slot-value cell 'on-cell-removed-as-target-fn))
         new-value))
 
 
-(defmethod on-cell-removed-as-target-fn ((cell cell))
-  (ptr-value (slot-value cell 'on-cell-removed-as-target-fn)))
+(defmethod on-cell-removed-as-target-fn-of ((cell cell))
+  (ref-value-of (slot-value cell 'on-cell-removed-as-target-fn)))
 
 
 (defmethod print-object ((cell cell) stream)
@@ -237,8 +234,10 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA.")
           target-cell
           (gethash cell (source-cells-of target-cell))
           cell)
-    (funcall (on-cell-added-as-target-fn-of target-cell) cell)
-    (funcall (on-cell-added-as-source-fn-of cell) target-cell))
+    (withp (on-cell-added-as-target-fn-of target-cell)
+      (funcall it cell))
+    (withp (on-cell-added-as-source-fn-of cell)
+      (funcall it target-cell)))
   (values))
 
 
