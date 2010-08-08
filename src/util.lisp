@@ -18,7 +18,7 @@ LIFETIME object exists."
 
 (defmacro without-dataflow (&body body)
   "\Cancel out\" any further dataflow wrt. the closest (dynamic scope) \"formula\" (WITH-FORMULA)."
-  `(let ((*target-cell* nil))
+  `(let ((*without-dataflow-p* t))
      ,@body))
 
 

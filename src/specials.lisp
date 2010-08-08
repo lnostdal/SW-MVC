@@ -20,3 +20,8 @@
 (define-variable *target-cell*
     :value nil
     :type (or null cell))
+
+
+(define-variable *without-dataflow-p*
+    :value nil
+    :doc "Bound by the WITHOUT-DATAFLOW macro.")

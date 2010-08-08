@@ -298,7 +298,7 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA.")
 
 #|(eval-now (proclaim '(inline cell-deref)))|#
 (defn cell-deref (t ((cell cell)))
-  (when *target-cell*
+  (when (and *target-cell* (not *without-dataflow-p*))
     ;; When CELL changes, *TARGET-CELL* wants to know about it.
     (cell-add-target-cell cell *target-cell*))
   (if (init-evalp-of cell)
