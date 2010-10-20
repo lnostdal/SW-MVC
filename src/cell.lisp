@@ -84,12 +84,22 @@ This contains CELLs that will be notified when our value changes.
 NOTE: Weak links; the target CELL will be removed if it would otherwise be
 garbage. See AMX:WITH-LIFETIME or WITH-FORMULA.")
 
+   (on-feedback-event-fn :accessor on-feedback-event-fn-of
+                         :initarg :on-feedback-event-fn
+                         :type (or null function)
+                         :initform nil
+                         :documentation "
+Function taking on argument; NIL or some condition.
+NIL means \"everything went or is well\"; perhaps something transited from being in an invalid state to a valid state. ")
+
    (on-cell-added-as-source-fn :accessor on-cell-added-as-source-fn-of
                                :initarg :on-cell-added-as-source-fn
+                               :type (or null function)
                                :initform nil)
 
    (on-cell-added-as-target-fn :accessor on-cell-added-as-target-fn-of
                                :initarg :on-cell-added-as-target-fn
+                               :type (or null function)
                                :initform nil)
 
    ;; The indirection used here is needed for TG:FINALIZE, below.
@@ -169,27 +179,39 @@ garbage. See AMX:WITH-LIFETIME or WITH-FORMULA.")
         (let* ((condition)
                (result
                 (restart-case
-                    (handler-bind ((error (lambda (c)
-                                            (setf condition
-                                                  (make-instance 'mvc-cell-error :cell cell :condition c))
-                                            (when (accepts-conditions-p-of cell)
-                                              (invoke-restart 'assign-condition)))))
-                      #| TODO: This seems less than ideal; it is almost as if we have two "paths" to this situation
-                      where the other "path" is the other binding we do vs. *SOURCE-CELLS* in (SETF CELL-DEREF).
-                      Think about this... |#
-                      (let ((*source-cells* (cons cell *source-cells*)))
-                        (funcall (truly-the function (slot-value cell 'formula)))))
+                    #| TODO: This seems less than ideal; it is almost as if we have two "paths" to this situation
+                    where the other "path" is the other binding we do vs. *SOURCE-CELLS* in (SETF CELL-DEREF).
+                    Think about this; perhaps I'm wrong and this isn't a problem at all. |#
+                    (let ((*source-cells* (cons cell *source-cells*)))
+                      (funcall (the function (slot-value cell 'formula))))
+
+                  (execute-feedback-event ()
+                    :test (lambda (c)
+                            (if (aand it (cell-of c) (on-feedback-event-fn-of it))
+                                (prog1 t (setf condition c))
+                                nil))
+                    :report (lambda (stream)
+                              (muffle-compiler-note
+                                (format stream "SW-MVC: Signal FEEDBACK-EVENT-CELL of ~S." cell)))
+                    (when-let ((it (on-feedback-event-fn-of (cell-of condition))))
+                      (funcall it condition))
+                    (value-of cell))
+
                   (assign-condition ()
+                    :test (lambda (c)
+                            (setf condition c))
                     :report (lambda (stream)
                               (muffle-compiler-note
                                 (format stream "SW-MVC: Assign ~S as a value for ~S." condition cell)))
                     condition)
+
                   (skip-cell ()
                     :report (lambda (stream)
                               (muffle-compiler-note
                                 (format stream "SW-MVC: Skip ~S (and any \"child CELLs\") and keep propagating."
                                         cell)))
                     (return-from cell-execute-formula (value-of cell)))
+
                   (mark-as-dead ()
                     :report (lambda (stream)
                               (muffle-compiler-note
