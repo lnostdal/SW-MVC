@@ -282,7 +282,7 @@ NIL means \"everything went or is well\"; perhaps something transited from being
 ;; TODO: When AMX:DEFN has support for specifying return types like this, get rid of this decl.
 (eval-now (proclaim '(ftype (function (t cell) (values t (member t nil) &optional))
                       (setf cell-deref)))
-          (proclaim '(inline (setf cell-deref))))
+          #|(proclaim '(inline (setf cell-deref)))|#)
 ;; TODO: Document why this needs to return multiple values. IIRC it has something to do with dom-cache.lisp in SW,
 ;; and it's probably a bad idea.
 (defun (setf cell-deref) (new-value cell)
@@ -294,7 +294,7 @@ NIL means \"everything went or is well\"; perhaps something transited from being
                   (let ((assign-p t))
                     (restart-case
                         (handler-case (setf assign-p
-                                            (not (funcall (truly-the function (equal-p-fn-of cell))
+                                            (not (funcall (the function (equal-p-fn-of cell))
                                                           (value-of cell)
                                                           new-value)))
                           (error (c)

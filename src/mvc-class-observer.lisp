@@ -25,7 +25,10 @@
 
 (defgeneric set-model (observer model)
   (:method-combination nconc :most-specific-last)
-  (:documentation "Assign MODEL as Model for OBSERVER."))
+  (:documentation "Assign MODEL as Model for OBSERVER.
+
+The reason a NCONC method combination is used here is to be able to assign several connections from a Model to a View
+based on each node in the class-tree of an OBSERVER (View)."))
 
 
 (defmethod (setf model-of) (new-model (observer mvc-class-observer))
