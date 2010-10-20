@@ -70,6 +70,6 @@ has turned into a dataflow thing."
      (:file "dlist-test")
      (:file "container-of")
      (:file "cell-equal-p-fn-test")
-     (:file "without-dataflow")
+     (:file "cell-mark-as-dead")
      ))
    ))
