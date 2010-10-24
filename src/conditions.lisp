@@ -9,11 +9,11 @@
               :initform nil #|(error ":CONDITION needed.")|#)))
 
 
-(defmethod print-object ((obj mvc-condition) stream)
+#|(defmethod print-object ((obj mvc-condition) stream)
   (print-unreadable-object (obj stream :type t :identity t)
     (when (slot-boundp obj 'condition)
       (muffle-compiler-note
-        (format stream " :CONDITION ~S" (slot-value obj 'condition))))))
+        (format stream " :CONDITION ~S" (slot-value obj 'condition))))))|#
 
 
 (define-condition mvc-error (mvc-condition simple-error)
