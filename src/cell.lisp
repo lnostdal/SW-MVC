@@ -187,7 +187,9 @@ NIL means \"everything went or is well\"; perhaps something transited from being
 
                   (execute-feedback-event ()
                     :test (lambda (c)
-                            (if (aand it (cell-of c) (on-feedback-event-fn-of it))
+                            (if (aand it
+                                      (and (typep c 'mvc-input-handler-signal) (cell-of c))
+                                      (on-feedback-event-fn-of it))
                                 (prog1 t (setf condition c))
                                 nil))
                     :report (lambda (stream)
