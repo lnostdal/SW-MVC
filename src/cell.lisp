@@ -295,17 +295,10 @@ NIL means \"everything went or is well\"; perhaps something transited from being
           (values new-value
                   (let ((assign-p t))
                     (restart-case
-                        (handler-case (setf assign-p
-                                            (not (funcall (the function (equal-p-fn-of cell))
-                                                          (value-of cell)
-                                                          new-value)))
-                          (error (c)
-                            (signal 'mvc-cell-assign-signal
-                                    :condition c
-                                    :new-value new-value
-                                    :format-control "SW-MVC: The EQUAL-P test for ~A failed."
-                                    :format-arguments (list cell))
-                            new-value))
+                        (setf assign-p
+                              (not (funcall (the function (equal-p-fn-of cell))
+                                            (value-of cell)
+                                            new-value)))
                       (continue ()
                         :report "SW-MVC: (EQUAL-P test) Assign the new value.")
                       (skip-cell ()
