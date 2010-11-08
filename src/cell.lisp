@@ -34,12 +34,6 @@ The functions are executed in the order in which they where added.")
            :type (member t nil)
            :initform t)
 
-   (accepts-conditions-p :accessor accepts-conditions-p-of
-                         :type (member t nil)
-                         :initform nil
-                         :documentation "
-If T, the ASSIGN-CONDITION restart will automatically be invoked (NIL is default).")
-
    (formula :initarg :formula
             :type function
             :initform λλnil)
