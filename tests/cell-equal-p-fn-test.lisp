@@ -8,8 +8,18 @@
        (x λV2)
        (square λI(progn
                    (incf counter)
-                   (* ~x ~x))))
+                   (* ~x ~x)))
+       (str-input (with1 λI"hello"
+                    (setf (equal-p-fn-of it) #'string=)))
+       (str-upcase λI(progn
+                         (incf counter)
+                         (string-upcase ~str-input))))
   (setf ~x 2)
-  (assert (= counter 1))
+  (assert (= counter 2))
   (assert (= ~x 2))
-  (assert (= ~square 4)))
+  (assert (= ~square 4))
+  (setf ~str-input (copy-seq "world"))
+  (assert (= counter 3))
+  (setf ~str-input (copy-seq "world"))
+  (assert (= counter 3))
+  ~str-upcase)
