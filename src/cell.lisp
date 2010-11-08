@@ -193,14 +193,6 @@ NIL means \"everything went or is well\"; perhaps something transited from being
                       (funcall it condition))
                     (value-of cell))
 
-                  (assign-condition ()
-                    :test (lambda (c)
-                            (setf condition c))
-                    :report (lambda (stream)
-                              (muffle-compiler-note
-                                (format stream "SW-MVC: Assign ~S as a value for ~S." condition cell)))
-                    condition)
-
                   (skip-cell ()
                     :report (lambda (stream)
                               (muffle-compiler-note
