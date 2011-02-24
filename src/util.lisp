@@ -17,7 +17,8 @@ LIFETIME object exists."
 
 
 (defmacro without-dataflow (&body body)
-  "\Cancel out\" any further dataflow wrt. the closest (dynamic scope) \"formula\" (WITH-FORMULA)."
+  "\Cancel out\" any further dataflow wrt. the closest (dynamic scope) \"formula\" (WITH-FORMULA); or to be exact, this causes new dataflow bindings to not be created;
+observers of already monitored CELLs will still be notified."
   `(let ((*without-dataflow-p* t))
      ,@body))
 
